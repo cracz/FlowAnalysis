@@ -61,6 +61,15 @@ void FlowAnalyzer(TString inFile, TString outFile)
   
   if (gSystem->AccessPathName(inFile)) { std::cout << "Error reading input file!" << std::endl; return;}
 
+  //=========================================================
+  //          Event Plane Order To Analyze
+  //=========================================================
+  Int_t order_n = 2;
+  TString order_n_str; order_n_str.Form("%d", order_n);
+  //=========================================================
+  //          
+  //=========================================================
+
   StPicoDstReader* picoReader = new StPicoDstReader(inFile);
   picoReader->Init();
   picoReader->SetStatus("*",0);
@@ -101,21 +110,18 @@ void FlowAnalyzer(TString inFile, TString outFile)
 
   TH1D *h_Xn   = new TH1D("h_Xn", "X_n Distribution;X_n;Events", 100, -25, 25);
   TH1D *h_Yn   = new TH1D("h_Yn", "Y_n Distribution;Y_n;Events", 100, -25, 25);
-  TH1D *h_psi1 = new TH1D("h_psi1", "First Order Event Plane Angle;#psi_{1};Events", 400, -4, 4);
-  //TH1D *h_psi_rec = new TH1D("h_psi_rec", "First Order Event Plane Angle After Recentering;#psi_{1};Events", 400, -4, 4);
-  //TH1D *h_psi_rec2 = new TH1D("h_psi_rec2", "Event Plane Angle After Recentering and removing X_n=Y_n=0;#psi_{1};Events", 400, -4, 4);
-  TH1D *h_cosPlot = new TH1D("h_cosPlot", "Values of cos(n(#phi - #psi_{n}));cos(n(#phi - #psi_{n}));Particles", 150, -1.5, 1.5);
+  TH1D *h_psi  = new TH1D("h_psi", "Event Plane Angles (order "+order_n_str+");#psi_{"+order_n_str+"};Events", 400, -4, 4);
+  TH1D *h_v2Plot = new TH1D("h_v2Plot", "Plot to retrieve v_{2};cos(2(#phi - #psi_{n}));Particles", 150, -1.5, 1.5);
 
   TH2D *h2_beta_p = new TH2D("h2_beta_p","1/#beta vs Momentum;q*|p| (GeV);1/#beta", 300, -3, 3, 300, 0.5, 3.5);
   TH2D *h2_m2_p   = new TH2D("h2_m2_p", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 500, -3, 3, 500, -0.1, 15);
   TH2D *h2_trans_vtx = new TH2D("h2_trans_vtx","Transverse Position of Primary Vertex;x (cm);y (cm)", 500, -5, 5, 500, -5, 5);
 
 
-  Int_t order_n = 1;       // Event Plane order you want to look at
-
   Event eventInfo;
   std::vector<Event> v_events;  // Vector of all events and their info using the custom struct
 
+  std::vector<UInt_t> triggerIDs;
 
   // EVENT LOOP
   for (Long64_t ievent = 0; ievent < events2read; ievent++)
@@ -138,23 +144,23 @@ void FlowAnalyzer(TString inFile, TString outFile)
 
       h_event_check->Fill(eventSections[0], 1);
 
-      /*
+
       //=========================================================
       //          Trigger Selection
       //=========================================================
-      // loop for the trigger ids and see if any == 1
+      // loop for the trigger ids and see if any match minbias ID 620052
 
       triggerIDs.clear();
       triggerIDs = event->triggerIds();
       Bool_t b_bad_trig = true;
 
-      for (UInt_t i = 0; i < triggerIDs.size(); i++) { if (triggerIDs[i] == 1) {b_bad_trig = false;} }
+      for (UInt_t i = 0; i < triggerIDs.size(); i++) { if (triggerIDs[i] == 620052) {b_bad_trig = false;} }
 
       if (b_bad_trig) continue;
       //=========================================================
       //      END Trigger Selection
       //=========================================================
-      */
+
       h_event_check->Fill(eventSections[1], 1);
             
       //=========================================================
@@ -260,11 +266,11 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	    }
 	}//End track loop
       
-      if (eventInfo.Xn == 0 && eventInfo.Yn == 0) continue;
+      if (eventInfo.Xn == 0 && eventInfo.Yn == 0) continue;    // Cut out events with no flow vector
 
       eventInfo.psi = TMath::ATan2(eventInfo.Yn, eventInfo.Xn) / order_n;
       
-      h_psi1->Fill(eventInfo.psi);
+      h_psi->Fill(eventInfo.psi);
       h_Xn->Fill(eventInfo.Xn);
       h_Yn->Fill(eventInfo.Yn);
 
@@ -294,28 +300,24 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	{ v_events.at(i).psi = TMath::ATan2(v_events.at(i).Yn, v_events.at(i).Xn) / order_n; }
     }
 
-  //=========================================================
-  //          End Re-centering
-  //=========================================================
-
 
   //=========================================================
   //          Flattening Event Plane Angle
   //=========================================================
 
   TH1D *h_psi_flat = flatten(v_events, 20, order_n);
+
   
   //=========================================================
-  //          End Flattening
+  //          Use A Histogram To Get v_2
   //=========================================================
 
   Double_t cosTerm = 0;
-  Double_t cosSum  = 0;
   Double_t phi = 0;
   Double_t psi = 0;
   Int_t totalTracks = 0;
 
-  // Get histogram of cos(n(phi - psi))
+  // Get histogram of cos(2(phi - psi)); the average value is (average?) v_2
   for (Int_t i = 0; i < numOfEvents; i++)
     {
       totalTracks += v_events.at(i).nTracks;
@@ -325,10 +327,9 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	{
 	  phi = v_events.at(i).phiValues.at(j);
 	  
-	  cosTerm = TMath::Cos(order_n * (phi - psi));
-	  cosSum += cosTerm;
+	  cosTerm = TMath::Cos(2 * (phi - psi));
 
-	  h_cosPlot->Fill(cosTerm);
+	  h_v2Plot->Fill(cosTerm);
 	}
     }
 
@@ -349,11 +350,9 @@ void FlowAnalyzer(TString inFile, TString outFile)
   h_Yn          ->Write();
   h_Xn_s        ->Write();
   h_Yn_s        ->Write();  
-  h_psi1        ->Write();
-  //h_psi_rec     ->Write();
-  //h_psi_rec2    ->Write();
+  h_psi         ->Write();
   h_psi_flat    ->Write();
-  h_cosPlot     ->Write();
+  h_v2Plot      ->Write();
 
   h2_beta_p     ->Write();
   h2_m2_p       ->Write();
@@ -426,7 +425,7 @@ TH1D* flatten(std::vector<Event> &events, const Int_t terms, const Int_t order_n
 {
   TString order_n_str; order_n_str.Form("%d", order_n);
 
-  TH1D *h_psi_flat = new TH1D("h_psi_flat", "Flattened Event Plane Angle;#psi_{"+order_n_str+"};Events", 400, -4, 4);
+  TH1D *h_psi_flat = new TH1D("h_psi_flat", "Flattened Event Plane Angle (order "+order_n_str+");#psi_{"+order_n_str+"};Events", 400, -4, 4);
 
   // Get actual number of good events //
   Int_t numOfEvents = events.size();
@@ -434,9 +433,7 @@ TH1D* flatten(std::vector<Event> &events, const Int_t terms, const Int_t order_n
   Int_t numOfBadEvents  = 0;
 
   for (Int_t i = 0; i < numOfEvents; i++)
-    {
-      if (events.at(i).badEvent == true) { numOfBadEvents++; }
-    }
+    { if (events.at(i).badEvent == true) { numOfBadEvents++; } }
 
   numOfGoodEvents = numOfEvents - numOfBadEvents;
   ////
@@ -457,8 +454,8 @@ TH1D* flatten(std::vector<Event> &events, const Int_t terms, const Int_t order_n
 	{
 	  if (events.at(k).badEvent == true) { continue; }
 
-	  sin_psi_avgs[i] += TMath::Sin(j * events.at(k).psi);     // First getting the sums for the averages
-	  cos_psi_avgs[i] += TMath::Cos(j * events.at(k).psi);
+	  sin_psi_avgs[i] += TMath::Sin(j * order_n * events.at(k).psi);     // First getting the sums for the averages
+	  cos_psi_avgs[i] += TMath::Cos(j * order_n * events.at(k).psi);
 	}
 
       sin_psi_avgs[i] = sin_psi_avgs[i]/numOfGoodEvents;
@@ -476,10 +473,14 @@ TH1D* flatten(std::vector<Event> &events, const Int_t terms, const Int_t order_n
 	{
 	  Int_t j = i + 1;
 
-	  events.at(k).psi_delta += ((Double_t)2/j)*(-sin_psi_avgs[i]*TMath::Cos(j * events.at(k).psi) + cos_psi_avgs[i]*TMath::Sin(j * events.at(k).psi));
+	  events.at(k).psi_delta += ((Double_t)2/(j*order_n))*(-sin_psi_avgs[i]*TMath::Cos(j * order_n * events.at(k).psi) 
+								 + cos_psi_avgs[i]*TMath::Sin(j * order_n * events.at(k).psi));
 	}
 
       events.at(k).psi += events.at(k).psi_delta;
+
+      if (events.at(k).psi > TMath::Pi()/order_n) { events.at(k).psi -= TMath::TwoPi()/order_n; }        // Must maintain the angles' periodicity of 2pi/n
+      else if (events.at(k).psi < -TMath::Pi()/order_n) { events.at(k).psi += TMath::TwoPi()/order_n; }
 
       h_psi_flat->Fill(events.at(k).psi);
     }
