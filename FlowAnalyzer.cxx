@@ -740,8 +740,6 @@ TH1D* flattenSub(std::vector<Event> &events, const Int_t terms, const Int_t orde
 
   if (subEvent.EqualTo("a") || subEvent.EqualTo("A"))
     {
-      //TH1D *h_psiA_flat = new TH1D("h_psiA_flat", "Flattened Sub-Event Plane A Angle (order "+order_n_str+");#psi_{"+order_n_str+"};Events", 400, -4, 4);
-
       // Get averages //
       Double_t sin_psiA_avgs[terms];      // Arrays that contain each average parameter for the correction terms
       Double_t cos_psiA_avgs[terms];
@@ -791,8 +789,6 @@ TH1D* flattenSub(std::vector<Event> &events, const Int_t terms, const Int_t orde
     }  
   else if (subEvent.EqualTo("b") || subEvent.EqualTo("B"))  
     {
-      //TH1D *h_psiB_flat = new TH1D("h_psiB_flat", "Flattened Sub-Event Plane B Angle (order "+order_n_str+");#psi_{"+order_n_str+"};Events", 400, -4, 4);
-
       // Get averages //
       Double_t sin_psiB_avgs[terms];      // Arrays that contain each average parameter for the correction terms
       Double_t cos_psiB_avgs[terms];
