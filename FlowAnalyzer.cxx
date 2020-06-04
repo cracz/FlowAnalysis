@@ -41,8 +41,10 @@
 // Custom type to hold important info for every good event
 struct Event
 {
-  bool badEvent;  // Flag for marking events to ignore
-  Int_t nTracks;  // Number of particles in the event
+  bool badEvent;      // Flag for marking events to ignore
+  Int_t nTracks;      // Number of GOOD tracks in the event
+  Int_t primTracks;   // Number of primary tracks before track cuts (used for centrality)
+  Int_t centrality;
   Double_t Xn;
   Double_t Yn;
   Double_t psi;       // Overall EP angle without removing autocorrelations
@@ -87,7 +89,7 @@ void FlowAnalyzer(TString inFile, TString outFile)
   //=========================================================
   //          Some Controls
   //=========================================================
-  Int_t order_n = 1;
+  Int_t order_n = 2;
   TString order_n_str; order_n_str.Form("%d", order_n);
   //=========================================================
   //          
@@ -143,7 +145,41 @@ void FlowAnalyzer(TString inFile, TString outFile)
   TH1D *h_psi_A= new TH1D("h_psi_A", "Event Plane Angles (n = "+order_n_str+", sub A);#psi_{"+order_n_str+"};Events", 400, -4, 4);
   TH1D *h_psi_B= new TH1D("h_psi_B", "Event Plane Angles (n = "+order_n_str+", sub B);#psi_{"+order_n_str+"};Events", 400, -4, 4);
   TH1D *h_v2Plot = new TH1D("h_v2Plot", "Plot to Retrieve v_{2};cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  /*
+  TH1D *h_v2Plot_cent00 = new TH1D("h_v2Plot_cent00", "Plot to Retrieve v_{2} (75%-80% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent01 = new TH1D("h_v2Plot_cent01", "Plot to Retrieve v_{2} (70%-75% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent02 = new TH1D("h_v2Plot_cent02", "Plot to Retrieve v_{2} (65%-70% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent03 = new TH1D("h_v2Plot_cent03", "Plot to Retrieve v_{2} (60%-65% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent04 = new TH1D("h_v2Plot_cent04", "Plot to Retrieve v_{2} (55%-60% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent05 = new TH1D("h_v2Plot_cent05", "Plot to Retrieve v_{2} (50%-55% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent06 = new TH1D("h_v2Plot_cent06", "Plot to Retrieve v_{2} (45%-50% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent07 = new TH1D("h_v2Plot_cent07", "Plot to Retrieve v_{2} (40%-45% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent08 = new TH1D("h_v2Plot_cent08", "Plot to Retrieve v_{2} (35%-40% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent09 = new TH1D("h_v2Plot_cent09", "Plot to Retrieve v_{2} (30%-35% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent10 = new TH1D("h_v2Plot_cent10", "Plot to Retrieve v_{2} (25%-30% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent11 = new TH1D("h_v2Plot_cent11", "Plot to Retrieve v_{2} (20%-25% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent12 = new TH1D("h_v2Plot_cent12", "Plot to Retrieve v_{2} (15%-20% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent13 = new TH1D("h_v2Plot_cent13", "Plot to Retrieve v_{2} (10%-15% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent14 = new TH1D("h_v2Plot_cent14", "Plot to Retrieve v_{2} (5%-10% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_v2Plot_cent15 = new TH1D("h_v2Plot_cent15", "Plot to Retrieve v_{2} (0%-5% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  */
   TH1D *h_resol2 = new TH1D("h_resol2", "Plot to Retrieve 2nd Order Event Plane Resolution;cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent00 = new TH1D("h_resol2_cent00", "Plot to Retrieve 2nd Order Event Plane Resolution (75%-80% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent01 = new TH1D("h_resol2_cent01", "Plot to Retrieve 2nd Order Event Plane Resolution (70%-75% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent02 = new TH1D("h_resol2_cent02", "Plot to Retrieve 2nd Order Event Plane Resolution (65%-70% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent03 = new TH1D("h_resol2_cent03", "Plot to Retrieve 2nd Order Event Plane Resolution (60%-65% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent04 = new TH1D("h_resol2_cent04", "Plot to Retrieve 2nd Order Event Plane Resolution (55%-60% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent05 = new TH1D("h_resol2_cent05", "Plot to Retrieve 2nd Order Event Plane Resolution (50%-55% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent06 = new TH1D("h_resol2_cent06", "Plot to Retrieve 2nd Order Event Plane Resolution (45%-50% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent07 = new TH1D("h_resol2_cent07", "Plot to Retrieve 2nd Order Event Plane Resolution (40%-45% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent08 = new TH1D("h_resol2_cent08", "Plot to Retrieve 2nd Order Event Plane Resolution (35%-40% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent09 = new TH1D("h_resol2_cent09", "Plot to Retrieve 2nd Order Event Plane Resolution (30%-35% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent10 = new TH1D("h_resol2_cent10", "Plot to Retrieve 2nd Order Event Plane Resolution (25%-30% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent11 = new TH1D("h_resol2_cent11", "Plot to Retrieve 2nd Order Event Plane Resolution (20%-25% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent12 = new TH1D("h_resol2_cent12", "Plot to Retrieve 2nd Order Event Plane Resolution (15%-20% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent13 = new TH1D("h_resol2_cent13", "Plot to Retrieve 2nd Order Event Plane Resolution (10%-15% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent14 = new TH1D("h_resol2_cent14", "Plot to Retrieve 2nd Order Event Plane Resolution (5%-10% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_resol2_cent15 = new TH1D("h_resol2_cent15", "Plot to Retrieve 2nd Order Event Plane Resolution (0%-5% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
 
   TH2D *h2_beta_p = new TH2D("h2_beta_p","1/#beta vs Momentum;q*|p| (GeV);1/#beta", 300, -3, 3, 300, 0.5, 3.5);
   TH2D *h2_m2_p   = new TH2D("h2_m2_p", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 500, -3, 3, 500, -0.1, 15);
@@ -159,6 +195,8 @@ void FlowAnalyzer(TString inFile, TString outFile)
     {
       eventInfo.badEvent  = false;  //Reset all values in the eventInfo struct to reuse
       eventInfo.nTracks = 0; 
+      eventInfo.primTracks = 0;
+      eventInfo.centrality = -5;
       eventInfo.Xn      = 0;
       eventInfo.Yn      = 0;
       eventInfo.psi     = 0;       
@@ -168,7 +206,7 @@ void FlowAnalyzer(TString inFile, TString outFile)
       eventInfo.pTValues.clear(); 
       eventInfo.psiValues.clear();
 
-      eventInfo.centerEta = 0;
+      eventInfo.centerEta = 10;
   
       eventInfo.XnA      = 0;
       eventInfo.YnA      = 0;
@@ -256,6 +294,8 @@ void FlowAnalyzer(TString inFile, TString outFile)
 
 	  h_track_check->Fill(trackSections[0], 1);
 
+	  eventInfo.primTracks++;
+
 	  //=========================================================
 	  //          TOF Beta Cuts
 	  //=========================================================
@@ -324,10 +364,27 @@ void FlowAnalyzer(TString inFile, TString outFile)
       if (eventInfo.Xn == 0 && eventInfo.Yn == 0) continue;    // Cut out events with no flow vector
 
       eventInfo.psi = TMath::ATan2(eventInfo.Yn, eventInfo.Xn) / order_n;
-      
+
       h_Xn->Fill(eventInfo.Xn);
       h_Yn->Fill(eventInfo.Yn);
       h_psi->Fill(eventInfo.psi);
+
+      if( eventInfo.primTracks >=   3 && eventInfo.primTracks <=   4 ) eventInfo.centrality =  0;
+      if( eventInfo.primTracks >=   5 && eventInfo.primTracks <=   6 ) eventInfo.centrality =  1;
+      if( eventInfo.primTracks >=   7 && eventInfo.primTracks <=   9 ) eventInfo.centrality =  2;
+      if( eventInfo.primTracks >=  10 && eventInfo.primTracks <=  13 ) eventInfo.centrality =  3;
+      if( eventInfo.primTracks >=  14 && eventInfo.primTracks <=  17 ) eventInfo.centrality =  4;
+      if( eventInfo.primTracks >=  18 && eventInfo.primTracks <=  23 ) eventInfo.centrality =  5;
+      if( eventInfo.primTracks >=  24 && eventInfo.primTracks <=  29 ) eventInfo.centrality =  6;
+      if( eventInfo.primTracks >=  30 && eventInfo.primTracks <=  37 ) eventInfo.centrality =  7;
+      if( eventInfo.primTracks >=  38 && eventInfo.primTracks <=  46 ) eventInfo.centrality =  8;
+      if( eventInfo.primTracks >=  47 && eventInfo.primTracks <=  56 ) eventInfo.centrality =  9;
+      if( eventInfo.primTracks >=  57 && eventInfo.primTracks <=  68 ) eventInfo.centrality = 10;
+      if( eventInfo.primTracks >=  69 && eventInfo.primTracks <=  82 ) eventInfo.centrality = 11;
+      if( eventInfo.primTracks >=  83 && eventInfo.primTracks <=  98 ) eventInfo.centrality = 12;
+      if( eventInfo.primTracks >=  99 && eventInfo.primTracks <= 117 ) eventInfo.centrality = 13;
+      if( eventInfo.primTracks >= 118 && eventInfo.primTracks <= 140 ) eventInfo.centrality = 14;
+      if( eventInfo.primTracks >= 141 && eventInfo.primTracks <= 195 ) eventInfo.centrality = 15;
 
 
       //=========================================================
@@ -393,7 +450,7 @@ void FlowAnalyzer(TString inFile, TString outFile)
       h_psi_B->Fill(eventInfo.psiB);
 
 
-      v_events.push_back(eventInfo);
+      v_events.push_back(eventInfo);   // Store this event with all of its attributes
     }//End event loop
 
   TH1D *h_xvtx = h2_trans_vtx->ProjectionX();
@@ -424,7 +481,7 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	}
       else
 	{ 
-	  v_events.at(i).psi  = TMath::ATan2(v_events.at(i).Yn, v_events.at(i).Xn) / order_n; 
+	  v_events.at(i).psi  = TMath::ATan2(v_events.at(i).Yn,  v_events.at(i).Xn)  / order_n; 
 	  v_events.at(i).psiA = TMath::ATan2(v_events.at(i).YnA, v_events.at(i).XnA) / order_n; 
 	  v_events.at(i).psiB = TMath::ATan2(v_events.at(i).YnB, v_events.at(i).XnB) / order_n; 
 
@@ -470,6 +527,26 @@ void FlowAnalyzer(TString inFile, TString outFile)
       resolTerm = TMath::Cos(2 * (psiA - psiB));
       h_resol2->Fill(resolTerm);
 
+      switch (v_events.at(i).centrality)
+	{
+	case 0: h_resol2_cent00->Fill(resolTerm); break;
+	case 1: h_resol2_cent01->Fill(resolTerm); break;
+	case 2: h_resol2_cent02->Fill(resolTerm); break;
+	case 3: h_resol2_cent03->Fill(resolTerm); break;
+	case 4: h_resol2_cent04->Fill(resolTerm); break;
+	case 5: h_resol2_cent05->Fill(resolTerm); break;
+	case 6: h_resol2_cent06->Fill(resolTerm); break;
+	case 7: h_resol2_cent07->Fill(resolTerm); break;
+	case 8: h_resol2_cent08->Fill(resolTerm); break;
+	case 9: h_resol2_cent09->Fill(resolTerm); break;
+	case 10: h_resol2_cent10->Fill(resolTerm); break;
+	case 11: h_resol2_cent11->Fill(resolTerm); break;
+	case 12: h_resol2_cent12->Fill(resolTerm); break;
+	case 13: h_resol2_cent13->Fill(resolTerm); break;
+	case 14: h_resol2_cent14->Fill(resolTerm); break;
+	case 15: h_resol2_cent15->Fill(resolTerm); break;
+	}
+
       for (Int_t j = 0; j < v_events.at(i).nTracks; j++)
 	{
 	  phi = v_events.at(i).phiValues.at(j);
@@ -480,7 +557,6 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	}
     }
 
-  
   outputFile->cd();
 
   h_event_check ->Write();
@@ -515,6 +591,22 @@ void FlowAnalyzer(TString inFile, TString outFile)
   h_psiB_flat   ->Write();
   h_v2Plot      ->Write();
   h_resol2      ->Write();
+  h_resol2_cent00      ->Write();
+  h_resol2_cent01      ->Write();
+  h_resol2_cent02      ->Write();
+  h_resol2_cent03      ->Write();
+  h_resol2_cent04      ->Write();
+  h_resol2_cent05      ->Write();
+  h_resol2_cent06      ->Write();
+  h_resol2_cent07      ->Write();
+  h_resol2_cent08      ->Write();
+  h_resol2_cent09      ->Write();
+  h_resol2_cent10      ->Write();
+  h_resol2_cent11      ->Write();
+  h_resol2_cent12      ->Write();
+  h_resol2_cent13      ->Write();
+  h_resol2_cent14      ->Write();
+  h_resol2_cent15      ->Write();
 
   h2_beta_p     ->Write();
   h2_m2_p       ->Write();
