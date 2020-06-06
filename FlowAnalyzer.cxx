@@ -651,7 +651,8 @@ TH1D* recenter(TH1D* rawDist, std::vector<Event> &events, TString component)
       for (Int_t i = 0; i < numOfEvents; i++)
 	{
 	  //events.at(i).Xn -= -0.26214811775775954;                     // 2000 picoDsts: -0.26214811775775954
-	  events.at(i).Xn -= -0.17149495475033757;
+	  //events.at(i).Xn -= -0.17149495475033757;
+	  events.at(i).Xn -= -0.17149495475033577;
 	  h_shifted->Fill(events.at(i).Xn);
 	}
     }
@@ -660,7 +661,8 @@ TH1D* recenter(TH1D* rawDist, std::vector<Event> &events, TString component)
       for (Int_t i = 0; i < numOfEvents; i++)
 	{
 	  //events.at(i).Yn -= -0.39964040264945927;                     // 2000 picoDsts: -0.39964040264945927
-	  events.at(i).Yn -= -0.12203934435287743;
+	  //events.at(i).Yn -= -0.12203934435287743;
+	  events.at(i).Yn -= -0.12203934435287563;
 	  h_shifted->Fill(events.at(i).Yn);
 	}
     }
@@ -695,7 +697,8 @@ TH1D* recenterSub(TH1D* rawDist, std::vector<Event> &events, TString component, 
 	  for (Int_t i = 0; i < numOfEvents; i++)
 	    {
 	      //events.at(i).XnA -= -0.0763801716395094;
-	      events.at(i).XnA -= -0.076393611314786267;
+	      //events.at(i).XnA -= -0.076393611314786267;
+	      events.at(i).XnA -= -0.07639361131478721;
 	      h_shifted->Fill(events.at(i).XnA);
 	    }
 	}      
@@ -704,7 +707,8 @@ TH1D* recenterSub(TH1D* rawDist, std::vector<Event> &events, TString component, 
 	  for (Int_t i = 0; i < numOfEvents; i++)
 	    {
 	      //events.at(i).YnA -= 0.052900281602226026;
-	      events.at(i).YnA -= 0.052665569322193739;
+	      //events.at(i).YnA -= 0.052665569322193739;
+	      events.at(i).YnA -= 0.052665569322193691;
 	      h_shifted->Fill(events.at(i).YnA);
 	    }
 	}
@@ -716,7 +720,8 @@ TH1D* recenterSub(TH1D* rawDist, std::vector<Event> &events, TString component, 
 	  for (Int_t i = 0; i < numOfEvents; i++)
 	    {
 	      //events.at(i).XnB -= -0.091737385157025578;
-	      events.at(i).XnB -= -0.091769164703735293;
+	      //events.at(i).XnB -= -0.091769164703735293;
+	      events.at(i).XnB -= -0.091769164703734307;
 	      h_shifted->Fill(events.at(i).XnB);
 	    }
 	}      
@@ -725,7 +730,8 @@ TH1D* recenterSub(TH1D* rawDist, std::vector<Event> &events, TString component, 
 	  for (Int_t i = 0; i < numOfEvents; i++)
 	    {
 	      //events.at(i).YnB -= -0.17584790695677643;
-	      events.at(i).YnB -= -0.17590862668749291;
+	      //events.at(i).YnB -= -0.17590862668749291;
+	      events.at(i).YnB -= -0.17590862668749332;
 	      h_shifted->Fill(events.at(i).YnB);
 	    }
 	}
