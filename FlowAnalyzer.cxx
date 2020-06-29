@@ -44,7 +44,7 @@ struct Event
   bool badEvent;      // Flag for marking events to ignore
   Int_t nTracks;      // Number of GOOD tracks in the event
   Int_t primTracks;   // Number of primary tracks before track cuts (used for centrality)
-  Int_t centrality;
+  Int_t centID;
   Double_t Xn;
   Double_t Yn;
   Double_t psi;       // Overall EP angle without removing autocorrelations
@@ -54,23 +54,75 @@ struct Event
   std::vector<Double_t> pTValues;   // pT values for all particles in the event
   std::vector<Double_t> psiValues;  // EP angles after removing autocorrelations
 
-  Double_t centerEta;
-
+  Int_t nTracksA;
   Double_t XnA;
   Double_t YnA;
-  Double_t psiA;       // Subevent B EP angle without removing autocorrelations
+  Double_t psiA;       // Subevent A EP angle without removing autocorrelations
   Double_t psiA_delta;
   std::vector<Double_t> phiValuesA;  // Subevent A azimuthal angles
   std::vector<Double_t> pTValuesA;   // Subevent A pT values
   std::vector<Double_t> psiValuesA; // Subevent A EP angles after removing autocorrelations
 
+  Int_t nTracksB;
   Double_t XnB;
   Double_t YnB;
-  Double_t psiB;       // Subevent A EP angle without removing autocorrelations  
+  Double_t psiB;       // Subevent B EP angle without removing autocorrelations  
   Double_t psiB_delta;
   std::vector<Double_t> phiValuesB;  // Subevent B azimuthal angles
   std::vector<Double_t> pTValuesB;   // Subevent B pT values
   std::vector<Double_t> psiValuesB; // Subevent B EP angles after removing autocorrelations
+
+  Int_t nTracksC;
+  Double_t XnC;
+  Double_t YnC;
+  Double_t psiC;       // Subevent C EP angle without removing autocorrelations  
+  Double_t psiC_delta;
+  std::vector<Double_t> phiValuesC;  // Subevent C azimuthal angles
+  std::vector<Double_t> pTValuesC;   // Subevent C pT values
+  std::vector<Double_t> psiValuesC; // Subevent C EP angles after removing autocorrelations
+
+  void reset()
+  {
+    badEvent  = false;  //Reset all values in the struct to reuse
+    nTracks = 0; 
+    primTracks = 0;
+    centID = -5;
+    Xn      = 0;
+    Yn      = 0;
+    psi     = 0;       
+    psi_delta = 0; 
+    phiValues.clear();
+    etaValues.clear();
+    pTValues.clear(); 
+    psiValues.clear();
+
+    nTracksA = 0;
+    XnA      = 0;
+    YnA      = 0;
+    psiA     = 0;       
+    psiA_delta = 0; 
+    phiValuesA.clear();
+    pTValuesA.clear(); 
+    psiValuesA.clear();
+
+    nTracksB = 0;
+    XnB      = 0;
+    YnB      = 0;
+    psiB     = 0;       
+    psiB_delta = 0; 
+    phiValuesB.clear();
+    pTValuesB.clear(); 
+    psiValuesB.clear();
+
+    nTracksC = 0;
+    XnC      = 0;
+    YnC      = 0;
+    psiC     = 0;       
+    psiC_delta = 0; 
+    phiValuesC.clear();
+    pTValuesC.clear(); 
+    psiValuesC.clear();
+  }
 };
 
 
@@ -80,7 +132,7 @@ TH1D* flatten(std::vector<Event> &events, const Int_t terms, const Int_t order_n
 TH1D* flattenSub(std::vector<Event> &events, const Int_t terms, const Int_t order_n, TString subEvent);
 
 
-void FlowAnalyzer(TString inFile, TString outFile)
+void FlowAnalyzer(TString inFile, TString jobID)
 {
   std::cout << "Initializing..." << std::endl;
 
@@ -89,11 +141,18 @@ void FlowAnalyzer(TString inFile, TString outFile)
   //=========================================================
   //          Some Controls
   //=========================================================
-  Int_t order_n = 2;
+  const Double_t order_n = 2.0;
   TString order_n_str; order_n_str.Form("%d", order_n);
+
+  //const Double_t etaCut = -1.01;    // 2 subevent plane method
+
+  const Double_t etaCut1 = -0.5;     // 3 subevent plane method
+  const Double_t etaCut2 = -1.0;
   //=========================================================
   //          
   //=========================================================
+
+
 
   StPicoDstReader* picoReader = new StPicoDstReader(inFile);
   picoReader->Init();
@@ -109,9 +168,28 @@ void FlowAnalyzer(TString inFile, TString outFile)
   Long64_t events2read  = picoReader->chain()->GetEntries();
     
   std::cout << "Number of events to read: " << events2read << std::endl;
+
+
+
+  TClonesArray *epdHits = new TClonesArray("StPicoEpdHit");
+  unsigned int found;
+
+  TChain *picoChain = picoReader->chain();
+  picoChain->SetBranchStatus("EpdHit*",1,&found);   // note you need the asterisk                                                                                
+  cout << "EpdHit Branch returned found = " << found << endl;
+  picoChain->SetBranchAddress("EpdHit",&epdHits);
+
+
+
+  StEpdEpFinder *epdEpFinder = new StEpdEpFinder(16, "StEpdEpFinderCorrectionHistograms_OUTPUT_"+jobID+".root", "StEpdEpFinderCorrectionHistograms_INPUT.root");
+  epdEpFinder->SetEpdHitFormat(2);       // format=0/1/2 for StEpdHit/StMuEpdHit/StPicoEpdHit
+  epdEpFinder->SetnMipThreshold(0.3);    // recommended, but variable
+  epdEpFinder->SetMaxTileWeight(1);      // recommended, but variable
+
+
   
   // OUTPUT FILE
-  outFile.Append(".picoDst.result.root");
+  TString outFile = jobID.Append(".picoDst.result.root");
   TFile *outputFile = new TFile(outFile,"recreate");
   outputFile->cd();
 
@@ -130,10 +208,11 @@ void FlowAnalyzer(TString inFile, TString outFile)
 
   TH1D *h_zvtx = new TH1D("h_zvtx","Primary Vertex Position in z;Distance (cm);Events", 100, 190, 210);
 
-  TH1D *h_pT   = new TH1D("h_pT", "Particle p_{T};p_{T} (GeV);Particles", 100, 0, 5);
-  TH1D *h_eta  = new TH1D("h_eta", "Particle #eta;#eta;Particles", 600, -2, 1);
+  TH1D *h_pT    = new TH1D("h_pT", "Particle p_{T};p_{T} (GeV);Particles", 100, 0, 5);
+  TH1D *h_eta   = new TH1D("h_eta", "Particle #eta;#eta;Particles", 600, -6, 1);
   TH1D *h_eta_A = new TH1D("h_eta_A", "Particle #eta (Group A);#eta;Particles", 600, -2, 1);
   TH1D *h_eta_B = new TH1D("h_eta_B", "Particle #eta (Group B);#eta;Particles", 600, -2, 1);
+  TH1D *h_eta_C = new TH1D("h_eta_C", "Particle #eta (Group C);#eta;Particles", 600, -2, 1);
 
   TH1D *h_Xn   = new TH1D("h_Xn", "X_n Distribution;X_n;Events", 100, -25, 25);
   TH1D *h_Yn   = new TH1D("h_Yn", "Y_n Distribution;Y_n;Events", 100, -25, 25);
@@ -141,28 +220,19 @@ void FlowAnalyzer(TString inFile, TString outFile)
   TH1D *h_Yn_A = new TH1D("h_Yn_A", "Y_n Distribution (sub A);Y_n;Events", 100, -25, 25);
   TH1D *h_Xn_B = new TH1D("h_Xn_B", "X_n Distribution (sub B);X_n;Events", 100, -25, 25);
   TH1D *h_Yn_B = new TH1D("h_Yn_B", "Y_n Distribution (sub B);Y_n;Events", 100, -25, 25);
+  TH1D *h_Xn_C = new TH1D("h_Xn_C", "X_n Distribution (sub C);X_n;Events", 100, -25, 25);
+  TH1D *h_Yn_C = new TH1D("h_Yn_C", "Y_n Distribution (sub C);Y_n;Events", 100, -25, 25);
   TH1D *h_psi  = new TH1D("h_psi", "Event Plane Angles (order "+order_n_str+");#psi_{"+order_n_str+"};Events", 400, -4, 4);
   TH1D *h_psi_A= new TH1D("h_psi_A", "Event Plane Angles (n = "+order_n_str+", sub A);#psi_{"+order_n_str+"};Events", 400, -4, 4);
   TH1D *h_psi_B= new TH1D("h_psi_B", "Event Plane Angles (n = "+order_n_str+", sub B);#psi_{"+order_n_str+"};Events", 400, -4, 4);
+  TH1D *h_psi_C= new TH1D("h_psi_C", "Event Plane Angles (n = "+order_n_str+", sub C);#psi_{"+order_n_str+"};Events", 400, -4, 4);
   TH1D *h_v2Plot = new TH1D("h_v2Plot", "Plot to Retrieve v_{2};cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+
+  TH1D *h_abCorr_n2 = new TH1D("h_abCorr_n2", "2nd Order Subevent a-b Correlations;cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_acCorr_n2 = new TH1D("h_acCorr_n2", "2nd Order Subevent a-c Correlations;cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{c}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  TH1D *h_bcCorr_n2 = new TH1D("h_bcCorr_n2", "2nd Order Subevent b-c Correlations;cos(2(#psi^{b}_{"+order_n_str+"} - #psi^{c}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+
   /*
-  TH1D *h_v2Plot_cent00 = new TH1D("h_v2Plot_cent00", "Plot to Retrieve v_{2} (75%-80% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent01 = new TH1D("h_v2Plot_cent01", "Plot to Retrieve v_{2} (70%-75% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent02 = new TH1D("h_v2Plot_cent02", "Plot to Retrieve v_{2} (65%-70% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent03 = new TH1D("h_v2Plot_cent03", "Plot to Retrieve v_{2} (60%-65% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent04 = new TH1D("h_v2Plot_cent04", "Plot to Retrieve v_{2} (55%-60% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent05 = new TH1D("h_v2Plot_cent05", "Plot to Retrieve v_{2} (50%-55% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent06 = new TH1D("h_v2Plot_cent06", "Plot to Retrieve v_{2} (45%-50% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent07 = new TH1D("h_v2Plot_cent07", "Plot to Retrieve v_{2} (40%-45% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent08 = new TH1D("h_v2Plot_cent08", "Plot to Retrieve v_{2} (35%-40% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent09 = new TH1D("h_v2Plot_cent09", "Plot to Retrieve v_{2} (30%-35% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent10 = new TH1D("h_v2Plot_cent10", "Plot to Retrieve v_{2} (25%-30% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent11 = new TH1D("h_v2Plot_cent11", "Plot to Retrieve v_{2} (20%-25% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent12 = new TH1D("h_v2Plot_cent12", "Plot to Retrieve v_{2} (15%-20% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent13 = new TH1D("h_v2Plot_cent13", "Plot to Retrieve v_{2} (10%-15% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent14 = new TH1D("h_v2Plot_cent14", "Plot to Retrieve v_{2} (5%-10% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  TH1D *h_v2Plot_cent15 = new TH1D("h_v2Plot_cent15", "Plot to Retrieve v_{2} (0%-5% cent.);cos(2(#phi - #psi_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
-  */
   TH1D *h_resol2 = new TH1D("h_resol2", "Plot to Retrieve 2nd Order Event Plane Resolution;cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
   TH1D *h_resol2_cent00 = new TH1D("h_resol2_cent00", "Plot to Retrieve 2nd Order Event Plane Resolution (75%-80% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
   TH1D *h_resol2_cent01 = new TH1D("h_resol2_cent01", "Plot to Retrieve 2nd Order Event Plane Resolution (70%-75% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
@@ -180,6 +250,7 @@ void FlowAnalyzer(TString inFile, TString outFile)
   TH1D *h_resol2_cent13 = new TH1D("h_resol2_cent13", "Plot to Retrieve 2nd Order Event Plane Resolution (10%-15% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
   TH1D *h_resol2_cent14 = new TH1D("h_resol2_cent14", "Plot to Retrieve 2nd Order Event Plane Resolution (5%-10% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
   TH1D *h_resol2_cent15 = new TH1D("h_resol2_cent15", "Plot to Retrieve 2nd Order Event Plane Resolution (0%-5% cent.);cos(2(#psi^{a}_{"+order_n_str+"} - #psi^{b}_{"+order_n_str+"}));Particles", 150, -1.5, 1.5);
+  */
 
   TH2D *h2_beta_p = new TH2D("h2_beta_p","1/#beta vs Momentum;q*|p| (GeV);1/#beta", 300, -3, 3, 300, 0.5, 3.5);
   TH2D *h2_m2_p   = new TH2D("h2_m2_p", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 500, -3, 3, 500, -0.1, 15);
@@ -193,37 +264,7 @@ void FlowAnalyzer(TString inFile, TString outFile)
   // EVENT LOOP
   for (Long64_t ievent = 0; ievent < events2read; ievent++)
     {
-      eventInfo.badEvent  = false;  //Reset all values in the eventInfo struct to reuse
-      eventInfo.nTracks = 0; 
-      eventInfo.primTracks = 0;
-      eventInfo.centrality = -5;
-      eventInfo.Xn      = 0;
-      eventInfo.Yn      = 0;
-      eventInfo.psi     = 0;       
-      eventInfo.psi_delta = 0; 
-      eventInfo.phiValues.clear();
-      eventInfo.etaValues.clear();
-      eventInfo.pTValues.clear(); 
-      eventInfo.psiValues.clear();
-
-      eventInfo.centerEta = 10;
-  
-      eventInfo.XnA      = 0;
-      eventInfo.YnA      = 0;
-      eventInfo.psiA     = 0;       
-      eventInfo.psiA_delta = 0; 
-      eventInfo.phiValuesA.clear();
-      eventInfo.pTValuesA.clear(); 
-      eventInfo.psiValuesA.clear();
-
-      eventInfo.XnB      = 0;
-      eventInfo.YnB      = 0;
-      eventInfo.psiB     = 0;       
-      eventInfo.psiB_delta = 0; 
-      eventInfo.phiValuesB.clear();
-      eventInfo.pTValuesB.clear(); 
-      eventInfo.psiValuesB.clear();
-
+      eventInfo.reset();
 
       Bool_t readEvent = picoReader->readPicoEvent(ievent);
       if( !readEvent ) { std::cout << "Event could not be read; aborting analysis." << std::endl; break; }
@@ -299,14 +340,15 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	  //=========================================================
 	  //          TOF Beta Cuts
 	  //=========================================================
-
+	  /*
 	  if (!picoTrack->isTofTrack()) continue;  // Only TOF tracks
 
 	  StPicoBTofPidTraits *trait = dst->btofPidTraits(picoTrack->bTofPidTraitsIndex());
 
 	  Double_t d_tofBeta = trait->btofBeta();
 
-	  if (d_tofBeta < 0.01 /*|| d_tofBeta >= 1*/) continue;
+	  if (d_tofBeta < 0.01) continue;
+	  */
 	  //=========================================================
 	  //          End TOF Beta Cuts
 	  //=========================================================
@@ -341,7 +383,7 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	  Double_t d_pT     = picoTrack->pPt();
 	  Double_t d_phi    = mom_vec.Phi();
 	  Double_t d_eta    = mom_vec.Eta();
-       
+
 	  // Fill histos and save important event info in the custom struct type
 	  if (d_charge != 0)
 	    {
@@ -352,70 +394,18 @@ void FlowAnalyzer(TString inFile, TString outFile)
 
 	      h_pT->Fill(d_pT);
 	      h_eta->Fill(d_eta);
-	      h2_beta_p->Fill(d_charge*d_mom, 1/d_tofBeta);
-	      h2_m2_p->Fill(d_charge*d_mom, d_mom*d_mom*(1/(d_tofBeta*d_tofBeta) - 1));
+	      //h2_beta_p->Fill(d_charge*d_mom, 1/d_tofBeta);
+	      //h2_m2_p->Fill(d_charge*d_mom, d_mom*d_mom*(1/(d_tofBeta*d_tofBeta) - 1));
 
 	      eventInfo.Xn += d_pT * TMath::Cos(order_n * d_phi);
 	      eventInfo.Yn += d_pT * TMath::Sin(order_n * d_phi);
 	    }
 	}//End track loop
 
-      if (eventInfo.nTracks <= 5) continue;                  // Make sure there are more than 5 GOOD tracks
-      if (eventInfo.Xn == 0 && eventInfo.Yn == 0) continue;    // Cut out events with no flow vector
 
-      eventInfo.psi = TMath::ATan2(eventInfo.Yn, eventInfo.Xn) / order_n;
-
-      h_Xn->Fill(eventInfo.Xn);
-      h_Yn->Fill(eventInfo.Yn);
-      h_psi->Fill(eventInfo.psi);
-
-      if( eventInfo.primTracks >=   3 && eventInfo.primTracks <=   4 ) eventInfo.centrality =  0;
-      if( eventInfo.primTracks >=   5 && eventInfo.primTracks <=   6 ) eventInfo.centrality =  1;
-      if( eventInfo.primTracks >=   7 && eventInfo.primTracks <=   9 ) eventInfo.centrality =  2;
-      if( eventInfo.primTracks >=  10 && eventInfo.primTracks <=  13 ) eventInfo.centrality =  3;
-      if( eventInfo.primTracks >=  14 && eventInfo.primTracks <=  17 ) eventInfo.centrality =  4;
-      if( eventInfo.primTracks >=  18 && eventInfo.primTracks <=  23 ) eventInfo.centrality =  5;
-      if( eventInfo.primTracks >=  24 && eventInfo.primTracks <=  29 ) eventInfo.centrality =  6;
-      if( eventInfo.primTracks >=  30 && eventInfo.primTracks <=  37 ) eventInfo.centrality =  7;
-      if( eventInfo.primTracks >=  38 && eventInfo.primTracks <=  46 ) eventInfo.centrality =  8;
-      if( eventInfo.primTracks >=  47 && eventInfo.primTracks <=  56 ) eventInfo.centrality =  9;
-      if( eventInfo.primTracks >=  57 && eventInfo.primTracks <=  68 ) eventInfo.centrality = 10;
-      if( eventInfo.primTracks >=  69 && eventInfo.primTracks <=  82 ) eventInfo.centrality = 11;
-      if( eventInfo.primTracks >=  83 && eventInfo.primTracks <=  98 ) eventInfo.centrality = 12;
-      if( eventInfo.primTracks >=  99 && eventInfo.primTracks <= 117 ) eventInfo.centrality = 13;
-      if( eventInfo.primTracks >= 118 && eventInfo.primTracks <= 140 ) eventInfo.centrality = 14;
-      if( eventInfo.primTracks >= 141 && eventInfo.primTracks <= 195 ) eventInfo.centrality = 15;
-
-
-      //=========================================================
-      //          Find Center Eta to Split Subevents
-      //=========================================================
-
-      std::vector<Double_t> etaCopy = eventInfo.etaValues;            // Use a copy just to find the center eta position
-      std::sort(etaCopy.begin(), etaCopy.end());
-
-      Int_t centerPos    = 0;
-      Int_t leftPos      = 0;
-      Int_t rightPos     = 0;
-
-      if (etaCopy.size() % 2 == 0) 
-	{ 
-	  leftPos  = (etaCopy.size() / 2) - 1;  // subtract one to get the correct INDEX
-	  rightPos = leftPos + 1;
-
-	  eventInfo.centerEta = (etaCopy.at(leftPos) + etaCopy.at(rightPos)) / 2;
-	}
-      else if (etaCopy.size() % 2 == 1)
-	{
-	  centerPos = etaCopy.size() / 2;
-
-	  eventInfo.centerEta = etaCopy.at(centerPos);
-	}
-
-      // Now go back with center eta and calculate subevent planes
       for (UInt_t i = 0; i < eventInfo.etaValues.size(); i++)
 	{
-	  if (eventInfo.etaValues.at(i) < eventInfo.centerEta)
+	  if (eventInfo.etaValues.at(i) < 0 && eventInfo.etaValues.at(i) >= etaCut1)
 	    {
 	      eventInfo.phiValuesA.push_back(eventInfo.phiValues.at(i));
 	      eventInfo.pTValuesA.push_back(eventInfo.pTValues.at(i));
@@ -424,8 +414,9 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	      eventInfo.YnA += eventInfo.pTValues.at(i) * TMath::Sin(order_n * eventInfo.phiValues.at(i));
 
 	      h_eta_A->Fill(eventInfo.etaValues.at(i));
+	      eventInfo.nTracksA++;
 	    }
-	  else if (eventInfo.etaValues.at(i) > eventInfo.centerEta)
+	  else if (eventInfo.etaValues.at(i) < etaCut1 && eventInfo.etaValues.at(i) >= etaCut2)
 	    {
 	      eventInfo.phiValuesB.push_back(eventInfo.phiValues.at(i));
 	      eventInfo.pTValuesB.push_back(eventInfo.pTValues.at(i));
@@ -434,12 +425,34 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	      eventInfo.YnB += eventInfo.pTValues.at(i) * TMath::Sin(order_n * eventInfo.phiValues.at(i));
 
 	      h_eta_B->Fill(eventInfo.etaValues.at(i));
+	      eventInfo.nTracksB++;
+	    }
+	  else if (eventInfo.etaValues.at(i) < etaCut2 && eventInfo.etaValues.at(i) >= -1.5)
+	    {
+	      eventInfo.phiValuesC.push_back(eventInfo.phiValues.at(i));
+	      eventInfo.pTValuesC.push_back(eventInfo.pTValues.at(i));
+
+	      eventInfo.XnC += eventInfo.pTValues.at(i) * TMath::Cos(order_n * eventInfo.phiValues.at(i));
+	      eventInfo.YnC += eventInfo.pTValues.at(i) * TMath::Sin(order_n * eventInfo.phiValues.at(i));
+
+	      h_eta_C->Fill(eventInfo.etaValues.at(i));
+	      eventInfo.nTracksC++;
 	    }
 	}
 
+      if (eventInfo.nTracks < 18) continue;                  // Make sure there are at least 6 GOOD tracks in each subevent
+      if (eventInfo.nTracksA < 6) continue;
+      if (eventInfo.nTracksB < 6) continue;
+      if (eventInfo.nTracksC < 6) continue;
 
+      eventInfo.psi  = TMath::ATan2(eventInfo.Yn,  eventInfo.Xn)  / order_n;
       eventInfo.psiA = TMath::ATan2(eventInfo.YnA, eventInfo.XnA) / order_n;
       eventInfo.psiB = TMath::ATan2(eventInfo.YnB, eventInfo.XnB) / order_n;
+      eventInfo.psiC = TMath::ATan2(eventInfo.YnC, eventInfo.XnC) / order_n;
+
+      h_Xn->Fill(eventInfo.Xn);
+      h_Yn->Fill(eventInfo.Yn);
+      h_psi->Fill(eventInfo.psi);
 
       h_Xn_A->Fill(eventInfo.XnA);
       h_Yn_A->Fill(eventInfo.YnA);
@@ -448,6 +461,56 @@ void FlowAnalyzer(TString inFile, TString outFile)
       h_Xn_B->Fill(eventInfo.XnB);
       h_Yn_B->Fill(eventInfo.YnB);
       h_psi_B->Fill(eventInfo.psiB);
+
+      h_Xn_C->Fill(eventInfo.XnC);
+      h_Yn_C->Fill(eventInfo.YnC);
+      h_psi_C->Fill(eventInfo.psiC);
+
+
+      // ASSIGN CENTRALITY ID
+      if     ( eventInfo.primTracks >=   3 && eventInfo.primTracks <=   4 ) eventInfo.centID =  0;
+      else if( eventInfo.primTracks >=   5 && eventInfo.primTracks <=   6 ) eventInfo.centID =  1;
+      else if( eventInfo.primTracks >=   7 && eventInfo.primTracks <=   9 ) eventInfo.centID =  2;
+      else if( eventInfo.primTracks >=  10 && eventInfo.primTracks <=  13 ) eventInfo.centID =  3;
+      else if( eventInfo.primTracks >=  14 && eventInfo.primTracks <=  17 ) eventInfo.centID =  4;
+      else if( eventInfo.primTracks >=  18 && eventInfo.primTracks <=  23 ) eventInfo.centID =  5;
+      else if( eventInfo.primTracks >=  24 && eventInfo.primTracks <=  29 ) eventInfo.centID =  6;
+      else if( eventInfo.primTracks >=  30 && eventInfo.primTracks <=  37 ) eventInfo.centID =  7;
+      else if( eventInfo.primTracks >=  38 && eventInfo.primTracks <=  46 ) eventInfo.centID =  8;
+      else if( eventInfo.primTracks >=  47 && eventInfo.primTracks <=  56 ) eventInfo.centID =  9;
+      else if( eventInfo.primTracks >=  57 && eventInfo.primTracks <=  68 ) eventInfo.centID = 10;
+      else if( eventInfo.primTracks >=  69 && eventInfo.primTracks <=  82 ) eventInfo.centID = 11;
+      else if( eventInfo.primTracks >=  83 && eventInfo.primTracks <=  98 ) eventInfo.centID = 12;
+      else if( eventInfo.primTracks >=  99 && eventInfo.primTracks <= 117 ) eventInfo.centID = 13;
+      else if( eventInfo.primTracks >= 118 && eventInfo.primTracks <= 140 ) eventInfo.centID = 14;
+      else if( eventInfo.primTracks >= 141 && eventInfo.primTracks <= 195 ) eventInfo.centID = 15;
+
+      if (eventInfo.centID == -5) continue;
+
+
+      //=========================================================
+      //                EPD STUFF
+      //=========================================================
+      StEpdEpInfo result = epdEpFinder->Results(epdHits,pVtx,eventInfo.centID);
+      StEpdGeom *epdGeom = new StEpdGeom();
+      StPicoEpdHit *epdHit;
+      TVector3 tileVector;     // Vector from vertex to center of tile that was hit
+
+      for (int iEpdHit = 0; iEpdHit < epdHits->GetEntries(); iEpdHit++)
+	{
+	  epdHit = (StPicoEpdHit*)(epdHits->At(iEpdHit));
+	  int tileID = epdHit->id();
+	  tileVector = epdGeom->TileCenter(tileID) - pVtx;
+
+	  double tileEta = tileVector.Eta();
+
+	  h_eta->Fill(tileEta);
+	}
+
+      delete epdGeom;
+      //=========================================================
+      //            END EPD STUFF
+      //=========================================================
 
 
       v_events.push_back(eventInfo);   // Store this event with all of its attributes
@@ -468,6 +531,8 @@ void FlowAnalyzer(TString inFile, TString outFile)
   TH1D* h_Yn_A_s = recenterSub(h_Yn_A, v_events, "Y", "A");
   TH1D* h_Xn_B_s = recenterSub(h_Xn_B, v_events, "X", "B");
   TH1D* h_Yn_B_s = recenterSub(h_Yn_B, v_events, "Y", "B");
+  TH1D* h_Xn_C_s = recenterSub(h_Xn_C, v_events, "X", "C");
+  TH1D* h_Yn_C_s = recenterSub(h_Yn_C, v_events, "Y", "C");
 
   Int_t badEvents = 0;
 
@@ -479,13 +544,33 @@ void FlowAnalyzer(TString inFile, TString outFile)
 	  badEvents++;
 	  continue;
 	}
+      else if (v_events.at(i).XnA == 0 && v_events.at(i).YnA == 0) 
+	{
+	  v_events.at(i).badEvent = true;
+	  badEvents++;
+	  continue;
+	}
+      else if (v_events.at(i).XnB == 0 && v_events.at(i).YnB == 0) 
+	{
+	  v_events.at(i).badEvent = true;
+	  badEvents++;
+	  continue;
+	}
+      else if (v_events.at(i).XnC == 0 && v_events.at(i).YnC == 0) 
+	{
+	  v_events.at(i).badEvent = true;
+	  badEvents++;
+	  continue;
+	}
       else
 	{ 
 	  v_events.at(i).psi  = TMath::ATan2(v_events.at(i).Yn,  v_events.at(i).Xn)  / order_n; 
 	  v_events.at(i).psiA = TMath::ATan2(v_events.at(i).YnA, v_events.at(i).XnA) / order_n; 
 	  v_events.at(i).psiB = TMath::ATan2(v_events.at(i).YnB, v_events.at(i).XnB) / order_n; 
+	  v_events.at(i).psiC = TMath::ATan2(v_events.at(i).YnC, v_events.at(i).XnC) / order_n; 
 
 	  /* REMOVING AUTO-CORRELATIONS */
+
 	  for (Int_t j = 0; j < v_events.at(i).nTracks; j++)
 	    {
 	      Double_t newXn = v_events.at(i).Xn - v_events.at(i).pTValues.at(j) * TMath::Cos(order_n * v_events.at(i).phiValues.at(j));
@@ -502,9 +587,10 @@ void FlowAnalyzer(TString inFile, TString outFile)
   //          Flattening Event Plane Angle
   //=========================================================
 
-  TH1D *h_psi_flat = flatten(v_events, 20, order_n);
+  TH1D *h_psi_flat  = flatten(v_events, 20, order_n);
   TH1D *h_psiA_flat = flattenSub(v_events, 20, order_n, "A");
   TH1D *h_psiB_flat = flattenSub(v_events, 20, order_n, "B");
+  TH1D *h_psiC_flat = flattenSub(v_events, 20, order_n, "C");
 
   
   //=========================================================
@@ -514,39 +600,51 @@ void FlowAnalyzer(TString inFile, TString outFile)
   Double_t cosTerm = 0;
   Double_t phi = 0;
   Double_t psi = 0;
-  Double_t resolTerm = 0;
+  Double_t abCorrTerm_n2 = 0;
+  Double_t acCorrTerm_n2 = 0;
+  Double_t bcCorrTerm_n2 = 0;
   Double_t psiA = 0;
   Double_t psiB = 0;
+  Double_t psiC = 0;
 
-  // Get histogram of cos(2(phi - psi)); the average value is (average?) v_2
+  // CORRELATIONS AND FLOW COEFFICIENTS
   for (Int_t i = 0; i < numOfEvents; i++)
     {
+      // SUBEVENT CORRELATIONS
       psiA = v_events.at(i).psiA;
       psiB = v_events.at(i).psiB;
-      
-      resolTerm = TMath::Cos(2 * (psiA - psiB));
-      h_resol2->Fill(resolTerm);
+      psiC = v_events.at(i).psiC;
 
-      switch (v_events.at(i).centrality)
+      abCorrTerm_n2 = TMath::Cos(2 * (psiA - psiB));
+      acCorrTerm_n2 = TMath::Cos(2 * (psiA - psiC));
+      bcCorrTerm_n2 = TMath::Cos(2 * (psiB - psiC));
+      h_abCorr_n2->Fill(abCorrTerm_n2);
+      h_acCorr_n2->Fill(acCorrTerm_n2);
+      h_bcCorr_n2->Fill(bcCorrTerm_n2);
+
+      /*
+      switch (v_events.at(i).centID)
 	{
-	case 0: h_resol2_cent00->Fill(resolTerm); break;
-	case 1: h_resol2_cent01->Fill(resolTerm); break;
-	case 2: h_resol2_cent02->Fill(resolTerm); break;
-	case 3: h_resol2_cent03->Fill(resolTerm); break;
-	case 4: h_resol2_cent04->Fill(resolTerm); break;
-	case 5: h_resol2_cent05->Fill(resolTerm); break;
-	case 6: h_resol2_cent06->Fill(resolTerm); break;
-	case 7: h_resol2_cent07->Fill(resolTerm); break;
-	case 8: h_resol2_cent08->Fill(resolTerm); break;
-	case 9: h_resol2_cent09->Fill(resolTerm); break;
-	case 10: h_resol2_cent10->Fill(resolTerm); break;
-	case 11: h_resol2_cent11->Fill(resolTerm); break;
-	case 12: h_resol2_cent12->Fill(resolTerm); break;
-	case 13: h_resol2_cent13->Fill(resolTerm); break;
-	case 14: h_resol2_cent14->Fill(resolTerm); break;
-	case 15: h_resol2_cent15->Fill(resolTerm); break;
+	case 0: h_resol2_cent00->Fill(corrTerm); break;
+	case 1: h_resol2_cent01->Fill(corrTerm); break;
+	case 2: h_resol2_cent02->Fill(corrTerm); break;
+	case 3: h_resol2_cent03->Fill(corrTerm); break;
+	case 4: h_resol2_cent04->Fill(corrTerm); break;
+	case 5: h_resol2_cent05->Fill(corrTerm); break;
+	case 6: h_resol2_cent06->Fill(corrTerm); break;
+	case 7: h_resol2_cent07->Fill(corrTerm); break;
+	case 8: h_resol2_cent08->Fill(corrTerm); break;
+	case 9: h_resol2_cent09->Fill(corrTerm); break;
+	case 10: h_resol2_cent10->Fill(corrTerm); break;
+	case 11: h_resol2_cent11->Fill(corrTerm); break;
+	case 12: h_resol2_cent12->Fill(corrTerm); break;
+	case 13: h_resol2_cent13->Fill(corrTerm); break;
+	case 14: h_resol2_cent14->Fill(corrTerm); break;
+	case 15: h_resol2_cent15->Fill(corrTerm); break;
 	}
+      */
 
+      // GET V2 WITHOUT AUTOCORRELATIONS HERE
       for (Int_t j = 0; j < v_events.at(i).nTracks; j++)
 	{
 	  phi = v_events.at(i).phiValues.at(j);
@@ -571,25 +669,37 @@ void FlowAnalyzer(TString inFile, TString outFile)
   h_eta         ->Write();
   h_eta_A       ->Write();
   h_eta_B       ->Write();
+  h_eta_C       ->Write();
   h_Xn          ->Write();
   h_Yn          ->Write();
   h_Xn_A        ->Write();
   h_Yn_A        ->Write();
   h_Xn_B        ->Write();
   h_Yn_B        ->Write();
+  h_Xn_C        ->Write();
+  h_Yn_C        ->Write();
   h_Xn_s        ->Write();
   h_Yn_s        ->Write();  
   h_Xn_A_s      ->Write();
   h_Yn_A_s      ->Write();
   h_Xn_B_s      ->Write();
   h_Yn_B_s      ->Write();
+  h_Xn_C_s      ->Write();
+  h_Yn_C_s      ->Write();
   h_psi         ->Write();
   h_psi_A       ->Write();
   h_psi_B       ->Write();
+  h_psi_C       ->Write();
   h_psi_flat    ->Write();
   h_psiA_flat   ->Write();
   h_psiB_flat   ->Write();
+  h_psiC_flat   ->Write();
   h_v2Plot      ->Write();
+  h_abCorr_n2   ->Write();
+  h_acCorr_n2   ->Write();
+  h_bcCorr_n2   ->Write();
+
+  /*
   h_resol2      ->Write();
   h_resol2_cent00      ->Write();
   h_resol2_cent01      ->Write();
@@ -607,6 +717,7 @@ void FlowAnalyzer(TString inFile, TString outFile)
   h_resol2_cent13      ->Write();
   h_resol2_cent14      ->Write();
   h_resol2_cent15      ->Write();
+  */
 
   h2_beta_p     ->Write();
   h2_m2_p       ->Write();
@@ -650,9 +761,10 @@ TH1D* recenter(TH1D* rawDist, std::vector<Event> &events, TString component)
     {
       for (Int_t i = 0; i < numOfEvents; i++)
 	{
-	  //events.at(i).Xn -= -0.26214811775775954;                     // 2000 picoDsts: -0.26214811775775954
-	  //events.at(i).Xn -= -0.17149495475033757;
-	  events.at(i).Xn -= -0.17149495475033577;
+	  //events.at(i).Xn -= -0.17149495475033577;             // 2 subevents
+	  //events.at(i).Xn -= -0.2906029561873486;              // 3 subevents
+	  events.at(i).Xn -= -0.28449056558920105;               // 3 subevents, pT cut
+	  //events.at(i).Xn -=                // 3 subevents, pT cut, no TOF beta cut
 	  h_shifted->Fill(events.at(i).Xn);
 	}
     }
@@ -660,9 +772,10 @@ TH1D* recenter(TH1D* rawDist, std::vector<Event> &events, TString component)
     {
       for (Int_t i = 0; i < numOfEvents; i++)
 	{
-	  //events.at(i).Yn -= -0.39964040264945927;                     // 2000 picoDsts: -0.39964040264945927
-	  //events.at(i).Yn -= -0.12203934435287743;
-	  events.at(i).Yn -= -0.12203934435287563;
+	  //events.at(i).Yn -= -0.12203934435287563;              // 2 subevents
+	  //events.at(i).Yn -= -0.20888164534551301;              // 3 subevents
+	  events.at(i).Yn -= -0.20357347770740941;                // 3 subevents, pT cut
+	  //events.at(i).Yn -=                 // 3 subevents, pT cut, no TOF beta cut
 	  h_shifted->Fill(events.at(i).Yn);
 	}
     }
@@ -696,9 +809,11 @@ TH1D* recenterSub(TH1D* rawDist, std::vector<Event> &events, TString component, 
 	{
 	  for (Int_t i = 0; i < numOfEvents; i++)
 	    {
-	      //events.at(i).XnA -= -0.0763801716395094;
-	      //events.at(i).XnA -= -0.076393611314786267;
-	      events.at(i).XnA -= -0.07639361131478721;
+	      //events.at(i).XnA -= -0.07639361131478721;    // Auto eta cuts
+	      //events.at(i).XnA -= -0.082509858448988699;    // Straight eta cut, 2 subevents
+	      //events.at(i).XnA -= -0.048029071218188758;    // 3 subevents
+	      events.at(i).XnA -= -0.047839796373211604;     // 3 subevents, pT cut
+	      //events.at(i).XnA -=      // 3 subevents, pT cut, no TOF beta cut
 	      h_shifted->Fill(events.at(i).XnA);
 	    }
 	}      
@@ -706,9 +821,11 @@ TH1D* recenterSub(TH1D* rawDist, std::vector<Event> &events, TString component, 
 	{
 	  for (Int_t i = 0; i < numOfEvents; i++)
 	    {
-	      //events.at(i).YnA -= 0.052900281602226026;
-	      //events.at(i).YnA -= 0.052665569322193739;
-	      events.at(i).YnA -= 0.052665569322193691;
+	      //events.at(i).YnA -= 0.052665569322193691;    // Auto eta cuts
+	      //events.at(i).YnA -= 0.05781093198280992;    // Straight eta cut, 2 subevents
+	      //events.at(i).YnA -= -0.15330719872348675;   // 3 subevents
+	      events.at(i).YnA -= -0.15320538376331011;     // 3 subevents, pT cut
+	      //events.at(i).YnA -=      // 3 subevents, pT cut, no TOF beta cut
 	      h_shifted->Fill(events.at(i).YnA);
 	    }
 	}
@@ -719,9 +836,11 @@ TH1D* recenterSub(TH1D* rawDist, std::vector<Event> &events, TString component, 
 	{
 	  for (Int_t i = 0; i < numOfEvents; i++)
 	    {
-	      //events.at(i).XnB -= -0.091737385157025578;
-	      //events.at(i).XnB -= -0.091769164703735293;
-	      events.at(i).XnB -= -0.091769164703734307;
+	      //events.at(i).XnB -= -0.091769164703734307;    // Auto eta cuts
+	      //events.at(i).XnB -= -0.08898482140291171;   // Straight eta cut, 2 subevents
+	      //events.at(i).XnB -= -0.094491708306180172;  // 3 subevents
+	      events.at(i).XnB -= -0.092434588910897383;    // 3 subevents, pT cut
+	      //events.at(i).XnB -=     // 3 subevents, pT cut, no TOF beta cut
 	      h_shifted->Fill(events.at(i).XnB);
 	    }
 	}      
@@ -729,10 +848,35 @@ TH1D* recenterSub(TH1D* rawDist, std::vector<Event> &events, TString component, 
 	{
 	  for (Int_t i = 0; i < numOfEvents; i++)
 	    {
-	      //events.at(i).YnB -= -0.17584790695677643;
-	      //events.at(i).YnB -= -0.17590862668749291;
-	      events.at(i).YnB -= -0.17590862668749332;
+	      //events.at(i).YnB -= -0.17590862668749332;    // Auto eta cuts
+	      //events.at(i).YnB -= -0.1798503754306236;    // Straight eta cut, 2 subevents
+	      //events.at(i).YnB -= -0.14915417370216158;   // 3 subevents
+	      events.at(i).YnB -= -0.14804355679219941;     // 3 subevents, pT cut
+	      //events.at(i).YnB -=      // 3 subevents, pT cut, no TOF beta cut
 	      h_shifted->Fill(events.at(i).YnB);
+	    }
+	}
+    }
+  else if (subEvent.EqualTo("c") || subEvent.EqualTo("C"))
+    {
+      if (component.EqualTo("x") || component.EqualTo("X")) 
+	{
+	  for (Int_t i = 0; i < numOfEvents; i++)
+	    {
+	      //events.at(i).XnC -= -0.14808192683948013;  // 3 subevents
+	      events.at(i).XnC -= -0.14421595436210466;     // 3 subevents, pT cut
+	      //events.at(i).XnC -=      // 3 subevents, pT cut, no TOF beta cut
+	      h_shifted->Fill(events.at(i).XnC);
+	    }
+	}      
+      else if (component.EqualTo("y") || component.EqualTo("Y")) 
+	{
+	  for (Int_t i = 0; i < numOfEvents; i++)
+	    {
+	      //events.at(i).YnC -= 0.093576529699855707;  // 3 subevents
+	      events.at(i).YnC -= 0.097671928736901739;     // 3 subevents, pT cut
+	      //events.at(i).YnC -=      // 3 subevents, pT cut, no TOF beta cut
+	      h_shifted->Fill(events.at(i).YnC);
 	    }
 	}
     }
@@ -931,6 +1075,55 @@ TH1D* flattenSub(std::vector<Event> &events, const Int_t terms, const Int_t orde
 	  else if (events.at(k).psiB < -TMath::Pi()/order_n) { events.at(k).psiB += TMath::TwoPi()/order_n; }
 
 	  h_psi_flat->Fill(events.at(k).psiB);
+	}
+      ////
+    }
+  else if (subEvent.EqualTo("c") || subEvent.EqualTo("C"))  
+    {
+      // Get averages //
+      Double_t sin_psiC_avgs[terms];      // Arrays that contain each average parameter for the correction terms
+      Double_t cos_psiC_avgs[terms];
+
+      for (Int_t i = 0; i < terms; i++)  // Loop through each term in the correction to build averages
+	{
+	  sin_psiC_avgs[i] = 0;  // elements of variable length arrays must be initialized manually
+	  cos_psiC_avgs[i] = 0;
+
+	  Int_t j = i + 1;      // index for the sum in deltaPsi 
+
+	  for (Int_t k = 0; k < numOfEvents; k++)
+	    {
+	      if (events.at(k).badEvent == true) { continue; }
+
+	      sin_psiC_avgs[i] += TMath::Sin(j * order_n * events.at(k).psiC);     // First getting the sums for the averages
+	      cos_psiC_avgs[i] += TMath::Cos(j * order_n * events.at(k).psiC);
+	    }
+
+	  sin_psiC_avgs[i] = sin_psiC_avgs[i]/numOfGoodEvents;
+	  cos_psiC_avgs[i] = cos_psiC_avgs[i]/numOfGoodEvents;
+	}
+      ////
+
+
+      // Get corrected event plane angles //
+      for (Int_t k = 0; k < numOfEvents; k++)  // Loop over psi values to correct them
+	{
+	  if (events.at(k).badEvent == true) { continue; }
+
+	  for (Int_t i = 0; i < terms; i++)    // Build the correction term
+	    {
+	      Int_t j = i + 1;
+
+	      events.at(k).psiC_delta += ((Double_t)2/(j*order_n))*(-sin_psiC_avgs[i]*TMath::Cos(j * order_n * events.at(k).psiC) 
+								   + cos_psiC_avgs[i]*TMath::Sin(j * order_n * events.at(k).psiC));
+	    }
+
+	  events.at(k).psiC += events.at(k).psiC_delta;
+
+	  if (events.at(k).psiC > TMath::Pi()/order_n) { events.at(k).psiC -= TMath::TwoPi()/order_n; }        // Must maintain the angles' periodicity of 2pi/n
+	  else if (events.at(k).psiC < -TMath::Pi()/order_n) { events.at(k).psiC += TMath::TwoPi()/order_n; }
+
+	  h_psi_flat->Fill(events.at(k).psiC);
 	}
       ////
     }
