@@ -49,7 +49,6 @@
 const Int_t ORDER_N = 2;                // Order of anisotropic flow
 TString ORDER_N_STR;                   // ORDER_N but as a TString for titles/labels
 
-//Double_t PSI_BOUNDS;
 const Double_t PSI_BOUNDS = TMath::Pi()/ORDER_N + 1;
 const Double_t Q_BOUNDS = 100;
 
@@ -58,8 +57,8 @@ const Int_t EPD_MAX_WEIGHT   = 2;      // max nMIP weight; recommended value, bu
 const Double_t EPD_THRESHOLD = 0.3;    // recommended value, but variable
 
 const Double_t MIN_TPC_ETA_CUT = -2.0;
-const Double_t AGAP_TPC_ETA_CUT = -1.0;//-1.1;
-const Double_t GAPB_TPC_ETA_CUT = -1.0;
+const Double_t AGAP_TPC_ETA_CUT = -1.1;//-1.6;
+const Double_t GAPB_TPC_ETA_CUT = -1.0;//-0.5;
 const Double_t MAX_TPC_ETA_CUT = 0.0;
 
 const Double_t MIN_ETA_CUT = -5.3;//-5.16;    // Cuts for the EPD subevents (A, B, C, D)
@@ -422,17 +421,25 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH2D *h2_trans_vtx_cut = new TH2D("h2_trans_vtx_cut","Final Primary Vertices;x (cm);y (cm)", 500, -5, 5, 500, -5, 5);
   TH2D *h2_pp_vs_eta = new TH2D("h2_pp_vs_eta","Tile Weight for Supersectors vs #eta;#eta;Supersector", 400, -6, -2, 12, 0.5, 12.5);
 
+  TH2D *h2_phiSearchTpc = new TH2D("h2_phiSearchTpc", "Azimuthal Distribution by Centrality;#phi;Centrality (%)", 
+				   200, -4, 4, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+  TH2D *h2_phiSearchEpd = new TH2D("h2_phiSearchEpd", "Azimuthal Distribution by Centrality;#phi;Centrality (%)", 
+				   200, -4, 4, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
 
   // Here the name refers to the eta region that will be displayed/searched using the event plane angle from the opposite region
   TProfile2D *h2_v2SearchTpc = new TProfile2D("h2_v2SearchTpc", "<cos(2(#phi^{TPC} - #psi^{EPD}_{"+ORDER_N_STR+"}))>;#eta;Centrality (%)", 
 					      12, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2SearchEpd = new TProfile2D("h2_v2SearchEpd", "<cos(2(#phi^{EPD} - #psi^{TPC}_{"+ORDER_N_STR+"}))>;#eta;Centrality (%)", 
 					      12, -5.3, -2.6, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+  TProfile2D *h2_v2SearchEpdTpcA = new TProfile2D("h2_v2SearchEpdTpcA", "<cos(2(#phi^{EPD} - #psi^{TPC,A}_{"+ORDER_N_STR+"}))>;#eta;Centrality (%)", 
+						  12, -5.3, -2.6, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2SearchEpdTpcB = new TProfile2D("h2_v2SearchEpdTpcB", "<cos(2(#phi^{EPD} - #psi^{TPC,B}_{"+ORDER_N_STR+"}))>;#eta;Centrality (%)", 
 					      12, -5.3, -2.6, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   h2_v2SearchTpc->SetStats(0);
   h2_v2SearchEpd->SetStats(0);
+  h2_v2SearchEpdTpcA->SetStats(0);
   h2_v2SearchEpdTpcB->SetStats(0);
+    
   // The indices here are equivalent to the corresponding centrality ID
   const char *centralityBins[16] = {"75-80", "70-75", "65-70", "60-65", "55-60", "50-55", "45-50", "40-45", "35-40", "30-35", "25-30", "20-25", "15-20", "10-15", "5-10", "0-5"};
 
@@ -513,6 +520,29 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH1D *h_XnEpdD = new TH1D("h_XnEpdD", "X_n Distribution (EPD D);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
   TH1D *h_YnEpdD = new TH1D("h_YnEpdD", "Y_n Distribution (EPD D);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
 
+  
+  Int_t goodRunList[170] = { 19151031, 19151034, 19151036, 19151039, 19151041, 19151043, 19151044, 19151045,
+			     19151046, 19151047, 19151048, 19151049, 19151050, 19151052, 19151053, 19151054,
+			     19151055, 19151056, 19151066, 19151067, 19151068, 19151069, 19151070, 19151071,
+			     19151072, 19151082, 19151083, 19151084, 19152002, 19152003, 19152008, 19152009,
+			     19152010, 19152014, 19152016, 19152021, 19152023, 19152024, 19152025, 19152027,
+			     19152028, 19152029, 19152030, 19152031, 19152032, 19152033, 19152034, 19152035,
+			     19152036, 19152037, 19152038, 19152039, 19152040, 19152041, 19152042, 19152043,
+			     19152044, 19152045, 19152046, 19152048, 19152051, 19152052, 19152053, 19152054,
+			     19152055, 19152071, 19152073, 19152074, 19152075, 19152076, 19152081, 19153001,
+			     19153002, 19153003, 19153004, 19153007, 19153009, 19153010, 19153011, 19153012,
+			     19153013, 19153014, 19153015, 19153016, 19153017, 19153018, 19153019, 19153020,
+			     19153021, 19153022, 19153024, 19153025, 19153027, 19153028, 19153029, 19153031,
+			     19153033, 19153034, 19153035, 19153036, 19153037, 19153042, 19153043, 19153044,
+			     19153050, 19153051, 19153052, 19153053, 19153054, 19153055, 19153056, 19153057,
+			     19153058, 19153059, 19153061, 19153062, 19153063, 19153064, 19153066, 19154001,
+			     19154002, 19154005, 19154007, 19154027, 19154028, 19154029, 19154030, 19154031,
+			     19154032, 19154036, 19154037, 19154038, 19154039, 19154040, 19154041, 19154044,
+			     19154045, 19154046, 19154047, 19154048, 19154049, 19154052, 19154053, 19154054,
+			     19154055, 19154056, 19154057, 19154058, 19154061, 19154063, 19154064, 19154065,
+			     19154066, 19154067, 19155001, 19155003, 19155004, 19155005, 19155006, 19155008,
+			     19155009, 19155010, 19155011, 19155016, 19155017, 19155018, 19155019, 19155020,
+			     19155021, 19155022 };
 
   Event eventInfo;
   std::vector<Event> v_events;    // Vector of all events and their info using the custom struct
@@ -530,8 +560,11 @@ void FlowAnalyzer(TString inFile, TString jobID)
       StPicoEvent *event = dst->event();
       if( !event ) { std::cout << "No event found; aborting analysis." << std::endl; break; }
 
-      h_event_check->Fill(eventSections[0], 1);
+      Bool_t b_bad_run = true;
+      for (Int_t i = 0; i < 170; i++) { if (event->runId() == goodRunList[i]) { b_bad_run = false; break; } }
+      if (b_bad_run) continue;
 
+      h_event_check->Fill(eventSections[0], 1);
 
       //=========================================================
       //          Trigger Selection
@@ -671,7 +704,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		  eventInfo.XnTpcA += d_pT * TMath::Cos((Double_t)ORDER_N * d_phi);
 		  eventInfo.YnTpcA += d_pT * TMath::Sin((Double_t)ORDER_N * d_phi);
 		}
-	      else if (d_eta /*>*/>= GAPB_TPC_ETA_CUT && d_eta < MAX_TPC_ETA_CUT)
+	      else if (d_eta > GAPB_TPC_ETA_CUT && d_eta < MAX_TPC_ETA_CUT)
 		{
 		  eventInfo.phiValuesTpcB.push_back(d_phi);
 		  eventInfo.etaValuesTpcB.push_back(d_eta);
@@ -751,7 +784,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      eventInfo.XnEpdA += tileWeight * TMath::Cos((Double_t)ORDER_N * tilePhi);
 	      eventInfo.YnEpdA += tileWeight * TMath::Sin((Double_t)ORDER_N * tilePhi);
 	      eventInfo.etaValuesEpdA.push_back(tileEta);
-	      eventInfo.phiValuesEpdA.push_back(tileEta);
+	      eventInfo.phiValuesEpdA.push_back(tilePhi);
 	    }
 	  else if (tileEta /*>*/>= AB_ETA_CUT && tileEta < BC_ETA_CUT)  // Sub B
 	    {
@@ -759,7 +792,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      eventInfo.XnEpdB += tileWeight * TMath::Cos((Double_t)ORDER_N * tilePhi);
 	      eventInfo.YnEpdB += tileWeight * TMath::Sin((Double_t)ORDER_N * tilePhi);
 	      eventInfo.etaValuesEpdB.push_back(tileEta);
-	      eventInfo.phiValuesEpdB.push_back(tileEta);
+	      eventInfo.phiValuesEpdB.push_back(tilePhi);
 	    }
 	  else if (tileEta /*>*/>= BC_ETA_CUT && tileEta < CD_ETA_CUT)  // Sub C
 	    {
@@ -767,7 +800,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      eventInfo.XnEpdC += tileWeight * TMath::Cos((Double_t)ORDER_N * tilePhi);
 	      eventInfo.YnEpdC += tileWeight * TMath::Sin((Double_t)ORDER_N * tilePhi);
 	      eventInfo.etaValuesEpdC.push_back(tileEta);
-	      eventInfo.phiValuesEpdC.push_back(tileEta);
+	      eventInfo.phiValuesEpdC.push_back(tilePhi);
 	    }
 	  else if (tileEta /*>*/>= CD_ETA_CUT && tileEta < MAX_ETA_CUT)  // Sub D
 	    {
@@ -775,7 +808,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      eventInfo.XnEpdD += tileWeight * TMath::Cos((Double_t)ORDER_N * tilePhi);
 	      eventInfo.YnEpdD += tileWeight * TMath::Sin((Double_t)ORDER_N * tilePhi);
 	      eventInfo.etaValuesEpdD.push_back(tileEta);
-	      eventInfo.phiValuesEpdD.push_back(tileEta);
+	      eventInfo.phiValuesEpdD.push_back(tilePhi);
 	    }
 
 	}
@@ -874,8 +907,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
   eventInfo.reset();
 
-  TH1D *h_xvtx = h2_trans_vtx->ProjectionX();
-  TH1D *h_yvtx = h2_trans_vtx->ProjectionY();
+  //TH1D *h_xvtx = h2_trans_vtx->ProjectionX();
+  //TH1D *h_yvtx = h2_trans_vtx->ProjectionY();
 
 
   TH1D *h_XnTpc_RC;   // Re-centered histograms
@@ -1255,6 +1288,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  Double_t phiEpd;
 	  Double_t etaEpd;
 	  Double_t psiTpc  = v_events.at(i).psiTpc;
+	  Double_t psiTpcA = v_events.at(i).psiTpcA;
 	  Double_t psiTpcB = v_events.at(i).psiTpcB;
 	  Double_t psiEpd  = v_events.at(i).psiEpd;
 	  Int_t centralityID = v_events.at(i).centID;
@@ -1265,7 +1299,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      etaEpd = v_events.at(i).etaValuesEpdA.at(k);
 
 	      h2_v2SearchEpd->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpc)));
+	      h2_v2SearchEpdTpcA->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpcA)));
 	      h2_v2SearchEpdTpcB->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpcB)));
+	      h2_phiSearchEpd->Fill(phiEpd, centralityID);
 	    }
 	  for (int k = 0; k < epdHitsB; k++)
 	    {
@@ -1273,7 +1309,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      etaEpd = v_events.at(i).etaValuesEpdB.at(k);
 
 	      h2_v2SearchEpd->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpc)));
+	      h2_v2SearchEpdTpcA->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpcA)));
 	      h2_v2SearchEpdTpcB->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpcB)));
+	      h2_phiSearchEpd->Fill(phiEpd, centralityID);
 	    }
 	  for (int k = 0; k < epdHitsC; k++)
 	    {
@@ -1281,7 +1319,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      etaEpd = v_events.at(i).etaValuesEpdC.at(k);
 
 	      h2_v2SearchEpd->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpc)));
+	      h2_v2SearchEpdTpcA->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpcA)));
 	      h2_v2SearchEpdTpcB->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpcB)));
+	      h2_phiSearchEpd->Fill(phiEpd, centralityID);
 	    }
 	  for (int k = 0; k < epdHitsD; k++)
 	    {
@@ -1289,7 +1329,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      etaEpd = v_events.at(i).etaValuesEpdD.at(k);
 
 	      h2_v2SearchEpd->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpc)));
+	      h2_v2SearchEpdTpcA->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpcA)));
 	      h2_v2SearchEpdTpcB->Fill(etaEpd, centralityID, TMath::Cos((Double_t)ORDER_N * (phiEpd - psiTpcB)));
+	      h2_phiSearchEpd->Fill(phiEpd, centralityID);
 	    }
 
 	  for (int k = 0; k < tpcHitsA; k++)
@@ -1298,6 +1340,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      etaTpc = v_events.at(i).etaValuesTpcA.at(k);
 
 	      h2_v2SearchTpc->Fill(etaTpc, centralityID, TMath::Cos((Double_t)ORDER_N * (phiTpc - psiEpd)));
+	      h2_phiSearchTpc->Fill(phiTpc, centralityID);
 	    }
 	  for (int k = 0; k < tpcHitsB; k++)
 	    {
@@ -1305,6 +1348,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      etaTpc = v_events.at(i).etaValuesTpcB.at(k);
 
 	      h2_v2SearchTpc->Fill(etaTpc, centralityID, TMath::Cos((Double_t)ORDER_N * (phiTpc - psiEpd)));
+	      h2_phiSearchTpc->Fill(phiTpc, centralityID);
 	    }
 
 	  v_events.at(i).reset(); // Try to free up space?
@@ -1324,6 +1368,10 @@ void FlowAnalyzer(TString inFile, TString jobID)
       labelIndex = FIRST_CENT + i - 1;
       h2_v2SearchTpc->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
       h2_v2SearchEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
+      h2_v2SearchEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
+      h2_v2SearchEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
+      h2_phiSearchTpc->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
+      h2_phiSearchEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
     }
 
 
