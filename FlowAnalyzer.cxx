@@ -194,6 +194,38 @@ void checkZeroQ(Event event)
 };
 
 
+////////
+//   Using px, py, pz, and rest mass, return rapidity
+////////
+Double_t rapidity(Double_t px, Double_t py, Double_t pz, Double_t mass)
+{
+  Double_t rapidity, energy, momentum = 0;
+  momentum = TMath::Sqrt(px*px + py*py + pz*pz);
+  energy   = TMath::Sqrt(momentum*momentum + mass*mass);
+  rapidity = TMath::ATanH(pz/energy);
+  return rapidity;
+};
+
+////////
+//   Using px, py, pz, and rest mass, return transverse mass
+////////
+Double_t transMass(Double_t px, Double_t py, Double_t mass) {return TMath::Sqrt(mass*mass + px*px + py*py);};
+
+
+////////
+//   Using px, py, pz, and rest mass, fill histograms raw of dN/dy,
+// dN/dmT (shifted left by m0), and a 2D histogram of mT-m0 vs y.
+////////
+void fillRawSpect(Double_t px, Double_t py, Double_t pz, Double_t mass, TH1D *dndy, TH1D *dndm)/*, TH2D *MvsY)*/
+{
+  Double_t y  = rapidity(px, py, pz, mass);
+  Double_t mT = transMass(px, py, mass);
+  Double_t M  = mT - mass;
+  dndy->Fill(y);
+  dndm->Fill(M);
+  //MvsY->Fill(y,M, 1/(TMath::TwoPi() * mT));
+};
+
 
 void FlowAnalyzer(TString inFile, TString jobID)
 {
@@ -320,11 +352,65 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH1D *h_tileWeights = new TH1D("h_tileWeights", "EPD Tile Weights;Hits;nMIP Weights", 5, -1, 4);
   TH1D *h_centralities = new TH1D("h_centralities", "Centralities;Centrality ID;Events", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
 
+  TH1D *h_pi_TPC_nsig = new TH1D("h_pi_TPC_nsig", "#pi TPC n#sigma;n#sigma;Tracks",    200, -10, 10);
+  TH1D *h_ka_TPC_nsig = new TH1D("h_ka_TPC_nsig", "K TPC n#sigma;n#sigma;Tracks",      200, -10, 10);
+  TH1D *h_pr_TPC_nsig = new TH1D("h_pr_TPC_nsig", "Proton TPC n#sigma;n#sigma;Tracks", 200, -10, 10);
+
+  TH1D *h_pp_dndm = new TH1D("h_pp_dndm", "#pi^{+} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}", 60, 0, 3);//30, 0, 3);
+  TH1D *h_pm_dndm = new TH1D("h_pm_dndm", "#pi^{-} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}", 60, 0, 3);//30, 0, 3);
+  TH1D *h_kp_dndm = new TH1D("h_kp_dndm", "K^{+} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}",   60, 0, 3);//30, 0, 3);
+  TH1D *h_km_dndm = new TH1D("h_km_dndm", "K^{-} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}",   60, 0, 3);//30, 0, 3);
+  TH1D *h_pr_dndm = new TH1D("h_pr_dndm", "Proton Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}",  60, 0, 3);//30, 0, 3);
+
+  TH1D *h_pp_dndy = new TH1D("h_pp_dndy", "#pi^{+} Raw Rapidity Spectrum;y;dN/dy", 40, -2, 0);//50, -2, 0.5);
+  TH1D *h_pm_dndy = new TH1D("h_pm_dndy", "#pi^{-} Raw Rapidity Spectrum;y;dN/dy", 40, -2, 0);//50, -2, 0.5);
+  TH1D *h_kp_dndy = new TH1D("h_kp_dndy", "K^{+} Raw Rapidity Spectrum;y;dN/dy",   40, -2, 0);//50, -2, 0.5);
+  TH1D *h_km_dndy = new TH1D("h_km_dndy", "K^{-} Raw Rapidity Spectrum;y;dN/dy",   40, -2, 0);//50, -2, 0.5);
+  TH1D *h_pr_dndy = new TH1D("h_pr_dndy", "Proton Raw Rapidity Spectrum;y;dN/dy",  40, -2, 0);//50, -2, 0.5);
+
+  TH1D *h_pp_pT = new TH1D("h_pp_pT", "#pi^{+} p_{T};p_{T} (GeV);", 100, 0, 5);
+  TH1D *h_pm_pT = new TH1D("h_pm_pT", "#pi^{-} p_{T};p_{T} (GeV);", 100, 0, 5);
+  TH1D *h_kp_pT = new TH1D("h_kp_pT", "K^{+} p_{T};p_{T} (GeV);",   100, 0, 5);
+  TH1D *h_km_pT = new TH1D("h_km_pT", "K^{-} p_{T};p_{T} (GeV);",   100, 0, 5);
+  TH1D *h_pr_pT = new TH1D("h_pr_pT", "Proton p_{T};p_{T} (GeV);",  100, 0, 5);
+
+  TH1D *h_pp_mom = new TH1D("h_pp_mom", "#pi^{+} Total Momentum;|p| (GeV);", 100, 0, 5);
+  TH1D *h_pm_mom = new TH1D("h_pm_mom", "#pi^{-} Total Momentum;|p| (GeV);", 100, 0, 5);
+  TH1D *h_kp_mom = new TH1D("h_kp_mom", "K^{+} Total Momentum;|p| (GeV);",   100, 0, 5);
+  TH1D *h_km_mom = new TH1D("h_km_mom", "K^{-} Total Momentum;|p| (GeV);",   100, 0, 5);
+  TH1D *h_pr_mom = new TH1D("h_pr_mom", "Proton Total Momentum;|p| (GeV);",  100, 0, 5);
+
+  /*
+  TH1D *h_y_pt0p5_pp = new TH1D("h_y_pt0p5_pp", "#pi^{+} Rapidity (p_{T} = 0.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p0_pp = new TH1D("h_y_pt1p0_pp", "#pi^{+} Rapidity (p_{T} = 1.0 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p5_pp = new TH1D("h_y_pt1p5_pp", "#pi^{+} Rapidity (p_{T} = 1.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt2p0_pp = new TH1D("h_y_pt2p0_pp", "#pi^{+} Rapidity (p_{T} = 2.0 GeV);y;", 40, -2, 0);
+
+  TH1D *h_y_pt0p5_pm = new TH1D("h_y_pt0p5_pm", "#pi^{-} Rapidity (p_{T} = 0.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p0_pm = new TH1D("h_y_pt1p0_pm", "#pi^{-} Rapidity (p_{T} = 1.0 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p5_pm = new TH1D("h_y_pt1p5_pm", "#pi^{-} Rapidity (p_{T} = 1.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt2p0_pm = new TH1D("h_y_pt2p0_pm", "#pi^{-} Rapidity (p_{T} = 2.0 GeV);y;", 40, -2, 0);
+
+  TH1D *h_y_pt0p5_kp = new TH1D("h_y_pt0p5_kp", "K^{+} Rapidity (p_{T} = 0.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p0_kp = new TH1D("h_y_pt1p0_kp", "K^{+} Rapidity (p_{T} = 1.0 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p5_kp = new TH1D("h_y_pt1p5_kp", "K^{+} Rapidity (p_{T} = 1.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt2p0_kp = new TH1D("h_y_pt2p0_kp", "K^{+} Rapidity (p_{T} = 2.0 GeV);y;", 40, -2, 0);
+
+  TH1D *h_y_pt0p5_km = new TH1D("h_y_pt0p5_km", "K^{-} Rapidity (p_{T} = 0.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p0_km = new TH1D("h_y_pt1p0_km", "K^{-} Rapidity (p_{T} = 1.0 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p5_km = new TH1D("h_y_pt1p5_km", "K^{-} Rapidity (p_{T} = 1.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt2p0_km = new TH1D("h_y_pt2p0_km", "K^{-} Rapidity (p_{T} = 2.0 GeV);y;", 40, -2, 0);
+
+  TH1D *h_y_pt0p5_pr = new TH1D("h_y_pt0p5_pr", "Proton Rapidity (p_{T} = 0.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p0_pr = new TH1D("h_y_pt1p0_pr", "Proton Rapidity (p_{T} = 1.0 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt1p5_pr = new TH1D("h_y_pt1p5_pr", "Proton Rapidity (p_{T} = 1.5 GeV);y;", 40, -2, 0);
+  TH1D *h_y_pt2p0_pr = new TH1D("h_y_pt2p0_pr", "Proton Rapidity (p_{T} = 2.0 GeV);y;", 40, -2, 0);
+  */
   TH1D *h_psiTpcA_RAW = new TH1D("h_psiTpcA_RAW", "Raw Event Plane Angles (n = "+ORDER_N_STR+", TPC A);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiTpcB_RAW = new TH1D("h_psiTpcB_RAW", "Raw Event Plane Angles (n = "+ORDER_N_STR+", TPC B);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdC1_RAW = new TH1D("h_psiEpdC1_RAW", "Raw Event Plane Angles (n = "+ORDER_N_STR+", EPD A);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdC2_RAW = new TH1D("h_psiEpdC2_RAW", "Raw Event Plane Angles (n = "+ORDER_N_STR+", EPD B);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdC3_RAW = new TH1D("h_psiEpdC3_RAW", "Raw Event Plane Angles (n = "+ORDER_N_STR+", EPD D);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdC1_RAW = new TH1D("h_psiEpdC1_RAW", "Raw Event Plane Angles (n = "+ORDER_N_STR+", EPD C1);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdC2_RAW = new TH1D("h_psiEpdC2_RAW", "Raw Event Plane Angles (n = "+ORDER_N_STR+", EPD C2);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdC3_RAW = new TH1D("h_psiEpdC3_RAW", "Raw Event Plane Angles (n = "+ORDER_N_STR+", EPD C3);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
   //TH1D *h_v2Plot = new TH1D("h_v2Plot", "Plot to Retrieve v_{2};cos(2(#phi - #psi_{"+ORDER_N_STR+"}));Particles", 150, -1.5, 1.5);
 
@@ -349,13 +435,47 @@ void FlowAnalyzer(TString inFile, TString jobID)
   //TH1D *h_acCorr_n2 = new TH1D("h_acCorr_n2", "2nd Order Subevent a-c Correlations;cos(2(#psi^{a}_{"+ORDER_N_STR+"} - #psi^{c}_{"+ORDER_N_STR+"}));Particles", 150, -1.5, 1.5);
   //TH1D *h_bcCorr_n2 = new TH1D("h_bcCorr_n2", "2nd Order Subevent b-c Correlations;cos(2(#psi^{b}_{"+ORDER_N_STR+"} - #psi^{c}_{"+ORDER_N_STR+"}));Particles", 150, -1.5, 1.5);
 
-  /*
-  TH2D *h2_betap = new TH2D("h2_betap","1/#beta vs Momentum;q*|p| (GeV);1/#beta", 300, -3, 3, 300, 0.5, 3.5);
-  TH2D *h2_m2_p   = new TH2D("h2_m2_p", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 500, -3, 3, 500, -0.1, 15);
-  */
+
+  TH2D *h2_pp_vs_eta = new TH2D("h2_pp_vs_eta","Tile Weight for Supersectors vs #eta;#eta;Supersector", 400, -6, -2, 12, 0.5, 12.5);
   TH2D *h2_trans_vtx = new TH2D("h2_trans_vtx","Primary Vertex after V_{z} Cut;x (cm);y (cm)", 500, -5, 5, 500, -5, 5);
   TH2D *h2_trans_vtx_cut = new TH2D("h2_trans_vtx_cut","Final Primary Vertices;x (cm);y (cm)", 500, -5, 5, 500, -5, 5);
-  TH2D *h2_pp_vs_eta = new TH2D("h2_pp_vs_eta","Tile Weight for Supersectors vs #eta;#eta;Supersector", 400, -6, -2, 12, 0.5, 12.5);
+
+  TH2D *h2_betap = new TH2D("h2_betap","1/#beta vs Momentum;q*|p| (GeV);1/#beta", 300, -3, 3, 300, 0.5, 3.5);
+  TH2D *h2_m2_p   = new TH2D("h2_m2_p", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 500, -3, 3, 500, -0.1, 15);
+  TH2D *h2_m2_vs_pTq  = new TH2D("h2_m2_vs_pTq", "m^{2} vs p_{T}/q;p_{T}/q (GeV);m^{2} (GeV^{2})", 500, -3, 3, 500, -0.1, 1.2);
+  TH2D *h2_dEdx_vs_pq = new TH2D("h2_dEdx_vs_pq", "dE/dx vs |p|/q;|p|/q (GeV);dE/dx (keV/cm)", 400, -2, 2, 500, 0, 10);
+
+  TH2D *h2_pi_m2_vs_TPC_nsig = new TH2D("h2_pi_m2_vs_TPC_nsig", "m^{2} vs #pi TPC n#sigma;n#sigma_{#pi};m^{2} (GeV^{2})", 500, -5, 5, 500, -0.1, 1.2);
+  TH2D *h2_ka_m2_vs_TPC_nsig = new TH2D("h2_ka_m2_vs_TPC_nsig", "m^{2} vs K TPC n#sigma;n#sigma_{K};m^{2} (GeV^{2})", 500, -5, 5, 500, -0.1, 1.2);
+  TH2D *h2_pr_m2_vs_TPC_nsig = new TH2D("h2_pr_m2_vs_TPC_nsig", "m^{2} vs Proton TPC n#sigma;n#sigma_{pro};m^{2} (GeV^{2})", 500, -5, 5, 500, -0.1, 1.2);
+
+  TH2D *h2_y_vs_eta = new TH2D("h2_y_vs_eta", "TPC A All Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+
+  TH2D *h2_y_vs_eta_pp = new TH2D("h2_y_vs_eta_pp", "TPC A #pi^{+} y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt0p5to1_pp = new TH2D("h2_y_vs_eta_pt0p5to1_pp", "#pi^{+} y vs #eta (0.5 < p_{T} < 1 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1to1p5_pp = new TH2D("h2_y_vs_eta_pt1to1p5_pp", "#pi^{+} y vs #eta (1 < p_{T} < 1.5 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1p5to2_pp = new TH2D("h2_y_vs_eta_pt1p5to2_pp", "#pi^{+} y vs #eta (1.5 < p_{T} < 2 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+
+  TH2D *h2_y_vs_eta_pm = new TH2D("h2_y_vs_eta_pm", "TPC A #pi^{-} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt0p5to1_pm = new TH2D("h2_y_vs_eta_pt0p5to1_pm", "#pi^{-} y vs #eta (0.5 < p_{T} < 1 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1to1p5_pm = new TH2D("h2_y_vs_eta_pt1to1p5_pm", "#pi^{-} y vs #eta (1 < p_{T} < 1.5 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1p5to2_pm = new TH2D("h2_y_vs_eta_pt1p5to2_pm", "#pi^{-} y vs #eta (1.5 < p_{T} < 2 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+
+  TH2D *h2_y_vs_eta_kp = new TH2D("h2_y_vs_eta_kp", "TPC A K^{+} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt0p5to1_kp = new TH2D("h2_y_vs_eta_pt0p5to1_kp", "K^{+} y vs #eta (0.5 < p_{T} < 1 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1to1p5_kp = new TH2D("h2_y_vs_eta_pt1to1p5_kp", "K^{+} y vs #eta (1 < p_{T} < 1.5 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1p5to2_kp = new TH2D("h2_y_vs_eta_pt1p5to2_kp", "K^{+} y vs #eta (1.5 < p_{T} < 2 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+
+  TH2D *h2_y_vs_eta_km = new TH2D("h2_y_vs_eta_km", "TPC A K^{-} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt0p5to1_km = new TH2D("h2_y_vs_eta_pt0p5to1_km", "K^{-} y vs #eta (0.5 < p_{T} < 1 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1to1p5_km = new TH2D("h2_y_vs_eta_pt1to1p5_km", "K^{-} y vs #eta (1 < p_{T} < 1.5 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1p5to2_km = new TH2D("h2_y_vs_eta_pt1p5to2_km", "K^{-} y vs #eta (1.5 < p_{T} < 2 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+
+  TH2D *h2_y_vs_eta_pr = new TH2D("h2_y_vs_eta_pr", "TPC A Proton Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt0p5to1_pr = new TH2D("h2_y_vs_eta_pt0p5to1_pr", "Proton y vs #eta (0.5 < p_{T} < 1 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1to1p5_pr = new TH2D("h2_y_vs_eta_pt1to1p5_pr", "Proton y vs #eta (1 < p_{T} < 1.5 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta_pt1p5to2_pr = new TH2D("h2_y_vs_eta_pt1p5to2_pr", "Proton y vs #eta (1.5 < p_{T} < 2 GeV);#eta;y", 40, -2, 0, 40, -2, 0);
+
   /*
   TH2D *h2_phiSearchTpc = new TH2D("h2_phiSearchTpc", "Azimuthal Distribution by Centrality;#phi;Centrality (%)", 
 				   200, -4, 4, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
@@ -404,27 +524,27 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 
   // CORRECTION HISTOGRAMS
-  TProfile *p_sinAvgsTpcA = new TProfile("p_sinAvgsTpcA", "Sin Averages (TPC A);j (Correction term);<sin(jn#psi^{TPC}_{A,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsTpcA = new TProfile("p_cosAvgsTpcA", "Cos Averages (TPC A);j (Correction term);<sin(jn#psi^{TPC}_{A,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsTpcB = new TProfile("p_sinAvgsTpcB", "Sin Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC}_{B,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsTpcB = new TProfile("p_cosAvgsTpcB", "Cos Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC}_{B,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsEpdC1 = new TProfile("p_sinAvgsEpdC1", "Sin Averages (EPD A);j (Correction term);<sin(jn#psi^{EPD}_{A,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsEpdC1 = new TProfile("p_cosAvgsEpdC1", "Cos Averages (EPD A);j (Correction term);<sin(jn#psi^{EPD}_{A,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsEpdC2 = new TProfile("p_sinAvgsEpdC2", "Sin Averages (EPD B);j (Correction term);<sin(jn#psi^{EPD}_{B,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsEpdC2 = new TProfile("p_cosAvgsEpdC2", "Cos Averages (EPD B);j (Correction term);<sin(jn#psi^{EPD}_{B,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsEpdC3 = new TProfile("p_sinAvgsEpdC3", "Sin Averages (EPD D);j (Correction term);<sin(jn#psi^{EPD}_{D,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsEpdC3 = new TProfile("p_cosAvgsEpdC3", "Cos Averages (EPD D);j (Correction term);<sin(jn#psi^{EPD}_{D,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_sinAvgsTpcA  = new TProfile("p_sinAvgsTpcA", "Sin Averages (TPC A);j (Correction term);<sin(jn#psi^{TPC}_{A,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_cosAvgsTpcA  = new TProfile("p_cosAvgsTpcA", "Cos Averages (TPC A);j (Correction term);<sin(jn#psi^{TPC}_{A,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_sinAvgsTpcB  = new TProfile("p_sinAvgsTpcB", "Sin Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC}_{B,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_cosAvgsTpcB  = new TProfile("p_cosAvgsTpcB", "Cos Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC}_{B,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_sinAvgsEpdC1 = new TProfile("p_sinAvgsEpdC1", "Sin Averages (EPD C1);j (Correction term);<sin(jn#psi^{EPD}_{A,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_cosAvgsEpdC1 = new TProfile("p_cosAvgsEpdC1", "Cos Averages (EPD C1);j (Correction term);<sin(jn#psi^{EPD}_{A,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_sinAvgsEpdC2 = new TProfile("p_sinAvgsEpdC2", "Sin Averages (EPD C2);j (Correction term);<sin(jn#psi^{EPD}_{B,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_cosAvgsEpdC2 = new TProfile("p_cosAvgsEpdC2", "Cos Averages (EPD C2);j (Correction term);<sin(jn#psi^{EPD}_{B,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_sinAvgsEpdC3 = new TProfile("p_sinAvgsEpdC3", "Sin Averages (EPD C3);j (Correction term);<sin(jn#psi^{EPD}_{D,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_cosAvgsEpdC3 = new TProfile("p_cosAvgsEpdC3", "Cos Averages (EPD C3);j (Correction term);<sin(jn#psi^{EPD}_{D,n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
 
-  TH1D *h_XnTpcA = new TH1D("h_XnTpcA", "X_n Distribution (TPC A);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnTpcA = new TH1D("h_YnTpcA", "Y_n Distribution (TPC A);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_XnTpcB = new TH1D("h_XnTpcB", "X_n Distribution (TPC B);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnTpcB = new TH1D("h_YnTpcB", "Y_n Distribution (TPC B);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_XnEpdC1 = new TH1D("h_XnEpdC1", "X_n Distribution (EPD A);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnEpdC1 = new TH1D("h_YnEpdC1", "Y_n Distribution (EPD A);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_XnEpdC2 = new TH1D("h_XnEpdC2", "X_n Distribution (EPD B);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnEpdC2 = new TH1D("h_YnEpdC2", "Y_n Distribution (EPD B);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_XnEpdC3 = new TH1D("h_XnEpdC3", "X_n Distribution (EPD D);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnEpdC3 = new TH1D("h_YnEpdC3", "Y_n Distribution (EPD D);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnTpcA  = new TH1D("h_XnTpcA", "X_n Distribution (TPC A);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnTpcA  = new TH1D("h_YnTpcA", "Y_n Distribution (TPC A);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnTpcB  = new TH1D("h_XnTpcB", "X_n Distribution (TPC B);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnTpcB  = new TH1D("h_YnTpcB", "Y_n Distribution (TPC B);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnEpdC1 = new TH1D("h_XnEpdC1", "X_n Distribution (EPD C1);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnEpdC1 = new TH1D("h_YnEpdC1", "Y_n Distribution (EPD C1);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnEpdC2 = new TH1D("h_XnEpdC2", "X_n Distribution (EPD C2);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnEpdC2 = new TH1D("h_YnEpdC2", "Y_n Distribution (EPD C2);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnEpdC3 = new TH1D("h_XnEpdC3", "X_n Distribution (EPD C3);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnEpdC3 = new TH1D("h_YnEpdC3", "Y_n Distribution (EPD C3);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
 
   
   Int_t goodRunList[170] = { 19151031, 19151034, 19151036, 19151039, 19151041, 19151043, 19151044, 19151045,
@@ -542,7 +662,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  //=========================================================
 	  //          TOF Beta Cuts
 	  //=========================================================
-	  /*
+
 	  if (!picoTrack->isTofTrack()) continue;  // Only TOF tracks
 
 	  StPicoBTofPidTraits *trait = dst->btofPidTraits(picoTrack->bTofPidTraitsIndex());
@@ -550,7 +670,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  Double_t d_tofBeta = trait->btofBeta();
 
 	  if (d_tofBeta < 0.01) continue;
-	  */
+
 	  //=========================================================
 	  //          End TOF Beta Cuts
 	  //=========================================================
@@ -580,19 +700,28 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 	  h_track_check->Fill(trackSections[2], 1);
 
+	  Double_t d_TPCnSigmaPion   = picoTrack->nSigmaPion();
+	  Double_t d_TPCnSigmaProton = picoTrack->nSigmaProton();
+	  Double_t d_TPCnSigmaKaon   = picoTrack->nSigmaKaon();
+
+
 	  TVector3 mom_vec  = picoTrack->pMom();
 	  Double_t d_charge = picoTrack->charge();
+	  Double_t d_dEdx   = picoTrack->dEdx();
 	  Double_t d_mom    = picoTrack->pPtot();
+	  Double_t d_m2     = d_mom*d_mom*( (1 / (d_tofBeta*d_tofBeta)) - 1);
+	  Double_t d_px     = picoTrack->pMom().x();
+	  Double_t d_py     = picoTrack->pMom().y();
+	  Double_t d_pz     = picoTrack->pMom().z();
 	  Double_t d_pT     = picoTrack->pPt();
 	  Double_t d_phi    = mom_vec.Phi();
 	  Double_t d_eta    = mom_vec.Eta();
 
+
+
 	  // Fill histos and save important event info in the custom struct type
 	  if (d_charge != 0)
 	    {
-	      //h2_betap->Fill(d_charge*d_mom, 1/d_tofBeta);
-	      //h2_m2_p->Fill(d_charge*d_mom, d_mom*d_mom*(1/(d_tofBeta*d_tofBeta) - 1));
-
 	      h_eta_s->Fill(d_eta - Y_MID);
 
 	      if (d_eta > MIN_TPC_ETA_CUT && d_eta < AGAP_TPC_ETA_CUT)
@@ -611,9 +740,195 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		  eventInfo.XnTpcB += d_pT * TMath::Cos((Double_t)ORDER_N * d_phi);
 		  eventInfo.YnTpcB += d_pT * TMath::Sin((Double_t)ORDER_N * d_phi);
 		}
-
 	    }
+
+	  // PID stuff for TPC A region
+	  if (d_eta > MIN_TPC_ETA_CUT && d_eta < AGAP_TPC_ETA_CUT)
+	    {
+	      h2_betap->Fill(d_charge*d_mom, 1/d_tofBeta);
+	      h2_m2_p->Fill(d_charge*d_mom, d_mom*d_mom*(1/(d_tofBeta*d_tofBeta) - 1));
+
+	      h_pi_TPC_nsig->Fill(d_TPCnSigmaPion);
+	      h_ka_TPC_nsig->Fill(d_TPCnSigmaProton);
+	      h_pr_TPC_nsig->Fill(d_TPCnSigmaKaon);
+
+	      h2_pi_m2_vs_TPC_nsig->Fill(d_TPCnSigmaPion, d_m2);
+	      h2_ka_m2_vs_TPC_nsig->Fill(d_TPCnSigmaKaon, d_m2);
+	      h2_pr_m2_vs_TPC_nsig->Fill(d_TPCnSigmaProton, d_m2);
+
+	      h2_m2_vs_pTq->Fill(d_pT/d_charge, d_m2);
+	      h2_dEdx_vs_pq->Fill(d_mom/d_charge, d_dEdx);
+
+	      //=========================================================
+	      //          PID Cuts
+	      //=========================================================
+
+	      Bool_t pion   = ( (d_TPCnSigmaPion > -2)   && (d_TPCnSigmaPion < 2)   && (d_m2 > 0.0) && (d_m2 < 0.05) );    // PARTICLE TAGGING
+	      Bool_t kaon   = ( (d_TPCnSigmaKaon > -2)   && (d_TPCnSigmaKaon < 2)   && (d_m2 > 0.2) && (d_m2 < 0.3)  );
+	      Bool_t proton = ( (d_TPCnSigmaProton > -2) && (d_TPCnSigmaProton < 2) && (d_m2 > 0.8) && (d_m2 < 1.0)  );
+
+	      if (!pion && !kaon && !proton) continue;
+
+	      if (pion && kaon)   continue;   //Sanity check
+	      if (pion && proton) continue;
+	      if (kaon && proton) continue;
+
+	      //=========================================================
+	      //          END PID Cuts
+	      //=========================================================
+
+
+	      h_track_check->Fill(trackSections[3], 1);
+
+	      Double_t d_m0_pi = 0.1396;   //Rest masses
+	      Double_t d_m0_ka = 0.4937;
+	      Double_t d_m0_pr = 0.9383;
+
+	      
+	      if (pion)
+		{
+		  if (d_charge > 0) 
+		    {
+		      h2_y_vs_eta->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi));
+		      h2_y_vs_eta_pp->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi));
+		      fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pp_dndy, h_pp_dndm);
+		      h_pp_pT->Fill(d_pT);
+		      h_pp_mom->Fill(d_mom);
+
+		      if (d_pT > 0.5 && d_pT < 1.0) { h2_y_vs_eta_pt0p5to1_pp->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi)); }
+		      if (d_pT > 1.0 && d_pT < 1.5) { h2_y_vs_eta_pt1to1p5_pp->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi)); }
+		      if (d_pT > 1.5 && d_pT < 2.0) { h2_y_vs_eta_pt1p5to2_pp->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi)); }
+		      /*
+		      if (d_pT == 0.5) { h_y_pt0p5_pp->Fill( rapidity(d_px, d_py, d_pz, d_m0_pi) ); }
+		      if (d_pT == 1.0) { h_y_pt1p0_pp->Fill( rapidity(d_px, d_py, d_pz, d_m0_pi) ); }
+		      if (d_pT == 1.5) { h_y_pt1p5_pp->Fill( rapidity(d_px, d_py, d_pz, d_m0_pi) ); }
+		      if (d_pT == 2.0) { h_y_pt2p0_pp->Fill( rapidity(d_px, d_py, d_pz, d_m0_pi) ); }
+		      */
+		    }
+		  else if (d_charge < 0) 
+		    {
+		      h2_y_vs_eta->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi));
+		      h2_y_vs_eta_pm->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi));
+		      fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pm_dndy, h_pm_dndm);
+		      h_pm_pT->Fill(d_pT);
+		      h_pm_mom->Fill(d_mom);
+
+		      if (d_pT > 0.5 && d_pT < 1.0) { h2_y_vs_eta_pt0p5to1_pm->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi)); }
+		      if (d_pT > 1.0 && d_pT < 1.5) { h2_y_vs_eta_pt1to1p5_pm->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi)); }
+		      if (d_pT > 1.5 && d_pT < 2.0) { h2_y_vs_eta_pt1p5to2_pm->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pi)); }
+
+		      /*
+		      if (d_pT == 0.5) { h_y_pt0p5_pm->Fill( rapidity(d_px, d_py, d_pz, d_m0_pi) ); }
+		      if (d_pT == 1.0) { h_y_pt1p0_pm->Fill( rapidity(d_px, d_py, d_pz, d_m0_pi) ); }
+		      if (d_pT == 1.5) { h_y_pt1p5_pm->Fill( rapidity(d_px, d_py, d_pz, d_m0_pi) ); }
+		      if (d_pT == 2.0) { h_y_pt2p0_pm->Fill( rapidity(d_px, d_py, d_pz, d_m0_pi) ); }
+		      */
+		    }
+		}
+	      else if (kaon)
+		{
+		  if (d_charge > 0) 
+		    {
+		      h2_y_vs_eta->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka));
+		      h2_y_vs_eta_kp->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka));
+		      fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_kp_dndy, h_kp_dndm);
+		      h_kp_pT->Fill(d_pT);
+		      h_kp_mom->Fill(d_mom);
+
+		      if (d_pT > 0.5 && d_pT < 1.0) { h2_y_vs_eta_pt0p5to1_kp->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka)); }
+		      if (d_pT > 1.0 && d_pT < 1.5) { h2_y_vs_eta_pt1to1p5_kp->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka)); }
+		      if (d_pT > 1.5 && d_pT < 2.0) { h2_y_vs_eta_pt1p5to2_kp->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka)); }
+		      /*
+		      if (d_pT == 0.5) { h_y_pt0p5_kp->Fill( rapidity(d_px, d_py, d_pz, d_m0_ka) ); }
+		      if (d_pT == 1.0) { h_y_pt1p0_kp->Fill( rapidity(d_px, d_py, d_pz, d_m0_ka) ); }
+		      if (d_pT == 1.5) { h_y_pt1p5_kp->Fill( rapidity(d_px, d_py, d_pz, d_m0_ka) ); }
+		      if (d_pT == 2.0) { h_y_pt2p0_kp->Fill( rapidity(d_px, d_py, d_pz, d_m0_ka) ); }
+		      */
+		    }
+		  else if (d_charge < 0)		 
+		    {
+		      h2_y_vs_eta->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka));
+		      h2_y_vs_eta_km->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka));
+		      fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_km_dndy, h_km_dndm);
+		      h_km_pT->Fill(d_pT);
+		      h_km_mom->Fill(d_mom);
+
+		      if (d_pT > 0.5 && d_pT < 1.0) { h2_y_vs_eta_pt0p5to1_km->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka)); }
+		      if (d_pT > 1.0 && d_pT < 1.5) { h2_y_vs_eta_pt1to1p5_km->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka)); }
+		      if (d_pT > 1.5 && d_pT < 2.0) { h2_y_vs_eta_pt1p5to2_km->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_ka)); }
+		      /*
+		      if (d_pT == 0.5) { h_y_pt0p5_km->Fill( rapidity(d_px, d_py, d_pz, d_m0_ka) ); }
+		      if (d_pT == 1.0) { h_y_pt1p0_km->Fill( rapidity(d_px, d_py, d_pz, d_m0_ka) ); }
+		      if (d_pT == 1.5) { h_y_pt1p5_km->Fill( rapidity(d_px, d_py, d_pz, d_m0_ka) ); }
+		      if (d_pT == 2.0) { h_y_pt2p0_km->Fill( rapidity(d_px, d_py, d_pz, d_m0_ka) ); }
+		      */
+		    }
+		}
+	      else if (proton)
+		{
+		  if (d_charge > 0) 
+		    {
+		      h2_y_vs_eta->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pr));
+		      h2_y_vs_eta_pr->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pr));
+		      fillRawSpect(d_px, d_py, d_pz, d_m0_pr, h_pr_dndy, h_pr_dndm);
+		      h_pr_pT->Fill(d_pT);
+		      h_pr_mom->Fill(d_mom);
+
+		      if (d_pT > 0.5 && d_pT < 1.0) { h2_y_vs_eta_pt0p5to1_pr->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pr)); }
+		      if (d_pT > 1.0 && d_pT < 1.5) { h2_y_vs_eta_pt1to1p5_pr->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pr)); }
+		      if (d_pT > 1.5 && d_pT < 2.0) { h2_y_vs_eta_pt1p5to2_pr->Fill(d_eta, rapidity(d_px, d_py, d_pz, d_m0_pr)); }
+		      /*
+		      if (d_pT == 0.5) { h_y_pt0p5_pr->Fill( rapidity(d_px, d_py, d_pz, d_m0_pr) ); }
+		      if (d_pT == 1.0) { h_y_pt1p0_pr->Fill( rapidity(d_px, d_py, d_pz, d_m0_pr) ); }
+		      if (d_pT == 1.5) { h_y_pt1p5_pr->Fill( rapidity(d_px, d_py, d_pz, d_m0_pr) ); }
+		      if (d_pT == 2.0) { h_y_pt2p0_pr->Fill( rapidity(d_px, d_py, d_pz, d_m0_pr) ); }
+		      */
+		    }
+		}
+	    }//End if(d_eta is in TPC A)
 	}//End track loop
+
+
+      TH1D *h_y_pt0p5to1_pp = h2_y_vs_eta_pt0p5to1_pp->ProjectionY();
+      TH1D *h_y_pt1to1p5_pp = h2_y_vs_eta_pt1to1p5_pp->ProjectionY();
+      TH1D *h_y_pt1p5to2_pp = h2_y_vs_eta_pt1p5to2_pp->ProjectionY();
+
+      TH1D *h_y_pt0p5to1_pm = h2_y_vs_eta_pt0p5to1_pm->ProjectionY();
+      TH1D *h_y_pt1to1p5_pm = h2_y_vs_eta_pt1to1p5_pm->ProjectionY();
+      TH1D *h_y_pt1p5to2_pm = h2_y_vs_eta_pt1p5to2_pm->ProjectionY();
+
+      TH1D *h_y_pt0p5to1_kp = h2_y_vs_eta_pt0p5to1_kp->ProjectionY();
+      TH1D *h_y_pt1to1p5_kp = h2_y_vs_eta_pt1to1p5_kp->ProjectionY();
+      TH1D *h_y_pt1p5to2_kp = h2_y_vs_eta_pt1p5to2_kp->ProjectionY();
+
+      TH1D *h_y_pt0p5to1_km = h2_y_vs_eta_pt0p5to1_km->ProjectionY();
+      TH1D *h_y_pt1to1p5_km = h2_y_vs_eta_pt1to1p5_km->ProjectionY();
+      TH1D *h_y_pt1p5to2_km = h2_y_vs_eta_pt1p5to2_km->ProjectionY();
+
+      TH1D *h_y_pt0p5to1_pr = h2_y_vs_eta_pt0p5to1_pr->ProjectionY();
+      TH1D *h_y_pt1to1p5_pr = h2_y_vs_eta_pt1to1p5_pr->ProjectionY();
+      TH1D *h_y_pt1p5to2_pr = h2_y_vs_eta_pt1p5to2_pr->ProjectionY();
+
+
+      TH1D *h_eta_pt0p5to1_pp = h2_y_vs_eta_pt0p5to1_pp->ProjectionX();
+      TH1D *h_eta_pt1to1p5_pp = h2_y_vs_eta_pt1to1p5_pp->ProjectionX();
+      TH1D *h_eta_pt1p5to2_pp = h2_y_vs_eta_pt1p5to2_pp->ProjectionX();
+
+      TH1D *h_eta_pt0p5to1_pm = h2_y_vs_eta_pt0p5to1_pm->ProjectionX();
+      TH1D *h_eta_pt1to1p5_pm = h2_y_vs_eta_pt1to1p5_pm->ProjectionX();
+      TH1D *h_eta_pt1p5to2_pm = h2_y_vs_eta_pt1p5to2_pm->ProjectionX();
+
+      TH1D *h_eta_pt0p5to1_kp = h2_y_vs_eta_pt0p5to1_kp->ProjectionX();
+      TH1D *h_eta_pt1to1p5_kp = h2_y_vs_eta_pt1to1p5_kp->ProjectionX();
+      TH1D *h_eta_pt1p5to2_kp = h2_y_vs_eta_pt1p5to2_kp->ProjectionX();
+
+      TH1D *h_eta_pt0p5to1_km = h2_y_vs_eta_pt0p5to1_km->ProjectionX();
+      TH1D *h_eta_pt1to1p5_km = h2_y_vs_eta_pt1to1p5_km->ProjectionX();
+      TH1D *h_eta_pt1p5to2_km = h2_y_vs_eta_pt1p5to2_km->ProjectionX();
+
+      TH1D *h_eta_pt0p5to1_pr = h2_y_vs_eta_pt0p5to1_pr->ProjectionX();
+      TH1D *h_eta_pt1to1p5_pr = h2_y_vs_eta_pt1to1p5_pr->ProjectionX();
+      TH1D *h_eta_pt1p5to2_pr = h2_y_vs_eta_pt1p5to2_pr->ProjectionX();
 
 
       // ASSIGN CENTRALITY ID
@@ -829,18 +1144,18 @@ void FlowAnalyzer(TString inFile, TString jobID)
       h_YnTpcA_RC = new TH1D("h_YnTpcA_RC", "Re-centered Y_n Distribution (TPC A);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
       h_XnTpcB_RC = new TH1D("h_XnTpcB_RC", "Re-centered X_n Distribution (TPC B);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
       h_YnTpcB_RC = new TH1D("h_YnTpcB_RC", "Re-centered Y_n Distribution (TPC B);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-      h_XnEpdC1_RC = new TH1D("h_XnEpdC1_RC", "Re-centered X_n Distribution (EPD A);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-      h_YnEpdC1_RC = new TH1D("h_YnEpdC1_RC", "Re-centered Y_n Distribution (EPD A);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-      h_XnEpdC2_RC = new TH1D("h_XnEpdC2_RC", "Re-centered X_n Distribution (EPD B);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-      h_YnEpdC2_RC = new TH1D("h_YnEpdC2_RC", "Re-centered Y_n Distribution (EPD B);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-      h_XnEpdC3_RC = new TH1D("h_XnEpdC3_RC", "Re-centered X_n Distribution (EPD D);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-      h_YnEpdC3_RC = new TH1D("h_YnEpdC3_RC", "Re-centered Y_n Distribution (EPD D);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+      h_XnEpdC1_RC = new TH1D("h_XnEpdC1_RC", "Re-centered X_n Distribution (EPD C1);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+      h_YnEpdC1_RC = new TH1D("h_YnEpdC1_RC", "Re-centered Y_n Distribution (EPD C1);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+      h_XnEpdC2_RC = new TH1D("h_XnEpdC2_RC", "Re-centered X_n Distribution (EPD C2);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+      h_YnEpdC2_RC = new TH1D("h_YnEpdC2_RC", "Re-centered Y_n Distribution (EPD C2);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+      h_XnEpdC3_RC = new TH1D("h_XnEpdC3_RC", "Re-centered X_n Distribution (EPD C3);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+      h_YnEpdC3_RC = new TH1D("h_YnEpdC3_RC", "Re-centered Y_n Distribution (EPD C3);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
 
       h_psiTpcA_RC = new TH1D("h_psiTpcA_RC", "Re-centered Event Plane Angles (n = "+ORDER_N_STR+", TPC A);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
       h_psiTpcB_RC = new TH1D("h_psiTpcB_RC", "Re-centered Event Plane Angles (n = "+ORDER_N_STR+", TPC B);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-      h_psiEpdC1_RC = new TH1D("h_psiEpdC1_RC", "Re-centered Event Plane Angles (n = "+ORDER_N_STR+", EPD A);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-      h_psiEpdC2_RC = new TH1D("h_psiEpdC2_RC", "Re-centered Event Plane Angles (n = "+ORDER_N_STR+", EPD B);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-      h_psiEpdC3_RC = new TH1D("h_psiEpdC3_RC", "Re-centered Event Plane Angles (n = "+ORDER_N_STR+", EPD D);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+      h_psiEpdC1_RC = new TH1D("h_psiEpdC1_RC", "Re-centered Event Plane Angles (n = "+ORDER_N_STR+", EPD C1);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+      h_psiEpdC2_RC = new TH1D("h_psiEpdC2_RC", "Re-centered Event Plane Angles (n = "+ORDER_N_STR+", EPD C2);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+      h_psiEpdC3_RC = new TH1D("h_psiEpdC3_RC", "Re-centered Event Plane Angles (n = "+ORDER_N_STR+", EPD C3);#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
       TH1D *h_XnTpcA_INPUT = (TH1D*)correctionInputFile->Get("h_XnTpcA");
       TH1D *h_XnTpcB_INPUT = (TH1D*)correctionInputFile->Get("h_XnTpcB");
@@ -955,9 +1270,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
       h_psiTpcA_FLAT = new TH1D("h_psiTpcA_FLAT", "Flattened Event Plane Angle (TPC A, order "+ORDER_N_STR+");#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);      
       h_psiTpcB_FLAT = new TH1D("h_psiTpcB_FLAT", "Flattened Event Plane Angle (TPC B, order "+ORDER_N_STR+");#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);      
-      h_psiEpdC1_FLAT = new TH1D("h_psiEpdC1_FLAT", "Flattened Event Plane Angle (EPD A, order "+ORDER_N_STR+");#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-      h_psiEpdC2_FLAT = new TH1D("h_psiEpdC2_FLAT", "Flattened Event Plane Angle (EPD B, order "+ORDER_N_STR+");#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-      h_psiEpdC3_FLAT = new TH1D("h_psiEpdC3_FLAT", "Flattened Event Plane Angle (EPD D, order "+ORDER_N_STR+");#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+      h_psiEpdC1_FLAT = new TH1D("h_psiEpdC1_FLAT", "Flattened Event Plane Angle (EPD C1, order "+ORDER_N_STR+");#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+      h_psiEpdC2_FLAT = new TH1D("h_psiEpdC2_FLAT", "Flattened Event Plane Angle (EPD C2, order "+ORDER_N_STR+");#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+      h_psiEpdC3_FLAT = new TH1D("h_psiEpdC3_FLAT", "Flattened Event Plane Angle (EPD C3, order "+ORDER_N_STR+");#psi_{"+ORDER_N_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
       TProfile *p_sinAvgsTpcA_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsTpcA");
       TProfile *p_cosAvgsTpcA_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsTpcA");
@@ -1064,6 +1379,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 
 	  // 2D searches through eta and centrality for correlations between detectors
+	  // ONLY USE THIS SECTION IF THE EPD REGIONS COVER THE WHOLE EPD!! IT CURRENTLY DOES NOT MEET THIS REQUIREMENT, NEEDS FIXING
 	  /*
 	  Int_t tpcHitsA  = v_events.at(i).phiValuesTpcA.size();
 	  Int_t tpcHitsB  = v_events.at(i).phiValuesTpcB.size();
