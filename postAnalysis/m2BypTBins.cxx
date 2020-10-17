@@ -26,14 +26,16 @@ void m2BypTBins(TString jobID)
 
       TString low_pT_str;
       TString high_pT_str;
-      low_pT_str.Form("%1.3f", low_pT);
-      high_pT_str.Form("%1.3f", high_pT);
+      low_pT_str.Form("%1.1f", low_pT);
+      high_pT_str.Form("%1.1f", high_pT);
 
       TH1D *h_m2 = h2_m2_vs_qpT->ProjectionY("h_m2", low_pT_bin, high_pT_bin);
       h_m2->GetYaxis()->SetTitle("Tracks");
+      h_m2->SetTitle("");
 
       TPaveText *text = new TPaveText(0.2, 0.6, 0.4, 0.9, "NDC");
       text->SetFillColorAlpha(0,0);
+      text->SetTextSize(0.05);
       text->AddText(low_pT_str + " < p_{T} < " + high_pT_str);
   
       h_m2->Draw();

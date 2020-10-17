@@ -6,7 +6,7 @@ void acceptanceCuts(TString jobID)
   TFile *file = TFile::Open(fileName);
   if(!file) {cout << "Wrong file!" << endl; return;}
 
-  TH2D *h2_pp_vs_eta = (TH2D*)file->Get("h2_pp_vs_eta");
+  TProfile2D *p2_pp_vs_eta = (TProfile2D*)file->Get("p2_pp_vs_eta");
   
   TH2D *h2_pT_vs_yCM_pp = (TH2D*)file->Get("h2_pT_vs_yCM_pp");
   TH2D *h2_pT_vs_yCM_pm = (TH2D*)file->Get("h2_pT_vs_yCM_pm");
@@ -178,7 +178,8 @@ void acceptanceCuts(TString jobID)
   canvas->SaveAs("Acceptance_pr.png");
   canvas->Clear();
 
-  h2_pp_vs_eta->Draw("colz");
+  canvas->SetLogz(0);
+  p2_pp_vs_eta->Draw("colz");
   pp_vs_eta_cutoff->Draw("SAME");
   canvas->SaveAs("epdAcceptance.png");
   canvas->Clear();
