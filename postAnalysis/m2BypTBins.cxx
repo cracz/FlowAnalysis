@@ -8,6 +8,7 @@ void m2BypTBins(TString jobID)
 
   TCanvas *canvas = new TCanvas("canvas", "Canvas", 875, 675);
   canvas->SetGrid();
+  canvas->SetTicks();
   canvas->SetLogy();
   gStyle->SetOptStat(0);
 
@@ -31,9 +32,10 @@ void m2BypTBins(TString jobID)
 
       TH1D *h_m2 = h2_m2_vs_qpT->ProjectionY("h_m2", low_pT_bin, high_pT_bin);
       h_m2->GetYaxis()->SetTitle("Tracks");
+      h_m2->GetYaxis()->SetRangeUser(10e1, 10e6);
       h_m2->SetTitle("");
 
-      TPaveText *text = new TPaveText(0.2, 0.6, 0.4, 0.9, "NDC");
+      TPaveText *text = new TPaveText(0.2, 0.65, 0.4, 0.95, "NDC");
       text->SetFillColorAlpha(0,0);
       text->SetTextSize(0.05);
       text->AddText(low_pT_str + " < p_{T} < " + high_pT_str);
