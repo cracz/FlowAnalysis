@@ -70,12 +70,12 @@ const Double_t BC_ETA_CUT  = -3.3;//-3.28;
 const Double_t CD_ETA_CUT  = -2.9;//-2.87;
 const Double_t MAX_ETA_CUT = -2.30;
 */
-
-const Double_t MIN_ETA_CUT = -5.6;
+/*
+const Double_t MIN_ETA_CUT = -5.1;
 const Double_t EF_ETA_CUT  = -3.3;
 const Double_t MAX_ETA_CUT = -2.4;
-
-const Double_t R_VTX_CUT = 2.0;         // 2D r value, good vertices are within this value
+*/
+const Double_t R_VTX_CUT = 2.0;         // 2D radius, good vertices are within this value
 const Double_t Z_VTX_CUT_LOW  = 199.5;
 const Double_t Z_VTX_CUT_HIGH = 201.5;
 
@@ -86,20 +86,20 @@ const Double_t PR_MOM_CUT    = 3.0;
 
 const Int_t SHIFT_TERMS = 10;           // Number of terms to use when shifting event plane angles
 
-const Int_t I_BAD_VALUE    = -99;
-const Double_t D_BAD_VALUE = -99.0;
+const Int_t I_BAD_VALUE    = -999;
+const Double_t D_BAD_VALUE = -999.0;
 
-const Int_t CENT_BINS  = 16;             // Number of centrality bins (max 16)
+const Int_t CENT_BINS  = 16;             // Number of centrality bins to show (max 16)  LEAVE AT 16 FOR NOW, BEST FOR RESOLUTION STUFF
 const Int_t FIRST_CENT = 16 - CENT_BINS;            // Starting point for centrality dependent plots
 
-const Double_t Y_MID = -1.05;       // Mid rapidity
-
+const Double_t Y_MID = -1.045;       // Mid rapidity
+/*
 const Double_t Y_MID_PP = -0.83;       // Mid rapidity for pions (plus and minus), kaons, and protons
 const Double_t Y_MID_PM = -0.83;
 const Double_t Y_MID_KP = -0.73;
 const Double_t Y_MID_KM = -0.80;
 const Double_t Y_MID_PR = -0.61;
-
+*/
 Int_t RUN_ITERATION = 0;
 // 0 = No correction info yet; save raw (Xn,Yn) distributions
 // 1 = Correction file found, but only <Xn> and <Yn> for re-centering.
@@ -144,19 +144,21 @@ struct Event
   std::vector<Double_t> phiValuesKaonM;
   std::vector<Double_t> phiValuesProton;
 
-  Int_t nhitsEpd;
+  Int_t nHitsEpd;
   Double_t XnEpd;
   Double_t YnEpd;
   Double_t psiEpd;
 
-  Int_t nhitsEpdE;
+  Int_t nHitsEpdE;
   Double_t XnEpdE;
   Double_t YnEpdE;
   Double_t psiEpdE;
   std::vector<Double_t> phiValuesEpdE;
   std::vector<Double_t> etaValuesEpdE;
+  std::vector<Double_t> tileWeightsEpdE;
+  std::vector<Double_t> eventPlanesEpdE;
 
-  Int_t nhitsEpdF;
+  Int_t nHitsEpdF;
   Double_t XnEpdF;
   Double_t YnEpdF;
   Double_t psiEpdF;
@@ -195,19 +197,21 @@ struct Event
     std::vector<Double_t>().swap(phiValuesKaonM);
     std::vector<Double_t>().swap(phiValuesProton);
 
-    nhitsEpd = 0;
+    nHitsEpd = 0;
     XnEpd = 0;
     YnEpd = 0;
     psiEpd = D_BAD_VALUE;
 
-    nhitsEpdE = 0;
+    nHitsEpdE = 0;
     XnEpdE = 0;
     YnEpdE = 0;
     psiEpdE = D_BAD_VALUE;
     std::vector<Double_t>().swap(phiValuesEpdE);
     std::vector<Double_t>().swap(etaValuesEpdE);
+    std::vector<Double_t>().swap(tileWeightsEpdE);
+    std::vector<Double_t>().swap(eventPlanesEpdE);
 
-    nhitsEpdF = 0;
+    nHitsEpdF = 0;
     XnEpdF = 0;
     YnEpdF = 0;
     psiEpdF = D_BAD_VALUE;
@@ -234,10 +238,10 @@ Double_t angleShift(Double_t angle, Int_t order)
 ////////
 void checkZeroQ(Event event)
 {
-  if (event.XnTpc == 0 && event.YnTpc == 0) { event.badEvent = true; }
+  //if (event.XnTpc == 0 && event.YnTpc == 0) { event.badEvent = true; }
   //else if (event.XnTpcA == 0 && event.YnTpcA == 0) { event.badEvent = true; }
-  else if (event.XnTpcB == 0 && event.YnTpcB == 0) { event.badEvent = true; }
-  else if (event.XnEpd == 0 && event.YnEpd == 0) { event.badEvent = true; }
+  if (event.XnTpcB == 0 && event.YnTpcB == 0) { event.badEvent = true; }
+  else if (event.XnEpd  == 0 && event.YnEpd  == 0) { event.badEvent = true; }
   else if (event.XnEpdE == 0 && event.YnEpdE == 0) { event.badEvent = true; }
   else if (event.XnEpdF == 0 && event.YnEpdF == 0) { event.badEvent = true; }
 };
@@ -363,6 +367,11 @@ void FlowAnalyzer(TString inFile, TString jobID)
     }
 
 
+  // INPUT FILE FOR EVENT PLANE RESOLUTION INFORMATION
+  TString resolutionInputName = "resolutionInfo_INPUT.root";
+  TFile *resolutionInputFile;
+  if (RUN_ITERATION == 2) { resolutionInputFile = TFile::Open(correctionInputName, "READ"); }
+
   // OUTPUT FILE FOR CORRECTION INFORMATION
   TString correctionOutputName = "correctionInfo_OUTPUT_"+jobID+".root";
   TFile *correctionOutputFile;
@@ -435,7 +444,10 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH1D *h_psiEpdE_RAW = new TH1D("h_psiEpdE_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiEpdF_RAW = new TH1D("h_psiEpdF_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD F);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
-  TProfile *p_v2Plot = new TProfile("p_v2Plot", "v_{2} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vnPlot = new TProfile("p_vnPlot", "v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+
+  TH1D *h_psiEpdE_NoAuto = new TH1D("h_psiEpdE_NoAuto", "EP Angles, No Auto-Correlations (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
   // Profiles for resolution terms
   TProfile *p_TpcAB = new TProfile("p_TpcAB","TPC A-B Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,A}_{"+ORDER_M_STR+"}-#psi^{TPC,B}_{"+ORDER_M_STR+"}))>",
@@ -467,6 +479,10 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH2D *h2_nSig_vs_qp_pi = new TH2D("h2_nSig_vs_qp_pi", "Pion n#sigma vs q|p|;q|p| (GeV); n#sigma_{#pi}", 500, -5, 5, 400, -8, 8);
   TH2D *h2_nSig_vs_qp_ka = new TH2D("h2_nSig_vs_qp_ka", "Kaon n#sigma vs q|p|;q|p| (GeV); n#sigma_{K}", 500, -5, 5, 400, -8, 8);
   TH2D *h2_nSig_vs_qp_pr = new TH2D("h2_nSig_vs_qp_pr", "Proton n#sigma vs q|p|;q|p| (GeV); n#sigma_{p}", 500, -5, 5, 400, -8, 8);
+
+  TH2D *h2_nSig_vs_qpT_pi = new TH2D("h2_nSig_vs_qpT_pi", "Pion n#sigma vs q*p_{T};q*p_{T} (GeV); n#sigma_{#pi}", 500, -5, 5, 400, -8, 8);
+  TH2D *h2_nSig_vs_qpT_ka = new TH2D("h2_nSig_vs_qpT_ka", "Kaon n#sigma vs q*p_{T};q*p_{T} (GeV); n#sigma_{K}", 500, -5, 5, 400, -8, 8);
+  TH2D *h2_nSig_vs_qpT_pr = new TH2D("h2_nSig_vs_qpT_pr", "Proton n#sigma vs q*p_{T};q*p_{T} (GeV); n#sigma_{p}", 500, -5, 5, 400, -8, 8);
 
   TH2D *h2_pi_m2_vs_TPC_nsig = new TH2D("h2_pi_m2_vs_TPC_nsig", "m^{2} vs #pi TPC n#sigma;n#sigma_{#pi};m^{2} (GeV^{2})", 500, -5, 5, 500, -0.1, 1.2);
   TH2D *h2_ka_m2_vs_TPC_nsig = new TH2D("h2_ka_m2_vs_TPC_nsig", "m^{2} vs K TPC n#sigma;n#sigma_{K};m^{2} (GeV^{2})", 500, -5, 5, 500, -0.1, 1.2);
@@ -509,7 +525,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH2D *h2_pT_vs_yCM_pm = new TH2D("h2_pT_vs_yCM_pm", "#pi^{-};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
   TH2D *h2_pT_vs_yCM_kp = new TH2D("h2_pT_vs_yCM_kp", "K^{+};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
   TH2D *h2_pT_vs_yCM_km = new TH2D("h2_pT_vs_yCM_km", "K^{-};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
-  TH2D *h2_pT_vs_yCM_pr = new TH2D("h2_pT_vs_yCM_pr", "Proton;y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
+  TH2D *h2_pT_vs_yCM_pr = new TH2D("h2_pT_vs_yCM_pr", "Proton;y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 3.0);
 
 
   
@@ -700,13 +716,10 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  //=========================================================
 	  //          TOF Beta Cuts
 	  //=========================================================
-	  if (!picoTrack->isTofTrack()) continue;  // Only TOF tracks
-
-	  Double_t d_tofBeta;
+	  if (!picoTrack->isTofTrack()) continue;
 	      
 	  StPicoBTofPidTraits *trait = dst->btofPidTraits(picoTrack->bTofPidTraitsIndex());
-	      
-	  d_tofBeta = trait->btofBeta();
+	  Double_t d_tofBeta = trait->btofBeta();
 	      
 	  if (d_tofBeta < 0.01) continue;
 	  //=========================================================
@@ -745,11 +758,11 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  Double_t d_charge = picoTrack->charge();
 	  Double_t d_dEdx   = picoTrack->dEdx();
 	  Double_t d_mom    = picoTrack->pPtot();
+	  Double_t d_pT     = picoTrack->pPt();
 	  Double_t d_m2     = d_mom*d_mom*( (1 / (d_tofBeta*d_tofBeta)) - 1);
 	  Double_t d_px     = picoTrack->pMom().x();
 	  Double_t d_py     = picoTrack->pMom().y();
 	  Double_t d_pz     = picoTrack->pMom().z();
-	  Double_t d_pT     = picoTrack->pPt();
 	  Double_t d_phi    = mom_vec.Phi();
 	  Double_t d_eta    = mom_vec.Eta();
 
@@ -793,28 +806,38 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      h2_betap->Fill(d_charge * d_mom, 1/d_tofBeta);
 	      h2_m2_qp->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
 	      h2_m2_vs_qpT->Fill(d_charge * d_pT, d_m2);
-	      h2_dEdx_vs_qp->Fill(d_charge * d_mom, d_dEdx);
 
 	      h2_pi_m2_vs_TPC_nsig->Fill(d_TPCnSigmaPion, d_m2);
 	      h2_ka_m2_vs_TPC_nsig->Fill(d_TPCnSigmaKaon, d_m2);
 	      h2_pr_m2_vs_TPC_nsig->Fill(d_TPCnSigmaProton, d_m2);
 
+	      h2_dEdx_vs_qp->Fill(d_charge * d_mom, d_dEdx);
+
+	      h2_nSig_vs_qp_pi->Fill(d_charge * d_mom, d_TPCnSigmaPion);
+	      h2_nSig_vs_qp_ka->Fill(d_charge * d_mom, d_TPCnSigmaKaon);
+	      h2_nSig_vs_qp_pr->Fill(d_charge * d_mom, d_TPCnSigmaProton);
+
+	      h2_nSig_vs_qpT_pi->Fill(d_charge * d_pT, d_TPCnSigmaPion);
+	      h2_nSig_vs_qpT_ka->Fill(d_charge * d_pT, d_TPCnSigmaKaon);
+	      h2_nSig_vs_qpT_pr->Fill(d_charge * d_pT, d_TPCnSigmaProton);
+
 	      //=========================================================
 	      //          PID Cuts
 	      //=========================================================
-	      Bool_t pion   = ( (d_m2 > -0.1) && (d_m2 < 0.1)   && (d_TPCnSigmaPion > -3)   && (d_TPCnSigmaPion < 3) );    // PARTICLE TAGGING by TPC nSigma AND m^2
-	      Bool_t kaon   = ( (d_m2 > 0.15) && (d_m2 < 0.34)  && (d_TPCnSigmaKaon > -3)   && (d_TPCnSigmaKaon < 3) );
-	      Bool_t proton = ( (d_m2 > 0.65) && (d_m2 < 1.11)  && (d_TPCnSigmaProton > -3) && (d_TPCnSigmaProton < 3) );
+	      Bool_t pion   = ((d_m2 > -0.1) && (d_m2 < 0.1) && (d_TPCnSigmaPion > -2) && (d_TPCnSigmaPion < 2));
+	      Bool_t kaon   = ((d_m2 > 0.15) && (d_m2 < 0.34) && (d_TPCnSigmaKaon > -2) && (d_TPCnSigmaKaon < 2));
+	      Bool_t proton = ((d_m2 > 0.65) && (d_m2 < 1.11) && (d_TPCnSigmaProton > -2) && (d_TPCnSigmaProton < 2));
 
 	      if (!pion && !kaon && !proton) continue;
 
 	      if (pion && kaon)   continue;   // Particle must be exclusively one particular type.
 	      if (pion && proton) continue;
 	      if (kaon && proton) continue;
-
+	      /*
 	      if (pion)   h2_nSig_vs_qp_pi->Fill(d_charge * d_mom, d_TPCnSigmaPion);
 	      if (kaon)   h2_nSig_vs_qp_ka->Fill(d_charge * d_mom, d_TPCnSigmaKaon);
 	      if (proton) h2_nSig_vs_qp_pr->Fill(d_charge * d_mom, d_TPCnSigmaProton);
+	      */
 	      //=========================================================
 	      //          END PID Cuts
 	      //=========================================================
@@ -883,7 +906,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_kp->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.25 && d_pT <= 1.6)
+		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.4 && d_pT <= 1.6)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_kp_dndy, h_kp_dndm, h2_kp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -906,7 +929,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.25 && d_pT <= 1.2)
+		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.4 && d_pT <= 1.2)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_km_dndy, h_km_dndm, h2_km_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -932,7 +955,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.32 && d_pT <= 2.0)
+		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.7 && d_pT <= 2.5)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pr, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -1007,25 +1030,26 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  p2_pp_vs_eta->Fill(tileEta, tileSector, tileWeight);
 	  h_tileWeights->Fill(tileWeight);
 
-	  h_eta_s->Fill(tileEta - Y_MID);
 
-	  eventInfo.nhitsEpd++;
+	  eventInfo.nHitsEpd++;
 	  eventInfo.XnEpd += tileWeight * TMath::Cos(ORDER_M * tilePhi);
 	  eventInfo.YnEpd += tileWeight * TMath::Sin(ORDER_M * tilePhi);
+
 
 	  //if (tileEta > MIN_ETA_CUT && tileEta < EF_ETA_CUT)  // Sub E
 	  if (tileRow <= 8 && tileEta >= -5.1)  // Sub E
 	    {
-	      eventInfo.nhitsEpdE++;
+	      eventInfo.nHitsEpdE++;
 	      eventInfo.XnEpdE += tileWeight * TMath::Cos(ORDER_M * tilePhi);
 	      eventInfo.YnEpdE += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 	      eventInfo.phiValuesEpdE.push_back(tilePhi);
 	      eventInfo.etaValuesEpdE.push_back(tileEta);
+	      eventInfo.tileWeightsEpdE.push_back(tileWeight);
 	    }
 	  //else if (tileEta > EF_ETA_CUT && tileEta < MAX_ETA_CUT)
 	  else if (tileRow > 8)  // Sub F
 	    {
-	      eventInfo.nhitsEpdF++;
+	      eventInfo.nHitsEpdF++;
 	      eventInfo.XnEpdF += tileWeight * TMath::Cos(ORDER_M * tilePhi);
 	      eventInfo.YnEpdF += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 	      eventInfo.phiValuesEpdF.push_back(tilePhi);
@@ -1039,12 +1063,12 @@ void FlowAnalyzer(TString inFile, TString jobID)
       //=========================================================
 
 
-      if (eventInfo.nTracksTpc  < MIN_TRACKS) continue;
+      //if (eventInfo.nTracksTpc  < MIN_TRACKS) continue;
       //if (eventInfo.nTracksTpcA < MIN_TRACKS) continue;
       if (eventInfo.nTracksTpcB < MIN_TRACKS) continue;
-      if (eventInfo.nhitsEpd    < MIN_TRACKS) continue;
-      if (eventInfo.nhitsEpdE   < MIN_TRACKS) continue;
-      if (eventInfo.nhitsEpdF   < MIN_TRACKS) continue;
+      if (eventInfo.nHitsEpd    < MIN_TRACKS) continue;
+      if (eventInfo.nHitsEpdE   < MIN_TRACKS) continue;
+      if (eventInfo.nHitsEpdF   < MIN_TRACKS) continue;
       
 
       checkZeroQ(eventInfo);
@@ -1233,7 +1257,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  v_events.at(i).psiTpc  = TMath::ATan2(v_events.at(i).YnTpc,  v_events.at(i).XnTpc)  / ORDER_M; 
 	  v_events.at(i).psiTpcA = TMath::ATan2(v_events.at(i).YnTpcA, v_events.at(i).XnTpcA) / ORDER_M; 
 	  v_events.at(i).psiTpcB = TMath::ATan2(v_events.at(i).YnTpcB, v_events.at(i).XnTpcB) / ORDER_M; 
-	  v_events.at(i).psiEpd  = TMath::ATan2(v_events.at(i).YnEpd,  v_events.at(i).XnEpd)  / ORDER_M; 
+	  v_events.at(i).psiEpd  = TMath::ATan2(v_events.at(i).YnEpd,  v_events.at(i).XnEpd)  / ORDER_M;
 	  v_events.at(i).psiEpdE = TMath::ATan2(v_events.at(i).YnEpdE, v_events.at(i).XnEpdE) / ORDER_M; 
 	  v_events.at(i).psiEpdF = TMath::ATan2(v_events.at(i).YnEpdF, v_events.at(i).XnEpdF) / ORDER_M; 
 
@@ -1277,12 +1301,12 @@ void FlowAnalyzer(TString inFile, TString jobID)
   //=========================================================
 
 
-  //=========================================================
-  //          Event Plane Angle Shifting
-  //=========================================================
 
   if (RUN_ITERATION == 2)
     {
+      //=========================================================
+      //          Event Plane Angle Shifting
+      //=========================================================
       std::cout << "Performing event plane angle shifting..." << std::endl;
 
       Int_t numOfEvents = v_events.size();
@@ -1349,18 +1373,18 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      jthSinAvg_EpdF = p_sinAvgsEpdF_INPUT->GetBinContent(j);
 	      jthCosAvg_EpdF = p_cosAvgsEpdF_INPUT->GetBinContent(j);
 
-	      psiTpc_delta  += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_Tpc*TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiTpc) 
-									+jthCosAvg_Tpc*TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiTpc));
-	      psiTpcA_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_TpcA*TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiTpcA) 
-									+jthCosAvg_TpcA*TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiTpcA));
-	      psiTpcB_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_TpcB*TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiTpcB) 
-									+jthCosAvg_TpcB*TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiTpcB));
-	      psiEpd_delta  += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_Epd*TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiEpd)
-									+jthCosAvg_Epd*TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiEpd));
-	      psiEpdE_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_EpdE*TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiEpdE)
-									+jthCosAvg_EpdE*TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiEpdE));
-	      psiEpdF_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_EpdF*TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiEpdF)
-									+jthCosAvg_EpdF*TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiEpdF));
+	      psiTpc_delta  += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_Tpc * TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiTpc) 
+							      +jthCosAvg_Tpc * TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiTpc));
+	      psiTpcA_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_TpcA * TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiTpcA) 
+							      +jthCosAvg_TpcA * TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiTpcA));
+	      psiTpcB_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_TpcB * TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiTpcB) 
+							      +jthCosAvg_TpcB * TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiTpcB));
+	      psiEpd_delta  += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_Epd * TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiEpd)
+							      +jthCosAvg_Epd * TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiEpd));
+	      psiEpdE_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_EpdE * TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiEpdE)
+							      +jthCosAvg_EpdE * TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiEpdE));
+	      psiEpdF_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_EpdF * TMath::Cos((Double_t)j * ORDER_M * v_events.at(i).psiEpdF)
+							      +jthCosAvg_EpdF * TMath::Sin((Double_t)j * ORDER_M * v_events.at(i).psiEpdF));
 	    }
 
 
@@ -1384,6 +1408,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  h_psiEpd_FLAT->Fill(v_events.at(i).psiEpd);
 	  h_psiEpdE_FLAT->Fill(v_events.at(i).psiEpdE);
 	  h_psiEpdF_FLAT->Fill(v_events.at(i).psiEpdF);
+	  //=========================================================
+	  //          End Event Plane Angle Shifting
+	  //=========================================================
 
 
 	  // 2D Correlations between event planes
@@ -1409,6 +1436,11 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 	  p_EpdEEpdF->Fill(v_events.at(i).centID, TMath::Cos(ORDER_N * (v_events.at(i).psiEpdE - v_events.at(i).psiEpdF)));
 	  //
+
+
+	  //=========================================================
+	  //          v_n Scan Plots
+	  //=========================================================
 
 	  // 2D searches through eta and centrality for correlations between detectors
 	  // ONLY USE THIS SECTION IF THE EPD REGIONS COVER THE WHOLE EPD!! MIGHT NOT MAKE SENSE OTHERWISE
@@ -1464,26 +1496,47 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      h2_v2SearchTpc->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpd)));
 	      //h2_phiSearchTpc->Fill(phiTpc, centralityID);
 	    }
+	  //=========================================================
+	  //          End v_n Scan Plots
+	  //=========================================================
+
+
+	  //=========================================================
+	  //        Flow, Resolutions, and Auto-Correlations
+	  //=========================================================
+
+	  TH1D *h_resolutions = (TH1D*)resolutionInputFile->Get("h_resolutions");
+
+	  Double_t cosTerm = 0;
+	  Double_t jthWeight = 0;
+	  Double_t jthPhi = 0;
+	  Int_t centID = v_events.at(i).centID;
+
+	  if (centID < 3) continue;  // ONLY LOOKING AT CENTRALITY 65% AND LOWER
+
+	  Double_t resolution = h_resolutions->GetBinContent(centID + 1); // +1 since centID starts at 0
+
+	  for (Int_t j = 0; j < v_events.at(i).nHitsEpdE; j++)  // Loop through the j number of EPD E hits
+	    {
+	      jthWeight = v_events.at(i).tileWeightsEpdE.at(j);
+	      jthPhi = v_events.at(i).phiValuesEpdE.at(j);
+
+	      Double_t newXn = v_events.at(i).XnEpdE - jthWeight * TMath::Cos(ORDER_M * jthPhi);   // For event i, remove the jth particle from event plane
+	      Double_t newYn = v_events.at(i).YnEpdE - jthWeight * TMath::Sin(ORDER_M * jthPhi);
+	      Double_t newPsi = TMath::ATan2(newYn, newXn) / ORDER_M;
+	      //v_events.at(i).eventPlanesEpdE.push_back(newPsi);
+	      h_psiEpdE_NoAuto->Fill(newPsi);
+
+	      // Add contribution to v_n from the jth particle using the event plane that omits the jth particle:
+	      p_vnPlot->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - newPsi)) / resolution);
+	    }
+	  //=========================================================
+	  //      End Flow, Resolutions, and Auto-Correlations
+	  //=========================================================
+
 
 	  v_events.at(i).reset(); // Try to free up space?
 
-
-	  //=========================================================
-	  //          Get v_2 values
-	  //=========================================================
-
-	  Double_t cosTerm = 0;
-	  Double_t phi = 0;
-	  Double_t psi = 0;
-	  /*
-	  // CORRELATIONS AND FLOW COEFFICIENTS
-	  for (Int_t i = 0; i < numOfEvents; i++) //Don't need this loop
-	    {
-	      psi = v_events.at(i).psi;
-
-
-	    }
-	  */
 	}// End shift loop over events
     }
   //=========================================================
@@ -1519,8 +1572,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
       p_cosAvgsTpcA  ->Write();
       p_sinAvgsTpcB  ->Write();
       p_cosAvgsTpcB  ->Write();
-      p_sinAvgsEpd   ->Write();
-      p_cosAvgsEpd   ->Write();
       p_sinAvgsEpdE  ->Write();
       p_cosAvgsEpdE  ->Write();
       p_sinAvgsEpdF  ->Write();
@@ -1531,8 +1582,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
       h_YnTpcA       ->Write();
       h_XnTpcB       ->Write();
       h_YnTpcB       ->Write();
-      h_XnEpd        ->Write();
-      h_YnEpd        ->Write();
       h_XnEpdE       ->Write();
       h_YnEpdE       ->Write();
       h_XnEpdF       ->Write();
@@ -1582,3 +1631,17 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      } 
 
       */
+
+
+
+	      /*
+	      Bool_t pion   = (d_pT >= 1.0) ? 
+		((d_m2 > -0.1) && (d_m2 < 0.1) && (d_TPCnSigmaPion > -2) && (d_TPCnSigmaPion < 2)) :
+		((d_TPCnSigmaPion > -2) && (d_TPCnSigmaPion < 2));
+	      Bool_t kaon   = (d_pT >= 1.0) ? 
+ 		((d_m2 > 0.15) && (d_m2 < 0.34) && (d_TPCnSigmaKaon > -2) && (d_TPCnSigmaKaon < 2)) :
+		((d_TPCnSigmaKaon > -2) && (d_TPCnSigmaKaon < 2));
+	      Bool_t proton = (d_pT >= 1.0) ? 
+		((d_m2 > 0.65) && (d_m2 < 1.11) && (d_TPCnSigmaProton > -2) && (d_TPCnSigmaProton < 2)) :
+		((d_TPCnSigmaProton > -2) && (d_TPCnSigmaProton < 2));
+	      */
