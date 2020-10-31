@@ -9,15 +9,15 @@ void m2BypTBins(TString jobID)
   TCanvas *canvas = new TCanvas("canvas", "Canvas", 875, 675);
   canvas->SetGrid();
   canvas->SetTicks();
-  canvas->SetLogy();
+  //canvas->SetLogy();
   gStyle->SetOptStat(0);
 
-  Double_t low_pT_values[7]  = {1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2};
-  Double_t high_pT_values[7] = {1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4};
+  Double_t low_pT_values[12]  = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2};
+  Double_t high_pT_values[12] = {0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4};
 
   TH2D *h2_m2_vs_qpT = (TH2D*)file->Get("h2_m2_vs_qpT");
 
-  for(int i = 0; i < 7; i++)
+  for(int i = 0; i < 12; i++)
     {
       Int_t low_pT_bin = h2_m2_vs_qpT->GetXaxis()->FindBin(low_pT_values[i]);
       Int_t high_pT_bin = h2_m2_vs_qpT->GetXaxis()->FindBin(high_pT_values[i]);
@@ -32,7 +32,8 @@ void m2BypTBins(TString jobID)
 
       TH1D *h_m2 = h2_m2_vs_qpT->ProjectionY("h_m2", low_pT_bin, high_pT_bin);
       h_m2->GetYaxis()->SetTitle("Tracks");
-      h_m2->GetYaxis()->SetRangeUser(10e1, 10e6);
+      //h_m2->GetYaxis()->SetRangeUser(10e1, 10e6);
+      h_m2->GetYaxis()->SetRangeUser(0, 2000000);
       h_m2->SetTitle("");
 
       TPaveText *text = new TPaveText(0.2, 0.65, 0.4, 0.95, "NDC");

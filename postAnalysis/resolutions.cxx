@@ -13,7 +13,12 @@ void resolutions(TString jobID)
   canvas->cd();
 
   TH1D *h_centralities = (TH1D*)file->Get("h_centralities");
-
+  TProfile *p_vnPlot = (TProfile*)file->Get("p_vnPlot");
+  TProfile *p_vnPlot_pp = (TProfile*)file->Get("p_vnPlot_pp");
+  TProfile *p_vnPlot_pm = (TProfile*)file->Get("p_vnPlot_pm");
+  TProfile *p_vnPlot_kp = (TProfile*)file->Get("p_vnPlot_kp");
+  TProfile *p_vnPlot_km = (TProfile*)file->Get("p_vnPlot_km");
+  TProfile *p_vnPlot_pr = (TProfile*)file->Get("p_vnPlot_pr");
 
   TFile *resolutionInfo_INPUT = new TFile("resolutionInfo_INPUT.root", "RECREATE");
   
@@ -28,28 +33,52 @@ void resolutions(TString jobID)
   Int_t lastCentID  = h_EpdEEpdF->GetBinLowEdge(h_EpdEEpdF->GetNbinsX());
 
   
-  TH1D *h_EpdEEpdF_flip = new TH1D("h_EpdEEpdF_flip",h_EpdEEpdF->GetTitle(),centBins,1,centBins+1);
+  TH1D *h_EpdEEpdF_flip = new TH1D("h_EpdEEpdF_flip",h_EpdEEpdF->GetTitle(),centBins,0,centBins);
   h_EpdEEpdF_flip->GetXaxis()->SetTitle((TString)h_EpdEEpdF->GetXaxis()->GetTitle()+" (%)");
   h_EpdEEpdF_flip->GetYaxis()->SetTitle(h_EpdEEpdF->GetYaxis()->GetTitle());
 
-  TH1D *h_TpcBEpdE_flip = new TH1D("h_TpcBEpdE_flip",h_TpcBEpdE->GetTitle(),centBins,1,centBins+1);
+  TH1D *h_TpcBEpdE_flip = new TH1D("h_TpcBEpdE_flip",h_TpcBEpdE->GetTitle(),centBins,0,centBins);
   h_TpcBEpdE_flip->GetXaxis()->SetTitle((TString)h_TpcBEpdE->GetXaxis()->GetTitle()+" (%)");
   h_TpcBEpdE_flip->GetYaxis()->SetTitle(h_TpcBEpdE->GetYaxis()->GetTitle());
-  TH1D *h_TpcBEpdF_flip = new TH1D("h_TpcBEpdF_flip",h_TpcBEpdF->GetTitle(),centBins,1,centBins+1);
+  TH1D *h_TpcBEpdF_flip = new TH1D("h_TpcBEpdF_flip",h_TpcBEpdF->GetTitle(),centBins,0,centBins);
   h_TpcBEpdF_flip->GetXaxis()->SetTitle((TString)h_TpcBEpdF->GetXaxis()->GetTitle()+" (%)");
   h_TpcBEpdF_flip->GetYaxis()->SetTitle(h_TpcBEpdF->GetYaxis()->GetTitle());
 
-  TH1D *h_centralities_flip = new TH1D("h_centralities_flip",h_centralities->GetTitle(),centBins,1,centBins+1);
+  TH1D *h_centralities_flip = new TH1D("h_centralities_flip",h_centralities->GetTitle(),centBins,0,centBins);
   h_centralities_flip->GetXaxis()->SetTitle((TString)h_centralities->GetXaxis()->GetTitle()+" (%)");
   h_centralities_flip->GetYaxis()->SetTitle(h_centralities->GetYaxis()->GetTitle());
 
+  TH1D *p_vnPlot_flip = new TH1D("p_vnPlot_flip",p_vnPlot->GetTitle(),centBins,0,centBins);
+  p_vnPlot_flip->GetXaxis()->SetTitle((TString)p_vnPlot->GetXaxis()->GetTitle()+" (%)");
+  p_vnPlot_flip->GetYaxis()->SetTitle("v_{2}");//p_vnPlot->GetYaxis()->GetTitle());
+
+  TH1D *p_vnPlot_pp_flip = new TH1D("p_vnPlot_pp_flip",p_vnPlot_pp->GetTitle(),centBins,0,centBins);
+  p_vnPlot_pp_flip->GetXaxis()->SetTitle((TString)p_vnPlot_pp->GetXaxis()->GetTitle()+" (%)");
+  p_vnPlot_pp_flip->GetYaxis()->SetTitle("v_{2}");//p_vnPlot_pp->GetYaxis()->GetTitle());
+
+  TH1D *p_vnPlot_pm_flip = new TH1D("p_vnPlot_pm_flip",p_vnPlot_pm->GetTitle(),centBins,0,centBins);
+  p_vnPlot_pm_flip->GetXaxis()->SetTitle((TString)p_vnPlot_pm->GetXaxis()->GetTitle()+" (%)");
+  p_vnPlot_pm_flip->GetYaxis()->SetTitle("v_{2}");//p_vnPlot_pm->GetYaxis()->GetTitle());
+
+  TH1D *p_vnPlot_kp_flip = new TH1D("p_vnPlot_kp_flip",p_vnPlot_kp->GetTitle(),centBins,0,centBins);
+  p_vnPlot_kp_flip->GetXaxis()->SetTitle((TString)p_vnPlot_kp->GetXaxis()->GetTitle()+" (%)");
+  p_vnPlot_kp_flip->GetYaxis()->SetTitle("v_{2}");//p_vnPlot_kp->GetYaxis()->GetTitle());
+
+  TH1D *p_vnPlot_km_flip = new TH1D("p_vnPlot_km_flip",p_vnPlot_km->GetTitle(),centBins,0,centBins);
+  p_vnPlot_km_flip->GetXaxis()->SetTitle((TString)p_vnPlot_km->GetXaxis()->GetTitle()+" (%)");
+  p_vnPlot_km_flip->GetYaxis()->SetTitle("v_{2}");//p_vnPlot_km->GetYaxis()->GetTitle());
+
+  TH1D *p_vnPlot_pr_flip = new TH1D("p_vnPlot_pr_flip",p_vnPlot_pr->GetTitle(),centBins,0,centBins);
+  p_vnPlot_pr_flip->GetXaxis()->SetTitle((TString)p_vnPlot_pr->GetXaxis()->GetTitle()+" (%)");
+  p_vnPlot_pr_flip->GetYaxis()->SetTitle("v_{2}");//p_vnPlot_pr->GetYaxis()->GetTitle());
+
 
   // Make the possible resolution plots
-  TH1D *h_resolEvsF = new TH1D("h_resolEvsF","EPD E vs EPD F and TPC B;Centrality (%);R^{E}_{21}",centBins,1,centBins+1);
-  TH1D *h_resolFvsE = new TH1D("h_resolFvsE","EPD F vs EPD E and TPC B;Centrality (%);R^{F}_{21}",centBins,1,centBins+1);
-  TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD E and EPD F;Centrality (%);R^{B}_{21}",centBins,1,centBins+1);
+  TH1D *h_resolEvsF = new TH1D("h_resolEvsF","EPD E vs EPD F and TPC B;Centrality (%);R^{E}_{21}",centBins,0,centBins);
+  TH1D *h_resolFvsE = new TH1D("h_resolFvsE","EPD F vs EPD E and TPC B;Centrality (%);R^{F}_{21}",centBins,0,centBins);
+  TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD E and EPD F;Centrality (%);R^{B}_{21}",centBins,0,centBins);
 
-  TH1D *h_resolution = new TH1D("h_resolution","TITLE;Centrality;R_{21}",centBins,1,centBins+1);
+  TH1D *h_resolutions = new TH1D("h_resolutions","EPD E Resolutions;Centrality;R_{21}",centBins,0,centBins);
   
   const char *centralityBins[16] = {"75-80", "70-75", "65-70", "60-65", "55-60", "50-55", "45-50", "40-45", "35-40", "30-35", "25-30", "20-25", "15-20", "10-15", "5-10", "0-5"};
 
@@ -72,6 +101,25 @@ void resolutions(TString jobID)
 
       h_centralities_flip->SetBinContent(j, h_centralities->GetBinContent(i));
 
+      p_vnPlot_flip->SetBinContent(j, p_vnPlot->GetBinContent(i));
+      p_vnPlot_flip->SetBinError(j, p_vnPlot->GetBinError(i));
+
+      p_vnPlot_pp_flip->SetBinContent(j, p_vnPlot_pp->GetBinContent(i));
+      p_vnPlot_pp_flip->SetBinError(j, p_vnPlot_pp->GetBinError(i));
+
+      p_vnPlot_pm_flip->SetBinContent(j, p_vnPlot_pm->GetBinContent(i));
+      p_vnPlot_pm_flip->SetBinError(j, p_vnPlot_pm->GetBinError(i));
+
+      p_vnPlot_kp_flip->SetBinContent(j, p_vnPlot_kp->GetBinContent(i));
+      p_vnPlot_kp_flip->SetBinError(j, p_vnPlot_kp->GetBinError(i));
+
+      p_vnPlot_km_flip->SetBinContent(j, p_vnPlot_km->GetBinContent(i));
+      p_vnPlot_km_flip->SetBinError(j, p_vnPlot_km->GetBinError(i));
+
+      p_vnPlot_pr_flip->SetBinContent(j, p_vnPlot_pr->GetBinContent(i));
+      p_vnPlot_pr_flip->SetBinError(j, p_vnPlot_pr->GetBinError(i));
+
+      
       j++;
     }
 
@@ -146,7 +194,7 @@ void resolutions(TString jobID)
       if(TMath::IsNaN(R_EvsF) || dR_EvsF > 0.1) { R_EvsF = 0; dR_EvsF = 0; }
       if(TMath::IsNaN(R_FvsE) || dR_FvsE > 0.1) { R_FvsE = 0; dR_FvsE = 0; }
       if(TMath::IsNaN(R_TpcB) || dR_TpcB > 0.1) { R_TpcB = 0; dR_TpcB = 0; }
-      if(TMath::IsNaN(R_EvsF_save) || dR_EvsF_save > 0.1) { R_EvsF_save = 0; dR_EvsF_save = 0.05; }      
+      if(TMath::IsNaN(R_EvsF_save) || dR_EvsF_save > 0.1) { R_EvsF_save = 0; dR_EvsF_save = 0.1; }      
 
       h_resolEvsF->SetBinContent(i, R_EvsF);
       h_resolEvsF->SetBinError(i, dR_EvsF);
@@ -158,11 +206,11 @@ void resolutions(TString jobID)
       h_resolTpcB->SetBinError(i, dR_TpcB);
 
       
-      h_resolution->SetBinContent(i, R_EvsF_save);
-      h_resolution->SetBinError(i, dR_EvsF_save);
+      h_resolutions->SetBinContent(i, R_EvsF_save);
+      h_resolutions->SetBinError(i, dR_EvsF_save);
     }
 
-  h_resolution->Write();
+  h_resolutions->Write();
   
   // Put the bin labels on the new histograms
   for (int i = 1; i <= centBins; i++)
@@ -172,6 +220,13 @@ void resolutions(TString jobID)
       h_resolTpcB->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
 
       h_centralities_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
+
+      p_vnPlot_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
+      p_vnPlot_pp_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
+      p_vnPlot_pm_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
+      p_vnPlot_kp_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
+      p_vnPlot_km_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
+      p_vnPlot_pr_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
     }
   // END RESOLUTIONS
 
@@ -200,25 +255,94 @@ void resolutions(TString jobID)
   stack->Add(h_resolFvsE);
   stack->Add(h_resolTpcB);
 
-  TLegend *legend = new TLegend(0.74, 0.84, 0.98, 0.98);
+  TLegend *legend = new TLegend(0.65, 0.75, 0.9, 0.9);
   legend->AddEntry(h_resolEvsF,"EPD E vs EPD F, TPC B");
   legend->AddEntry(h_resolFvsE,"EPD F vs EPD E, TPC B");
   legend->AddEntry(h_resolTpcB,"TPC B vs EPD E, EPD F");
 
+  canvas->SetTicks();
   stack->Draw("NOSTACK E1P");
   legend->Draw();
   canvas->SaveAs(jobID + "_resolutions.png");
   canvas->Clear();
 
+  canvas->SetTicks(0);
   canvas->SetLogy();
   h_centralities_flip->Draw();
   canvas->SaveAs(jobID + "_h_centralities_flip.png");
   canvas->Clear();
 
+  canvas->SetLogy(0);
+  canvas->SetTicks();
+  p_vnPlot_flip->SetMarkerStyle(20);
+  p_vnPlot_flip->SetMarkerColor(2);
+  p_vnPlot_flip->SetLineColor(2);
+  p_vnPlot_flip->Draw("E1P");
+  canvas->SaveAs(jobID + "_p_vnPlot_flip.png");
+  canvas->Clear();
+
+
+  THStack *piStack = new THStack("piStack", ";Centrality (%);v_{2}");
+  THStack *kaStack = new THStack("kaStack", ";Centrality (%);v_{2}");
+
+  p_vnPlot_pp_flip->SetMarkerStyle(20);
+  p_vnPlot_pp_flip->SetMarkerColor(2);
+  p_vnPlot_pp_flip->SetLineColor(2);
+
+  p_vnPlot_pm_flip->SetMarkerStyle(20);
+  p_vnPlot_pm_flip->SetMarkerColor(4);
+  p_vnPlot_pm_flip->SetLineColor(4);
+
+  p_vnPlot_kp_flip->SetMarkerStyle(20);
+  p_vnPlot_kp_flip->SetMarkerColor(2);
+  p_vnPlot_kp_flip->SetLineColor(2);
+
+  p_vnPlot_km_flip->SetMarkerStyle(20);
+  p_vnPlot_km_flip->SetMarkerColor(4);
+  p_vnPlot_km_flip->SetLineColor(4);
+
+  p_vnPlot_pr_flip->SetMarkerStyle(20);
+  p_vnPlot_pr_flip->SetMarkerColor(2);
+  p_vnPlot_pr_flip->SetLineColor(2);
+
+  piStack->Add(p_vnPlot_pp_flip);
+  piStack->Add(p_vnPlot_pm_flip);
+
+  kaStack->Add(p_vnPlot_kp_flip);
+  kaStack->Add(p_vnPlot_km_flip);
+
+  TLegend *piLegend = new TLegend(0.775, 0.75, 0.9, 0.9);
+  piLegend->AddEntry(p_vnPlot_pp_flip,"#pi^{+}");
+  piLegend->AddEntry(p_vnPlot_pm_flip,"#pi^{-}");
+
+  TLegend *kaLegend = new TLegend(0.775, 0.75, 0.9, 0.9);
+  kaLegend->AddEntry(p_vnPlot_kp_flip,"K^{+}");
+  kaLegend->AddEntry(p_vnPlot_km_flip,"K^{-}");
+
+  canvas->SetLeftMargin(0.12);
   
-  /*
-  h_resolAvsB->Draw();
-  canvas->SaveAs("h_resolAvsB.png");
+  piStack->Draw("NOSTACK E1P");
+  //piStack->GetYaxis()->SetTitleOffset(1);
+  piStack->Draw("NOSTACK E1P");
+  piLegend->Draw();
+  canvas->SaveAs(jobID + "_piStack.png");
+  canvas->Clear();
+
+  kaStack->Draw("NOSTACK E1P");
+  kaLegend->Draw();
+  canvas->SaveAs(jobID + "_kaStack.png");
+  canvas->Clear();
+
+  p_vnPlot_pr_flip->SetTitle("");
+  p_vnPlot_pr_flip->Draw("E1P");
+  canvas->SaveAs(jobID + "_p_vnPlot_pr_flip.png");
+  canvas->Clear();
+
+  
+/*  
+  canvas->SetLogy(0);
+  h_resolEvsF->Draw();
+  canvas->SaveAs("h_resolEvsF.png");
   canvas->Clear();
 
   h_resolAvsC->Draw();
@@ -268,5 +392,7 @@ void resolutions(TString jobID)
   canvas->SaveAs("h_resolDvsC.png");
   canvas->Clear();
   */
+
+  resolutionInfo_INPUT->Close();
   file->Close();
 }

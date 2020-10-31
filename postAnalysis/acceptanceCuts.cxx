@@ -31,18 +31,18 @@ void acceptanceCuts(TString jobID)
 
   Double_t yCM_low_kp  = 0.0;
   Double_t yCM_high_kp = 0.5;
-  Double_t pT_low_kp   = 0.25;
+  Double_t pT_low_kp   = 0.4;
   Double_t pT_high_kp  = 1.6;
 
   Double_t yCM_low_km  = 0.0;
   Double_t yCM_high_km = 0.5;
-  Double_t pT_low_km   = 0.25;
+  Double_t pT_low_km   = 0.4;
   Double_t pT_high_km  = 1.2;
 
   Double_t yCM_low_pr  = 0.0;
   Double_t yCM_high_pr = 0.5;
-  Double_t pT_low_pr   = 0.32;
-  Double_t pT_high_pr  = 2.0;
+  Double_t pT_low_pr   = 0.7;
+  Double_t pT_high_pr  = 2.5;
 
   TLine *y_mid = new TLine(0, 0, 0, 2.5);
   y_mid->SetLineColor(kRed);
