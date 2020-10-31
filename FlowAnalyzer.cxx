@@ -368,9 +368,21 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 
   // INPUT FILE FOR EVENT PLANE RESOLUTION INFORMATION
+  TH1D *h_resolutions;
+  Bool_t resolutionsFound = false;
   TString resolutionInputName = "resolutionInfo_INPUT.root";
   TFile *resolutionInputFile;
-  if (RUN_ITERATION == 2) { resolutionInputFile = TFile::Open(correctionInputName, "READ"); }
+  if (RUN_ITERATION == 2) 
+    { 
+      resolutionInputFile = TFile::Open(resolutionInputName, "READ"); 
+      if (!resolutionInputFile) { std::cout << "No resolution file was found!" << std::endl; }
+      else 
+	{ 
+	  resolutionsFound = true; 
+	  std::cout << "Resolution file found!" << std::endl; 
+	}
+    }
+
 
   // OUTPUT FILE FOR CORRECTION INFORMATION
   TString correctionOutputName = "correctionInfo_OUTPUT_"+jobID+".root";
@@ -446,6 +458,18 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
   TProfile *p_vnPlot = new TProfile("p_vnPlot", "v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+
+  TProfile *p_vnPlot_pp = new TProfile("p_vnPlot_pp", "#pi^{+} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vnPlot_pm = new TProfile("p_vnPlot_pm", "#pi^{-} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vnPlot_kp = new TProfile("p_vnPlot_kp", "K^{+} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vnPlot_km = new TProfile("p_vnPlot_km", "K^{-} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vnPlot_pr = new TProfile("p_vnPlot_pr", "Proton v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+
 
   TH1D *h_psiEpdE_NoAuto = new TH1D("h_psiEpdE_NoAuto", "EP Angles, No Auto-Correlations (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
@@ -824,9 +848,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      //=========================================================
 	      //          PID Cuts
 	      //=========================================================
-	      Bool_t pion   = ((d_m2 > -0.1) && (d_m2 < 0.1) && (d_TPCnSigmaPion > -2) && (d_TPCnSigmaPion < 2));
-	      Bool_t kaon   = ((d_m2 > 0.15) && (d_m2 < 0.34) && (d_TPCnSigmaKaon > -2) && (d_TPCnSigmaKaon < 2));
-	      Bool_t proton = ((d_m2 > 0.65) && (d_m2 < 1.11) && (d_TPCnSigmaProton > -2) && (d_TPCnSigmaProton < 2));
+	      Bool_t pion   = ((d_m2 > -0.1) && (d_m2 < 0.1) && (d_TPCnSigmaPion > -3) && (d_TPCnSigmaPion < 3));
+	      Bool_t kaon   = ((d_m2 > 0.15) && (d_m2 < 0.34) && (d_TPCnSigmaKaon > -3) && (d_TPCnSigmaKaon < 3));
+	      Bool_t proton = ((d_m2 > 0.65) && (d_m2 < 1.11) && (d_TPCnSigmaProton > -3) && (d_TPCnSigmaProton < 3));
 
 	      if (!pion && !kaon && !proton) continue;
 
@@ -1036,7 +1060,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  eventInfo.YnEpd += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 
 
-	  //if (tileEta > MIN_ETA_CUT && tileEta < EF_ETA_CUT)  // Sub E
+	  //if (tileEta > MIN_ETA_CUT && tileEta < EF_ETA_CUT)
 	  if (tileRow <= 8 && tileEta >= -5.1)  // Sub E
 	    {
 	      eventInfo.nHitsEpdE++;
@@ -1504,31 +1528,79 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  //=========================================================
 	  //        Flow, Resolutions, and Auto-Correlations
 	  //=========================================================
-
-	  TH1D *h_resolutions = (TH1D*)resolutionInputFile->Get("h_resolutions");
-
-	  Double_t cosTerm = 0;
-	  Double_t jthWeight = 0;
-	  Double_t jthPhi = 0;
-	  Int_t centID = v_events.at(i).centID;
-
-	  if (centID < 3) continue;  // ONLY LOOKING AT CENTRALITY 65% AND LOWER
-
-	  Double_t resolution = h_resolutions->GetBinContent(centID + 1); // +1 since centID starts at 0
-
-	  for (Int_t j = 0; j < v_events.at(i).nHitsEpdE; j++)  // Loop through the j number of EPD E hits
+	  if (resolutionsFound)
 	    {
-	      jthWeight = v_events.at(i).tileWeightsEpdE.at(j);
-	      jthPhi = v_events.at(i).phiValuesEpdE.at(j);
+	      h_resolutions = (TH1D*)resolutionInputFile->Get("h_resolutions");
+	      if (!h_resolutions) { std::cout << "h_resolutions not retrieved" << std::endl; return; }
 
-	      Double_t newXn = v_events.at(i).XnEpdE - jthWeight * TMath::Cos(ORDER_M * jthPhi);   // For event i, remove the jth particle from event plane
-	      Double_t newYn = v_events.at(i).YnEpdE - jthWeight * TMath::Sin(ORDER_M * jthPhi);
-	      Double_t newPsi = TMath::ATan2(newYn, newXn) / ORDER_M;
-	      //v_events.at(i).eventPlanesEpdE.push_back(newPsi);
-	      h_psiEpdE_NoAuto->Fill(newPsi);
+	      Double_t cosTerm = 0;
+	      Double_t jthWeight = 0;
+	      Double_t jthPhi = 0;
+	      Int_t centID = v_events.at(i).centID;
 
-	      // Add contribution to v_n from the jth particle using the event plane that omits the jth particle:
-	      p_vnPlot->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - newPsi)) / resolution);
+	      if (centID < 3) continue;  // ONLY LOOKING AT CENTRALITY 65% AND LOWER
+
+	      Double_t resolution = h_resolutions->GetBinContent(centID + 1); // +1 since centID starts at 0
+	      if (resolution == 0.0) continue;
+
+	      for (Int_t j = 0; j < v_events.at(i).nHitsEpdE; j++)  // Loop through the j number of EPD E hits
+		{
+		  jthWeight = v_events.at(i).tileWeightsEpdE.at(j);
+		  jthPhi = v_events.at(i).phiValuesEpdE.at(j);
+
+		  Double_t newXn = v_events.at(i).XnEpdE - jthWeight * TMath::Cos(ORDER_M * jthPhi);   // For event i, remove the jth particle from event plane
+		  Double_t newYn = v_events.at(i).YnEpdE - jthWeight * TMath::Sin(ORDER_M * jthPhi);
+		  Double_t newPsi = TMath::ATan2(newYn, newXn) / ORDER_M;
+		  //v_events.at(i).eventPlanesEpdE.push_back(newPsi);
+		  h_psiEpdE_NoAuto->Fill(newPsi);
+
+		  // Add contribution to v_n from the jth particle using the event plane that omits the jth particle:
+		  p_vnPlot->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - newPsi)) / resolution);
+		}
+
+
+	      Double_t phi = 0;
+	      Double_t psi = v_events.at(i).psiEpdE;
+
+	      // Pi+
+	      for (UInt_t j = 0; j < v_events.at(i).phiValuesPionP.size(); j++)
+		{
+		  phi = v_events.at(i).phiValuesPionP.at(j);
+
+		  p_vnPlot_pp->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
+		}
+
+	      // Pi-
+	      for (UInt_t j = 0; j < v_events.at(i).phiValuesPionM.size(); j++)
+		{
+		  phi = v_events.at(i).phiValuesPionM.at(j);
+
+		  p_vnPlot_pm->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
+		}
+
+	      // K+
+	      for (UInt_t j = 0; j < v_events.at(i).phiValuesKaonP.size(); j++)
+		{
+		  phi = v_events.at(i).phiValuesKaonP.at(j);
+
+		  p_vnPlot_kp->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
+		}
+
+	      // K-
+	      for (UInt_t j = 0; j < v_events.at(i).phiValuesKaonM.size(); j++)
+		{
+		  phi = v_events.at(i).phiValuesKaonM.at(j);
+
+		  p_vnPlot_km->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
+		}
+
+	      // Proton
+	      for (UInt_t j = 0; j < v_events.at(i).phiValuesProton.size(); j++)
+		{
+		  phi = v_events.at(i).phiValuesProton.at(j);
+
+		  p_vnPlot_pr->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
+		}
 	    }
 	  //=========================================================
 	  //      End Flow, Resolutions, and Auto-Correlations
@@ -1537,7 +1609,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 	  v_events.at(i).reset(); // Try to free up space?
 
-	}// End shift loop over events
+        }// End shift loop over events
     }
   //=========================================================
   //          End Event Plane Angle Shifting
@@ -1572,6 +1644,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
       p_cosAvgsTpcA  ->Write();
       p_sinAvgsTpcB  ->Write();
       p_cosAvgsTpcB  ->Write();
+      p_sinAvgsEpd   ->Write();
+      p_cosAvgsEpd   ->Write();
       p_sinAvgsEpdE  ->Write();
       p_cosAvgsEpdE  ->Write();
       p_sinAvgsEpdF  ->Write();
@@ -1582,6 +1656,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
       h_YnTpcA       ->Write();
       h_XnTpcB       ->Write();
       h_YnTpcB       ->Write();
+      h_XnEpd        ->Write();
+      h_YnEpd        ->Write();
       h_XnEpdE       ->Write();
       h_YnEpdE       ->Write();
       h_XnEpdF       ->Write();
