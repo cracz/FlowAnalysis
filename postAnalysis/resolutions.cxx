@@ -194,7 +194,7 @@ void resolutions(TString jobID)
       if(TMath::IsNaN(R_EvsF) || dR_EvsF > 0.1) { R_EvsF = 0; dR_EvsF = 0; }
       if(TMath::IsNaN(R_FvsE) || dR_FvsE > 0.1) { R_FvsE = 0; dR_FvsE = 0; }
       if(TMath::IsNaN(R_TpcB) || dR_TpcB > 0.1) { R_TpcB = 0; dR_TpcB = 0; }
-      if(TMath::IsNaN(R_EvsF_save) || dR_EvsF_save > 0.1) { R_EvsF_save = 0; dR_EvsF_save = 0.1; }      
+      //if(TMath::IsNaN(R_EvsF_save)) { R_EvsF_save = 0; dR_EvsF_save = 0.1; }      
 
       h_resolEvsF->SetBinContent(i, R_EvsF);
       h_resolEvsF->SetBinError(i, dR_EvsF);
@@ -205,9 +205,11 @@ void resolutions(TString jobID)
       h_resolTpcB->SetBinContent(i, R_TpcB);
       h_resolTpcB->SetBinError(i, dR_TpcB);
 
-      
-      h_resolutions->SetBinContent(i, R_EvsF_save);
-      h_resolutions->SetBinError(i, dR_EvsF_save);
+      if(!TMath::IsNaN(R_EvsF_save))
+	{
+	  h_resolutions->SetBinContent(i, R_EvsF_save);
+	  h_resolutions->SetBinError(i, dR_EvsF_save);
+	}
     }
 
   h_resolutions->Write();
@@ -272,70 +274,115 @@ void resolutions(TString jobID)
   canvas->SaveAs(jobID + "_h_centralities_flip.png");
   canvas->Clear();
 
+  
   canvas->SetLogy(0);
   canvas->SetTicks();
-  p_vnPlot_flip->SetMarkerStyle(20);
-  p_vnPlot_flip->SetMarkerColor(2);
-  p_vnPlot_flip->SetLineColor(2);
-  p_vnPlot_flip->Draw("E1P");
-  canvas->SaveAs(jobID + "_p_vnPlot_flip.png");
-  canvas->Clear();
 
+  TH1D *vn = new TH1D("vn", ";Centrality (%);v_{2}", 16, 0, 80);
+  TH1D *vn_pp = new TH1D("vn_pp", ";Centrality (%);v_{2}", 16, 0, 80);
+  TH1D *vn_pm = new TH1D("vn_pm", ";Centrality (%);v_{2}", 16, 0, 80);
+  TH1D *vn_kp = new TH1D("vn_kp", ";Centrality (%);v_{2}", 16, 0, 80);
+  TH1D *vn_km = new TH1D("vn_km", ";Centrality (%);v_{2}", 16, 0, 80);
+  TH1D *vn_pr = new TH1D("vn_pr", ";Centrality (%);v_{2}", 16, 0, 80);
+
+  for (int i = 1; i <= 16; i++)
+    {
+      vn->SetBinContent(i, p_vnPlot_flip->GetBinContent(i));
+      vn->SetBinError(i, p_vnPlot_flip->GetBinError(i));
+
+      vn_pp->SetBinContent(i, p_vnPlot_pp_flip->GetBinContent(i));
+      vn_pp->SetBinError(i, p_vnPlot_pp_flip->GetBinError(i));
+
+      vn_pm->SetBinContent(i, p_vnPlot_pm_flip->GetBinContent(i));
+      vn_pm->SetBinError(i, p_vnPlot_pm_flip->GetBinError(i));
+
+      vn_kp->SetBinContent(i, p_vnPlot_kp_flip->GetBinContent(i));
+      vn_kp->SetBinError(i, p_vnPlot_kp_flip->GetBinError(i));
+
+      vn_km->SetBinContent(i, p_vnPlot_km_flip->GetBinContent(i));
+      vn_km->SetBinError(i, p_vnPlot_km_flip->GetBinError(i));
+
+      vn_pr->SetBinContent(i, p_vnPlot_pr_flip->GetBinContent(i));
+      vn_pr->SetBinError(i, p_vnPlot_pr_flip->GetBinError(i));
+    }
+  
 
   THStack *piStack = new THStack("piStack", ";Centrality (%);v_{2}");
   THStack *kaStack = new THStack("kaStack", ";Centrality (%);v_{2}");
 
-  p_vnPlot_pp_flip->SetMarkerStyle(20);
-  p_vnPlot_pp_flip->SetMarkerColor(2);
-  p_vnPlot_pp_flip->SetLineColor(2);
+  vn_pp->SetMarkerStyle(20);
+  vn_pp->SetMarkerColor(2);
+  vn_pp->SetLineColor(2);
 
-  p_vnPlot_pm_flip->SetMarkerStyle(20);
-  p_vnPlot_pm_flip->SetMarkerColor(4);
-  p_vnPlot_pm_flip->SetLineColor(4);
+  vn_pm->SetMarkerStyle(20);
+  vn_pm->SetMarkerColor(4);
+  vn_pm->SetLineColor(4);
 
-  p_vnPlot_kp_flip->SetMarkerStyle(20);
-  p_vnPlot_kp_flip->SetMarkerColor(2);
-  p_vnPlot_kp_flip->SetLineColor(2);
+  vn_kp->SetMarkerStyle(20);
+  vn_kp->SetMarkerColor(2);
+  vn_kp->SetLineColor(2);
 
-  p_vnPlot_km_flip->SetMarkerStyle(20);
-  p_vnPlot_km_flip->SetMarkerColor(4);
-  p_vnPlot_km_flip->SetLineColor(4);
+  vn_km->SetMarkerStyle(20);
+  vn_km->SetMarkerColor(4);
+  vn_km->SetLineColor(4);
 
-  p_vnPlot_pr_flip->SetMarkerStyle(20);
-  p_vnPlot_pr_flip->SetMarkerColor(2);
-  p_vnPlot_pr_flip->SetLineColor(2);
+  vn_pr->SetMarkerStyle(20);
+  vn_pr->SetMarkerColor(2);
+  vn_pr->SetLineColor(2);
 
-  piStack->Add(p_vnPlot_pp_flip);
-  piStack->Add(p_vnPlot_pm_flip);
+  piStack->Add(vn_pp);
+  piStack->Add(vn_pm);
 
-  kaStack->Add(p_vnPlot_kp_flip);
-  kaStack->Add(p_vnPlot_km_flip);
+  kaStack->Add(vn_kp);
+  kaStack->Add(vn_km);
 
   TLegend *piLegend = new TLegend(0.775, 0.75, 0.9, 0.9);
-  piLegend->AddEntry(p_vnPlot_pp_flip,"#pi^{+}");
-  piLegend->AddEntry(p_vnPlot_pm_flip,"#pi^{-}");
+  piLegend->AddEntry(vn_pp,"#pi^{+}");
+  piLegend->AddEntry(vn_pm,"#pi^{-}");
 
   TLegend *kaLegend = new TLegend(0.775, 0.75, 0.9, 0.9);
-  kaLegend->AddEntry(p_vnPlot_kp_flip,"K^{+}");
-  kaLegend->AddEntry(p_vnPlot_km_flip,"K^{-}");
+  kaLegend->AddEntry(vn_kp,"K^{+}");
+  kaLegend->AddEntry(vn_km,"K^{-}");
 
   canvas->SetLeftMargin(0.12);
+  canvas->SetGrid(0);
+  gStyle->SetErrorX(0);
+
+  TLine *zeroLine = new TLine(0, 0, 80, 0);
+  zeroLine->SetLineStyle(9);
+
   
+  piStack->Draw();
+  piStack->GetXaxis()->SetNdivisions(210);
+  piStack->SetMaximum(0.01);
+  piStack->SetMinimum(-0.12);
   piStack->Draw("NOSTACK E1P");
-  //piStack->GetYaxis()->SetTitleOffset(1);
-  piStack->Draw("NOSTACK E1P");
+  zeroLine->Draw("SAME");
   piLegend->Draw();
   canvas->SaveAs(jobID + "_piStack.png");
   canvas->Clear();
 
+  kaStack->Draw();
+  kaStack->GetXaxis()->SetNdivisions(210);
   kaStack->Draw("NOSTACK E1P");
+  zeroLine->Draw("SAME");
   kaLegend->Draw();
   canvas->SaveAs(jobID + "_kaStack.png");
   canvas->Clear();
 
-  p_vnPlot_pr_flip->SetTitle("");
-  p_vnPlot_pr_flip->Draw("E1P");
-  canvas->SaveAs(jobID + "_p_vnPlot_pr_flip.png");
+  vn_pr->SetTitle("");
+  vn_pr->GetXaxis()->SetNdivisions(210);
+  vn_pr->Draw("E1P");
+  zeroLine->Draw("SAME");
+  canvas->SaveAs(jobID + "_vn_pr.png");
+  canvas->Clear();
+
+  vn->SetMarkerStyle(20);
+  vn->SetMarkerColor(2);
+  vn->SetLineColor(2);
+  vn->GetXaxis()->SetNdivisions(210);
+  vn->Draw("E1P");
+  canvas->SaveAs(jobID + "_vn.png");
   canvas->Clear();
 
   

@@ -37,16 +37,20 @@ void acceptanceCuts(TString jobID)
   Double_t yCM_low_km  = 0.0;
   Double_t yCM_high_km = 0.5;
   Double_t pT_low_km   = 0.4;
-  Double_t pT_high_km  = 1.2;
+  Double_t pT_high_km  = 1.6;
 
   Double_t yCM_low_pr  = 0.0;
   Double_t yCM_high_pr = 0.5;
-  Double_t pT_low_pr   = 0.7;
+  Double_t pT_low_pr   = 0.4;
   Double_t pT_high_pr  = 2.5;
 
   TLine *y_mid = new TLine(0, 0, 0, 2.5);
   y_mid->SetLineColor(kRed);
   y_mid->SetLineWidth(4);
+
+  TLine *y_mid_pr = new TLine(0, 0, 0, 3);
+  y_mid_pr->SetLineColor(kRed);
+  y_mid_pr->SetLineWidth(4);
 
   TLine *left_pp = new TLine(yCM_low_pp, pT_low_pp, yCM_low_pp, pT_high_pp);
   TLine *right_pp = new TLine(yCM_high_pp, pT_low_pp, yCM_high_pp, pT_high_pp);
@@ -169,7 +173,7 @@ void acceptanceCuts(TString jobID)
   canvas->Clear();
 
   h2_pT_vs_yCM_pr->Draw("colz");
-  y_mid->Draw("SAME");
+  y_mid_pr->Draw("SAME");
   left_pr->Draw("SAME");
   right_pr->Draw("SAME");
   top_pr->Draw("SAME");
