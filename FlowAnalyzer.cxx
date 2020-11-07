@@ -368,6 +368,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 
   // INPUT FILE FOR EVENT PLANE RESOLUTION INFORMATION
+  /*
   TH1D *h_resolutions;
   Bool_t resolutionsFound = false;
   TString resolutionInputName = "resolutionInfo_INPUT.root";
@@ -382,7 +383,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  std::cout << "Resolution file found!" << std::endl; 
 	}
     }
-
+  */
 
   // OUTPUT FILE FOR CORRECTION INFORMATION
   TString correctionOutputName = "correctionInfo_OUTPUT_"+jobID+".root";
@@ -401,7 +402,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
   h_event_check->SetStats(0);
 
   TH1D *h_track_check = new TH1D("h_track_check","Track number after each cut;;Tracks", 4, 0, 4);
-  const char *trackSections[4] = {"Event cuts only", "TOF #beta cut", "QA cuts", "PID cuts"};  
+  const char *trackSections[4] = {"Event cuts only", "QA Cuts", "TOF #beta cut", "PID cuts"};  
   h_track_check->SetStats(0);
 
   TH1D *h_nhits      = new TH1D("h_nhits", "nHits;Number of hits;Tracks", 50, 0, 50);
@@ -456,18 +457,24 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH1D *h_psiEpdE_RAW = new TH1D("h_psiEpdE_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiEpdF_RAW = new TH1D("h_psiEpdF_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD F);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
-  TProfile *p_vnPlot = new TProfile("p_vnPlot", "v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_vn_EpdE = new TProfile("p_vn_EpdE", "v_{"+ORDER_N_STR+"} by Centrality (EPD E);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vn_EpdF = new TProfile("p_vn_EpdF", "v_{"+ORDER_N_STR+"} by Centrality (EPD F);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vn_TpcA = new TProfile("p_vn_TpcA", "v_{"+ORDER_N_STR+"} by Centrality (TPC A);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vn_TpcB = new TProfile("p_vn_TpcB", "v_{"+ORDER_N_STR+"} by Centrality (TPC B);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
 
-  TProfile *p_vnPlot_pp = new TProfile("p_vnPlot_pp", "#pi^{+} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_vn_pp = new TProfile("p_vn_pp", "#pi^{+} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
-  TProfile *p_vnPlot_pm = new TProfile("p_vnPlot_pm", "#pi^{-} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_vn_pm = new TProfile("p_vn_pm", "#pi^{-} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
-  TProfile *p_vnPlot_kp = new TProfile("p_vnPlot_kp", "K^{+} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_vn_kp = new TProfile("p_vn_kp", "K^{+} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
-  TProfile *p_vnPlot_km = new TProfile("p_vnPlot_km", "K^{-} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_vn_km = new TProfile("p_vn_km", "K^{-} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
-  TProfile *p_vnPlot_pr = new TProfile("p_vnPlot_pr", "Proton v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_vn_pr = new TProfile("p_vn_pr", "Proton v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
 
 
@@ -562,18 +569,18 @@ void FlowAnalyzer(TString inFile, TString jobID)
   */
   // Here the name refers to the eta region that will be displayed/searched using the event plane angle from the opposite region
 
-  TProfile2D *h2_v2SearchTpc = new TProfile2D("h2_v2SearchTpc", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
+  TProfile2D *h2_v2ScanTpc = new TProfile2D("h2_v2ScanTpc", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 					      12, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  TProfile2D *h2_v2SearchEpd = new TProfile2D("h2_v2SearchEpd", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
+  TProfile2D *h2_v2ScanEpd = new TProfile2D("h2_v2ScanEpd", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 					      12, -6.0, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  TProfile2D *h2_v2SearchEpdTpcA = new TProfile2D("h2_v2SearchEpdTpcA", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,A}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
+  TProfile2D *h2_v2ScanEpdTpcA = new TProfile2D("h2_v2ScanEpdTpcA", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,A}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 						  12, -6.0, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  TProfile2D *h2_v2SearchEpdTpcB = new TProfile2D("h2_v2SearchEpdTpcB", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,B}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
+  TProfile2D *h2_v2ScanEpdTpcB = new TProfile2D("h2_v2ScanEpdTpcB", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,B}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 						  12, -6.0, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  h2_v2SearchTpc->SetStats(0);
-  h2_v2SearchEpd->SetStats(0);
-  h2_v2SearchEpdTpcA->SetStats(0);
-  h2_v2SearchEpdTpcB->SetStats(0);
+  h2_v2ScanTpc->SetStats(0);
+  h2_v2ScanEpd->SetStats(0);
+  h2_v2ScanEpdTpcA->SetStats(0);
+  h2_v2ScanEpdTpcB->SetStats(0);
 
   // The indices here are equivalent to the corresponding centrality ID
   const char *centralityBins[16] = {"75-80", "70-75", "65-70", "60-65", "55-60", "50-55", "45-50", "40-45", "35-40", "30-35", "25-30", "20-25", "15-20", "10-15", "5-10", "0-5"};
@@ -738,21 +745,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  eventInfo.primTracks++;
 
 	  //=========================================================
-	  //          TOF Beta Cuts
-	  //=========================================================
-	  if (!picoTrack->isTofTrack()) continue;
-	      
-	  StPicoBTofPidTraits *trait = dst->btofPidTraits(picoTrack->bTofPidTraitsIndex());
-	  Double_t d_tofBeta = trait->btofBeta();
-	      
-	  if (d_tofBeta < 0.01) continue;
-	  //=========================================================
-	  //          End TOF Beta Cuts
-	  //=========================================================
-
-	  h_track_check->Fill(trackSections[1], 1);
-
-	  //=========================================================
 	  //          Track QA Cuts
 	  //=========================================================
 	  h_nhits->Fill(picoTrack->nHits());
@@ -771,11 +763,37 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  //          End Track QA Cuts
 	  //=========================================================
 
-	  h_track_check->Fill(trackSections[2], 1);
+	  h_track_check->Fill(trackSections[1], 1);
+
 
 	  Double_t d_TPCnSigmaPion   = picoTrack->nSigmaPion();
 	  Double_t d_TPCnSigmaProton = picoTrack->nSigmaProton();
 	  Double_t d_TPCnSigmaKaon   = picoTrack->nSigmaKaon();
+
+	  bool goodnSigmaPion   = ((d_TPCnSigmaPion > -3) && (d_TPCnSigmaPion < 3));
+	  bool goodnSigmaKaon   = ((d_TPCnSigmaKaon > -3) && (d_TPCnSigmaKaon < 3));
+	  bool goodnSigmaProton = ((d_TPCnSigmaProton > -3) && (d_TPCnSigmaProton < 3));
+
+	  bool proton = (goodnSigmaProton && !goodnSigmaPion && !goodnSigmaKaon) ? true : false;
+	  //=========================================================
+	  //          TOF Beta Cuts
+	  //=========================================================
+	  StPicoBTofPidTraits *trait;
+	  Double_t d_tofBeta;
+	  Bool_t tofTrack = picoTrack->isTofTrack();
+
+	  if (tofTrack)
+	    {
+	      trait = dst->btofPidTraits(picoTrack->bTofPidTraitsIndex());
+	      d_tofBeta = trait->btofBeta();
+	      
+	      if (d_tofBeta < 0.01) continue;
+	    }
+	  //=========================================================
+	  //          End TOF Beta Cuts
+	  //=========================================================
+
+	  h_track_check->Fill(trackSections[2], 1);
 
 
 	  TVector3 mom_vec  = picoTrack->pMom();
@@ -783,7 +801,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  Double_t d_dEdx   = picoTrack->dEdx();
 	  Double_t d_mom    = picoTrack->pPtot();
 	  Double_t d_pT     = picoTrack->pPt();
-	  Double_t d_m2     = d_mom*d_mom*( (1 / (d_tofBeta*d_tofBeta)) - 1);
+	  Double_t d_m2;
+	  if (tofTrack) d_m2 = d_mom*d_mom*( (1 / (d_tofBeta*d_tofBeta)) - 1);
 	  Double_t d_px     = picoTrack->pMom().x();
 	  Double_t d_py     = picoTrack->pMom().y();
 	  Double_t d_pz     = picoTrack->pMom().z();
@@ -794,7 +813,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  // Fill histos and save important event info in the custom struct type
 	  if (d_charge != 0)
 	    {
-	      h_eta_TPC_s->Fill(d_eta - Y_MID);
+	      //h_eta_TPC_s->Fill(d_eta - Y_MID);
 
 	      eventInfo.nTracksTpc++;
 	      if (d_eta > Y_MID)        // Account for Q vector sign change past mid-rapidity.
@@ -827,13 +846,16 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		}
 
 
-	      h2_betap->Fill(d_charge * d_mom, 1/d_tofBeta);
-	      h2_m2_qp->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
-	      h2_m2_vs_qpT->Fill(d_charge * d_pT, d_m2);
+	      if (tofTrack)
+		{
+		  h2_betap->Fill(d_charge * d_mom, 1/d_tofBeta);
+		  h2_m2_qp->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
+		  h2_m2_vs_qpT->Fill(d_charge * d_pT, d_m2);
 
-	      h2_pi_m2_vs_TPC_nsig->Fill(d_TPCnSigmaPion, d_m2);
-	      h2_ka_m2_vs_TPC_nsig->Fill(d_TPCnSigmaKaon, d_m2);
-	      h2_pr_m2_vs_TPC_nsig->Fill(d_TPCnSigmaProton, d_m2);
+		  h2_pi_m2_vs_TPC_nsig->Fill(d_TPCnSigmaPion, d_m2);
+		  h2_ka_m2_vs_TPC_nsig->Fill(d_TPCnSigmaKaon, d_m2);
+		  h2_pr_m2_vs_TPC_nsig->Fill(d_TPCnSigmaProton, d_m2);
+		}
 
 	      h2_dEdx_vs_qp->Fill(d_charge * d_mom, d_dEdx);
 
@@ -848,9 +870,24 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      //=========================================================
 	      //          PID Cuts
 	      //=========================================================
-	      Bool_t pion   = ((d_m2 > -0.1) && (d_m2 < 0.1) && (d_TPCnSigmaPion > -3) && (d_TPCnSigmaPion < 3));
-	      Bool_t kaon   = ((d_m2 > 0.15) && (d_m2 < 0.34) && (d_TPCnSigmaKaon > -3) && (d_TPCnSigmaKaon < 3));
-	      Bool_t proton = ((d_m2 > 0.65) && (d_m2 < 1.11) && (d_TPCnSigmaProton > -3) && (d_TPCnSigmaProton < 3));
+	      Bool_t goodm2Pion;
+	      Bool_t goodm2Kaon;
+	      Bool_t pion;
+	      Bool_t kaon;
+
+	      if (tofTrack)
+		{
+		  goodm2Pion = (d_m2 > -0.1) && (d_m2 < 0.1);
+		  goodm2Kaon = (d_m2 > 0.15) && (d_m2 < 0.34);
+
+		  pion = (goodm2Pion && goodnSigmaPion);
+		  kaon = (goodm2Kaon && goodnSigmaKaon);
+		}
+	      else
+		{
+		  pion = false;   // TOF is required for pions and kaons.
+		  kaon = false;
+		}
 
 	      if (!pion && !kaon && !proton) continue;
 
@@ -953,7 +990,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.4 && d_pT <= 1.2)
+		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.4 && d_pT <= 1.6)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_km_dndy, h_km_dndm, h2_km_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -979,7 +1016,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.7 && d_pT <= 2.5)
+		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.4 && d_pT <= 2.0)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pr, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -1121,10 +1158,18 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
       // Fill eta distribution here since this is past all possible cuts.
 
-      for (unsigned int i = 0; i < eventInfo.etaValuesTpcA.size(); i++) { h_eta_s->Fill( eventInfo.etaValuesTpcA.at(i) - Y_MID ); } 
-      for (unsigned int i = 0; i < eventInfo.etaValuesTpcB.size(); i++) { h_eta_s->Fill( eventInfo.etaValuesTpcB.at(i) - Y_MID ); } 
-      for (unsigned int i = 0; i < eventInfo.etaValuesEpdE.size(); i++) { h_eta_s->Fill( eventInfo.etaValuesEpdE.at(i) - Y_MID ); } 
-      for (unsigned int i = 0; i < eventInfo.etaValuesEpdF.size(); i++) { h_eta_s->Fill( eventInfo.etaValuesEpdF.at(i) - Y_MID ); } 
+      for (unsigned int i = 0; i < eventInfo.etaValuesTpcA.size(); i++) 
+	{ 
+	  h_eta_s->Fill(eventInfo.etaValuesTpcA.at(i) - Y_MID); 
+	  h_eta_TPC_s->Fill(eventInfo.etaValuesTpcA.at(i) - Y_MID); 
+	} 
+      for (unsigned int i = 0; i < eventInfo.etaValuesTpcB.size(); i++) 
+	{ 
+	  h_eta_s->Fill(eventInfo.etaValuesTpcB.at(i) - Y_MID); 
+	  h_eta_TPC_s->Fill(eventInfo.etaValuesTpcB.at(i) - Y_MID); 
+	} 
+      for (unsigned int i = 0; i < eventInfo.etaValuesEpdE.size(); i++) { h_eta_s->Fill(eventInfo.etaValuesEpdE.at(i) - Y_MID); } 
+      for (unsigned int i = 0; i < eventInfo.etaValuesEpdF.size(); i++) { h_eta_s->Fill(eventInfo.etaValuesEpdF.at(i) - Y_MID); } 
 
 
       h_primTracks->Fill(eventInfo.primTracks);
@@ -1488,9 +1533,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      phiEpd = v_events.at(i).phiValuesEpdE.at(k);
 	      etaEpd = v_events.at(i).etaValuesEpdE.at(k);
 
-	      h2_v2SearchEpd->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpc)));
-	      h2_v2SearchEpdTpcA->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpcA)));
-	      h2_v2SearchEpdTpcB->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpcB)));
+	      h2_v2ScanEpd->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpc)));
+	      h2_v2ScanEpdTpcA->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpcA)));
+	      h2_v2ScanEpdTpcB->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpcB)));
 	      //h2_phiSearchEpd->Fill(phiEpd, centralityID);
 	    }
 	  for (int k = 0; k < epdHitsF; k++)
@@ -1498,9 +1543,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      phiEpd = v_events.at(i).phiValuesEpdF.at(k);
 	      etaEpd = v_events.at(i).etaValuesEpdF.at(k);
 
-	      h2_v2SearchEpd->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpc)));
-	      h2_v2SearchEpdTpcA->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpcA)));
-	      h2_v2SearchEpdTpcB->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpcB)));
+	      h2_v2ScanEpd->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpc)));
+	      h2_v2ScanEpdTpcA->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpcA)));
+	      h2_v2ScanEpdTpcB->Fill(etaEpd, centralityID, TMath::Cos(ORDER_M * (phiEpd - psiTpcB)));
 	      //h2_phiSearchEpd->Fill(phiEpd, centralityID);
 	    }
 
@@ -1509,7 +1554,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      phiTpc = v_events.at(i).phiValuesTpcA.at(k);
 	      etaTpc = v_events.at(i).etaValuesTpcA.at(k);
 
-	      h2_v2SearchTpc->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpd)));
+	      h2_v2ScanTpc->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpd)));
 	      //h2_phiSearchTpc->Fill(phiTpc, centralityID);
 	    }
 	  for (int k = 0; k < tpcTracksB; k++)
@@ -1517,7 +1562,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      phiTpc = v_events.at(i).phiValuesTpcB.at(k);
 	      etaTpc = v_events.at(i).etaValuesTpcB.at(k);
 
-	      h2_v2SearchTpc->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpd)));
+	      h2_v2ScanTpc->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpd)));
 	      //h2_phiSearchTpc->Fill(phiTpc, centralityID);
 	    }
 	  //=========================================================
@@ -1526,84 +1571,95 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 
 	  //=========================================================
-	  //        Flow, Resolutions, and Auto-Correlations
+	  //        RAW Flow Calculations
 	  //=========================================================
-	  if (resolutionsFound)
+	  Double_t cosTerm = 0;
+	  Double_t jthWeight = 0;
+	  Double_t jthPhi = 0;
+	  Int_t centID = v_events.at(i).centID;
+
+	  //if (centID < 4) continue;  // ONLY LOOKING AT CENTRALITY 60% AND LOWER
+
+	  // v2 from EPD E
+	  for (Int_t j = 0; j < v_events.at(i).nHitsEpdE; j++)  // Loop through the j number of EPD E hits
 	    {
-	      h_resolutions = (TH1D*)resolutionInputFile->Get("h_resolutions");
-	      if (!h_resolutions) { std::cout << "h_resolutions not retrieved" << std::endl; return; }
+	      jthWeight = v_events.at(i).tileWeightsEpdE.at(j);
+	      jthPhi = v_events.at(i).phiValuesEpdE.at(j);
 
-	      Double_t cosTerm = 0;
-	      Double_t jthWeight = 0;
-	      Double_t jthPhi = 0;
-	      Int_t centID = v_events.at(i).centID;
+	      Double_t newXn = v_events.at(i).XnEpdE - jthWeight * TMath::Cos(ORDER_M * jthPhi);   // For event i, remove the jth particle from event plane
+	      Double_t newYn = v_events.at(i).YnEpdE - jthWeight * TMath::Sin(ORDER_M * jthPhi);
+	      Double_t newPsi = TMath::ATan2(newYn, newXn) / ORDER_M;
+	      //v_events.at(i).eventPlanesEpdE.push_back(newPsi);
+	      h_psiEpdE_NoAuto->Fill(newPsi);
 
-	      if (centID < 3) continue;  // ONLY LOOKING AT CENTRALITY 65% AND LOWER
-
-	      Double_t resolution = h_resolutions->GetBinContent(centID + 1); // +1 since centID starts at 0
-	      if (resolution == 0.0) continue;
-
-	      for (Int_t j = 0; j < v_events.at(i).nHitsEpdE; j++)  // Loop through the j number of EPD E hits
-		{
-		  jthWeight = v_events.at(i).tileWeightsEpdE.at(j);
-		  jthPhi = v_events.at(i).phiValuesEpdE.at(j);
-
-		  Double_t newXn = v_events.at(i).XnEpdE - jthWeight * TMath::Cos(ORDER_M * jthPhi);   // For event i, remove the jth particle from event plane
-		  Double_t newYn = v_events.at(i).YnEpdE - jthWeight * TMath::Sin(ORDER_M * jthPhi);
-		  Double_t newPsi = TMath::ATan2(newYn, newXn) / ORDER_M;
-		  //v_events.at(i).eventPlanesEpdE.push_back(newPsi);
-		  h_psiEpdE_NoAuto->Fill(newPsi);
-
-		  // Add contribution to v_n from the jth particle using the event plane that omits the jth particle:
-		  p_vnPlot->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - newPsi)) / resolution);
-		}
+	      // Add contribution to v_n from the jth particle using the event plane that omits the jth particle:
+	      p_vn_EpdE->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - newPsi)));
+	    }
 
 
-	      Double_t phi = 0;
-	      Double_t psi = v_events.at(i).psiEpdE;
 
-	      // Pi+
-	      for (UInt_t j = 0; j < v_events.at(i).phiValuesPionP.size(); j++)
-		{
-		  phi = v_events.at(i).phiValuesPionP.at(j);
+	  Double_t phi = 0;
+	  Double_t psi = v_events.at(i).psiEpdE;
 
-		  p_vnPlot_pp->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
-		}
+	  // v2 from EPD F
+	  for (UInt_t j = 0; j < v_events.at(i).phiValuesEpdF.size(); j++)
+	    {
+	      phi = v_events.at(i).phiValuesEpdF.at(j);
 
-	      // Pi-
-	      for (UInt_t j = 0; j < v_events.at(i).phiValuesPionM.size(); j++)
-		{
-		  phi = v_events.at(i).phiValuesPionM.at(j);
+	      p_vn_EpdF->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)));
+	    }
 
-		  p_vnPlot_pm->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
-		}
+	  // v2 from TPC B
+	  for (UInt_t j = 0; j < v_events.at(i).phiValuesTpcB.size(); j++)
+	    {
+	      phi = v_events.at(i).phiValuesTpcB.at(j);
 
-	      // K+
-	      for (UInt_t j = 0; j < v_events.at(i).phiValuesKaonP.size(); j++)
-		{
-		  phi = v_events.at(i).phiValuesKaonP.at(j);
+	      p_vn_TpcB->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)));
+	    }
 
-		  p_vnPlot_kp->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
-		}
 
-	      // K-
-	      for (UInt_t j = 0; j < v_events.at(i).phiValuesKaonM.size(); j++)
-		{
-		  phi = v_events.at(i).phiValuesKaonM.at(j);
 
-		  p_vnPlot_km->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
-		}
+	  // Pi+
+	  for (UInt_t j = 0; j < v_events.at(i).phiValuesPionP.size(); j++)
+	    {
+	      phi = v_events.at(i).phiValuesPionP.at(j);
 
-	      // Proton
-	      for (UInt_t j = 0; j < v_events.at(i).phiValuesProton.size(); j++)
-		{
-		  phi = v_events.at(i).phiValuesProton.at(j);
+	      p_vn_pp->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)));
+	    }
 
-		  p_vnPlot_pr->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)) / resolution);
-		}
+	  // Pi-
+	  for (UInt_t j = 0; j < v_events.at(i).phiValuesPionM.size(); j++)
+	    {
+	      phi = v_events.at(i).phiValuesPionM.at(j);
+
+	      p_vn_pm->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)));
+	    }
+
+	  // K+
+	  for (UInt_t j = 0; j < v_events.at(i).phiValuesKaonP.size(); j++)
+	    {
+	      phi = v_events.at(i).phiValuesKaonP.at(j);
+
+	      p_vn_kp->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)));
+	    }
+
+	  // K-
+	  for (UInt_t j = 0; j < v_events.at(i).phiValuesKaonM.size(); j++)
+	    {
+	      phi = v_events.at(i).phiValuesKaonM.at(j);
+
+	      p_vn_km->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)));
+	    }
+
+	  // Proton
+	  for (UInt_t j = 0; j < v_events.at(i).phiValuesProton.size(); j++)
+	    {
+	      phi = v_events.at(i).phiValuesProton.at(j);
+
+	      p_vn_pr->Fill(centID, TMath::Cos(ORDER_N * (phi - psi)));
 	    }
 	  //=========================================================
-	  //      End Flow, Resolutions, and Auto-Correlations
+	  //            End RAW Flow Calculations
 	  //=========================================================
 
 
@@ -1621,10 +1677,10 @@ void FlowAnalyzer(TString inFile, TString jobID)
   for (int i = 1; i <= CENT_BINS; i++) 
     {
       labelIndex = FIRST_CENT + i - 1;
-      h2_v2SearchTpc->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
-      h2_v2SearchEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
-      h2_v2SearchEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
-      h2_v2SearchEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
+      h2_v2ScanTpc->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
+      h2_v2ScanEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
+      h2_v2ScanEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
+      h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       //h2_phiSearchTpc->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
       //h2_phiSearchEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
     }
