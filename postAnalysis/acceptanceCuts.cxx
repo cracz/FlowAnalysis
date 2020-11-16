@@ -7,6 +7,7 @@ void acceptanceCuts(TString jobID)
   if(!file) {cout << "Wrong file!" << endl; return;}
 
   TProfile2D *p2_pp_vs_eta = (TProfile2D*)file->Get("p2_pp_vs_eta");
+  TH2D *h2_phi_vs_eta_EPD = (TH2D*)file->Get("h2_phi_vs_eta_EPD");
   
   TH2D *h2_pT_vs_yCM_pp = (TH2D*)file->Get("h2_pT_vs_yCM_pp");
   TH2D *h2_pT_vs_yCM_pm = (TH2D*)file->Get("h2_pT_vs_yCM_pm");
@@ -101,12 +102,14 @@ void acceptanceCuts(TString jobID)
   pp_vs_eta_cutoff->SetLineWidth(3);
   pp_vs_eta_cutoff->SetLineColor(kRed);
 
+  TLine *phi_vs_eta_cutoff = new TLine(-5.1, -4.0, -5.1, 4.0);
+  phi_vs_eta_cutoff->SetLineWidth(3);
+  phi_vs_eta_cutoff->SetLineColor(kRed);
+
   TCanvas *canvas = new TCanvas("canvas", "canvas", 875, 675);
   canvas->SetRightMargin(0.12);
-  canvas->SetGridx();
-  canvas->SetGridy();
-  canvas->SetTickx();
-  canvas->SetTicky();
+  canvas->SetGrid();
+  canvas->SetTicks();
   canvas->SetLogz();
   canvas->cd();
 
@@ -185,7 +188,13 @@ void acceptanceCuts(TString jobID)
   canvas->SetLogz(0);
   p2_pp_vs_eta->Draw("colz");
   pp_vs_eta_cutoff->Draw("SAME");
-  canvas->SaveAs("epdAcceptance.png");
+  canvas->SaveAs("epdAcceptance_TnMIP.png");
+  canvas->Clear();
+
+  canvas->SetLogz();
+  h2_phi_vs_eta_EPD->Draw("colz");
+  phi_vs_eta_cutoff->Draw("SAME");
+  canvas->SaveAs("epdAcceptance_phi.png");
   canvas->Clear();
 
   delete canvas;
