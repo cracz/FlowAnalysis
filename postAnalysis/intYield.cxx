@@ -167,7 +167,7 @@ void fillIntYield(TH2D *MvsY, TH1D *dndy, TString fitType, Float_t mass, TFile *
 	  func = new TF1("levy", "[0]*TMath::Sqrt([1]/TMath::TwoPi())*(TMath::Exp(-[1]/(2*(x-[2])))/TMath::Power((x-[2]),(3/2)))", minR, maxR);
 	  func->SetParameter(0, MatY->GetMaximum());
 	  func->SetParameter(1, 0.5);
-	  func->SetParameter(2, 0);
+	  func->SetParameter(2, 1);
 	}
       else
 	{
@@ -203,14 +203,21 @@ void fillIntYield(TH2D *MvsY, TH1D *dndy, TString fitType, Float_t mass, TFile *
       TFitResultPtr result1 = MatY->Fit(func->GetName(), "QES0", "", minFitR, maxFitR);
       TFitResultPtr result2;
       Int_t NDF = func->GetNDF();
-  
+
       if (result1 == -1 || !result1->IsValid())    // UNCOMMENT IF USING ROOT 6
 	{
 	  MatY    = (TH1D*)MatY->Rebin();
 	  result2 = MatY->Fit(func->GetName(), "QES0", "", minFitR, maxFitR);
 	  NDF = func->GetNDF();
 	}
-
+      /*
+      if (result2 == -1 || !result2->IsValid())
+	{
+	  std::cout << "Fit failed twice! Aborting!" << std::endl;
+	  return;
+	}
+      */
+      
       // Set the now known parameters of the integration function
       ifunc->SetParameters(func->GetParameters());
       ifunc->SetParErrors(func->GetParErrors());

@@ -92,7 +92,7 @@ const Double_t D_BAD_VALUE = -999.0;
 const Int_t CENT_BINS  = 16;             // Number of centrality bins to show (max 16)  LEAVE AT 16 FOR NOW, BEST FOR RESOLUTION STUFF
 const Int_t FIRST_CENT = 16 - CENT_BINS;            // Starting point for centrality dependent plots
 
-const Double_t Y_MID = -1.045;       // Mid rapidity
+const Double_t Y_MID = -1.05;       // Mid rapidity
 /*
 const Double_t Y_MID_PP = -0.83;       // Mid rapidity for pions (plus and minus), kaons, and protons
 const Double_t Y_MID_PM = -0.83;
@@ -443,11 +443,11 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH1D *h_km_mom = new TH1D("h_km_mom", "K^{-} Total Momentum;|p| (GeV);",   100, 0, 5);
   TH1D *h_pr_mom = new TH1D("h_pr_mom", "Proton Total Momentum;|p| (GeV);",  100, 0, 5);
 
-  TH2D *h2_pp_MvsY  = new TH2D("h2_pp_MvsY", "#pi^{+} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}", 16, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
-  TH2D *h2_pm_MvsY  = new TH2D("h2_pm_MvsY", "#pi^{-} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}", 16, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
-  TH2D *h2_kp_MvsY  = new TH2D("h2_kp_MvsY", "K^{+} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",   16, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
-  TH2D *h2_km_MvsY  = new TH2D("h2_km_MvsY", "K^{-} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",   16, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
-  TH2D *h2_pr_MvsY  = new TH2D("h2_pr_MvsY", "Proton m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",  16, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
+  TH2D *h2_pp_MvsY  = new TH2D("h2_pp_MvsY", "#pi^{+} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}", 32, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
+  TH2D *h2_pm_MvsY  = new TH2D("h2_pm_MvsY", "#pi^{-} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}", 32, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
+  TH2D *h2_kp_MvsY  = new TH2D("h2_kp_MvsY", "K^{+} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",   32, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
+  TH2D *h2_km_MvsY  = new TH2D("h2_km_MvsY", "K^{-} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",   32, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
+  TH2D *h2_pr_MvsY  = new TH2D("h2_pr_MvsY", "Proton m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",  32, -1.6, 0, 60, 0, 3);//50, -2, 0.5, 60, 0, 3);
 
 
   TH1D *h_psiTpc_RAW  = new TH1D("h_psiTpc_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", TPC);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
@@ -518,6 +518,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH2D *h2_pi_m2_vs_TPC_nsig = new TH2D("h2_pi_m2_vs_TPC_nsig", "m^{2} vs #pi TPC n#sigma;n#sigma_{#pi};m^{2} (GeV^{2})", 500, -5, 5, 500, -0.1, 1.2);
   TH2D *h2_ka_m2_vs_TPC_nsig = new TH2D("h2_ka_m2_vs_TPC_nsig", "m^{2} vs K TPC n#sigma;n#sigma_{K};m^{2} (GeV^{2})", 500, -5, 5, 500, -0.1, 1.2);
   TH2D *h2_pr_m2_vs_TPC_nsig = new TH2D("h2_pr_m2_vs_TPC_nsig", "m^{2} vs Proton TPC n#sigma;n#sigma_{pro};m^{2} (GeV^{2})", 500, -5, 5, 500, -0.1, 1.2);
+
+  TH2D *h2_phi_vs_eta_TPC = new TH2D("h2_phi_vs_eta_TPC", "TPC;#eta;#phi", 300, -2.2, 0.2, 300, -4, 4);
+  TH2D *h2_phi_vs_eta_EPD = new TH2D("h2_phi_vs_eta_EPD", "EPD;#eta;#phi", 300, -6, -2.5, 300, -4, 4);
 
   TH2D *h2_y_vs_eta = new TH2D("h2_y_vs_eta", "TPC All Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
 
@@ -765,55 +768,25 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 	  h_track_check->Fill(trackSections[1], 1);
 
-
-	  Double_t d_TPCnSigmaPion   = picoTrack->nSigmaPion();
-	  Double_t d_TPCnSigmaProton = picoTrack->nSigmaProton();
-	  Double_t d_TPCnSigmaKaon   = picoTrack->nSigmaKaon();
-
-	  bool goodnSigmaPion   = ((d_TPCnSigmaPion > -3) && (d_TPCnSigmaPion < 3));
-	  bool goodnSigmaKaon   = ((d_TPCnSigmaKaon > -3) && (d_TPCnSigmaKaon < 3));
-	  bool goodnSigmaProton = ((d_TPCnSigmaProton > -3) && (d_TPCnSigmaProton < 3));
-
-	  bool proton = (goodnSigmaProton && !goodnSigmaPion && !goodnSigmaKaon) ? true : false;
-	  //=========================================================
-	  //          TOF Beta Cuts
-	  //=========================================================
-	  StPicoBTofPidTraits *trait;
-	  Double_t d_tofBeta;
-	  Bool_t tofTrack = picoTrack->isTofTrack();
-
-	  if (tofTrack)
-	    {
-	      trait = dst->btofPidTraits(picoTrack->bTofPidTraitsIndex());
-	      d_tofBeta = trait->btofBeta();
-	      
-	      if (d_tofBeta < 0.01) continue;
-	    }
-	  //=========================================================
-	  //          End TOF Beta Cuts
-	  //=========================================================
-
-	  h_track_check->Fill(trackSections[2], 1);
-
-
 	  TVector3 mom_vec  = picoTrack->pMom();
-	  Double_t d_charge = picoTrack->charge();
 	  Double_t d_dEdx   = picoTrack->dEdx();
+	  Double_t d_charge = picoTrack->charge();
 	  Double_t d_mom    = picoTrack->pPtot();
 	  Double_t d_pT     = picoTrack->pPt();
-	  Double_t d_m2;
-	  if (tofTrack) d_m2 = d_mom*d_mom*( (1 / (d_tofBeta*d_tofBeta)) - 1);
 	  Double_t d_px     = picoTrack->pMom().x();
 	  Double_t d_py     = picoTrack->pMom().y();
 	  Double_t d_pz     = picoTrack->pMom().z();
 	  Double_t d_phi    = mom_vec.Phi();
 	  Double_t d_eta    = mom_vec.Eta();
+	  Double_t d_TPCnSigmaPion   = picoTrack->nSigmaPion();
+	  Double_t d_TPCnSigmaKaon   = picoTrack->nSigmaKaon();
+	  Double_t d_TPCnSigmaProton = picoTrack->nSigmaProton();
 
-
-	  // Fill histos and save important event info in the custom struct type
+	  // Get event planes from the TPC here before the TOF cut
 	  if (d_charge != 0)
 	    {
 	      //h_eta_TPC_s->Fill(d_eta - Y_MID);
+	      h2_phi_vs_eta_TPC->Fill(d_eta, d_phi);
 
 	      eventInfo.nTracksTpc++;
 	      if (d_eta > Y_MID)        // Account for Q vector sign change past mid-rapidity.
@@ -828,7 +801,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		}
 
 
-	      if (d_eta > MIN_TPC_ETA_CUT && d_eta < AGAP_TPC_ETA_CUT)          // TPC A  (sign change happens later
+	      if (d_eta > MIN_TPC_ETA_CUT && d_eta < AGAP_TPC_ETA_CUT)          // TPC A  (sign change happens later)
 		{
 		  eventInfo.nTracksTpcA++;
 		  eventInfo.XnTpcA += d_pT * TMath::Cos(ORDER_M * d_phi);
@@ -844,8 +817,35 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		  eventInfo.phiValuesTpcB.push_back(d_phi);
 		  eventInfo.etaValuesTpcB.push_back(d_eta);
 		}
+	    }// End TPC event planes
 
 
+	  //=========================================================
+	  //          TOF Beta Cuts
+	  //=========================================================
+	  StPicoBTofPidTraits *trait;
+	  Double_t d_tofBeta;
+	  Double_t d_m2;
+	  Bool_t tofTrack = picoTrack->isTofTrack();
+
+	  if (tofTrack)
+	    {
+	      trait = dst->btofPidTraits(picoTrack->bTofPidTraitsIndex());
+	      d_tofBeta = trait->btofBeta();
+	      d_m2 = d_mom*d_mom*( (1 / (d_tofBeta*d_tofBeta)) - 1);
+	      
+	      if (d_tofBeta < 0.01) continue;
+	    }
+	  //=========================================================
+	  //          End TOF Beta Cuts
+	  //=========================================================
+
+	  h_track_check->Fill(trackSections[2], 1);
+
+
+	  // Fill histos and save important event info in the custom struct type
+	  if (d_charge != 0)
+	    {
 	      if (tofTrack)
 		{
 		  h2_betap->Fill(d_charge * d_mom, 1/d_tofBeta);
@@ -870,35 +870,21 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      //=========================================================
 	      //          PID Cuts
 	      //=========================================================
-	      Bool_t goodm2Pion;
-	      Bool_t goodm2Kaon;
-	      Bool_t pion;
-	      Bool_t kaon;
+	      Bool_t pion = false;
+	      Bool_t kaon = false;
+	      Bool_t proton = (d_TPCnSigmaProton > -2) && (d_TPCnSigmaProton < 2);
 
 	      if (tofTrack)
 		{
-		  goodm2Pion = (d_m2 > -0.1) && (d_m2 < 0.1);
-		  goodm2Kaon = (d_m2 > 0.15) && (d_m2 < 0.34);
-
-		  pion = (goodm2Pion && goodnSigmaPion);
-		  kaon = (goodm2Kaon && goodnSigmaKaon);
+		  pion = (d_TPCnSigmaPion > -3) && (d_TPCnSigmaPion < 3) && (d_m2 > -0.1) && (d_m2 < 0.1);
+		  kaon = (d_TPCnSigmaKaon > -3) && (d_TPCnSigmaKaon < 3) && (d_m2 > 0.15) && (d_m2 < 0.34);
 		}
-	      else
-		{
-		  pion = false;   // TOF is required for pions and kaons.
-		  kaon = false;
-		}
-
+	    
 	      if (!pion && !kaon && !proton) continue;
 
-	      if (pion && kaon)   continue;   // Particle must be exclusively one particular type.
-	      if (pion && proton) continue;
-	      if (kaon && proton) continue;
-	      /*
-	      if (pion)   h2_nSig_vs_qp_pi->Fill(d_charge * d_mom, d_TPCnSigmaPion);
-	      if (kaon)   h2_nSig_vs_qp_ka->Fill(d_charge * d_mom, d_TPCnSigmaKaon);
-	      if (proton) h2_nSig_vs_qp_pr->Fill(d_charge * d_mom, d_TPCnSigmaProton);
-	      */
+	      if (pion && proton) { proton = false; }
+	      if (kaon && proton) { proton = false; }
+	      if (pion && kaon) continue;
 	      //=========================================================
 	      //          END PID Cuts
 	      //=========================================================
@@ -918,7 +904,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pp->Fill(d_rapidity - Y_MID, d_pT);
 			  
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.18 && d_pT <= 1.6)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.545 && d_pT >= 0.18 && d_pT <= 1.6)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pp_dndy, h_pp_dndm, h2_pp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -941,7 +927,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pm->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.18 && d_pT <= 1.6)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.545 && d_pT >= 0.18 && d_pT <= 1.6)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pm_dndy, h_pm_dndm, h2_pm_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -967,7 +953,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_kp->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.4 && d_pT <= 1.6)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.545 && d_pT >= 0.4 && d_pT <= 1.6)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_kp_dndy, h_kp_dndm, h2_kp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -990,7 +976,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.4 && d_pT <= 1.6)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.545 && d_pT >= 0.4 && d_pT <= 1.6)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_km_dndy, h_km_dndm, h2_km_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -1016,7 +1002,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID >= 0.0 && d_rapidity - Y_MID <= 0.5 && d_pT >= 0.4 && d_pT <= 2.0)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.545 && d_pT >= 0.4 && d_pT <= 2.0)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pr, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -1086,11 +1072,12 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  tileRow = epdHit->row();
 	  tileEta = tileVector.Eta();
 	  tilePhi = tileVector.Phi();
-	  tileWeight = (epdHit->nMIP() > EPD_THRESHOLD) ? ( (epdHit->nMIP() > EPD_MAX_WEIGHT)?EPD_MAX_WEIGHT:epdHit->nMIP() ) : 0;
+	  //tileWeight = (epdHit->nMIP() > EPD_THRESHOLD) ? ( (epdHit->nMIP() > EPD_MAX_WEIGHT)?EPD_MAX_WEIGHT:epdHit->nMIP() ) : 0;
+	  tileWeight = (epdHit->nMIP() > EPD_THRESHOLD) ? 1 : 0;
 
 	  p2_pp_vs_eta->Fill(tileEta, tileSector, tileWeight);
 	  h_tileWeights->Fill(tileWeight);
-
+	  h2_phi_vs_eta_EPD->Fill(tileEta, tilePhi);
 
 	  eventInfo.nHitsEpd++;
 	  eventInfo.XnEpd += tileWeight * TMath::Cos(ORDER_M * tilePhi);
@@ -1129,7 +1116,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
       if (eventInfo.nTracksTpcB < MIN_TRACKS) continue;
       if (eventInfo.nHitsEpd    < MIN_TRACKS) continue;
       if (eventInfo.nHitsEpdE   < MIN_TRACKS) continue;
-      if (eventInfo.nHitsEpdF   < MIN_TRACKS) continue;
+      if (eventInfo.nHitsEpdF   < MIN_TRACKS+2) continue;
       
 
       checkZeroQ(eventInfo);
@@ -1156,8 +1143,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
       eventInfo.psiEpdF = TMath::ATan2(eventInfo.YnEpdF, eventInfo.XnEpdF) / ORDER_M;
 
 
-      // Fill eta distribution here since this is past all possible cuts.
-
+      // Fill eta/phi distributions here since this is past all possible cuts.
       for (unsigned int i = 0; i < eventInfo.etaValuesTpcA.size(); i++) 
 	{ 
 	  h_eta_s->Fill(eventInfo.etaValuesTpcA.at(i) - Y_MID); 

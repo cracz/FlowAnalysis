@@ -99,10 +99,10 @@ void overlay(TString jobID, TString fitType)
 
 
 
-/*
+
 void usage()
 {
   std::cout << "Usage: root -l -b -q 'overlay.cxx(\"[job ID]\",\"[fit type]\")'" << std::endl
 	    << "Fit types: E = exponential, L = Levy, B = Blast-wave" << std::endl;
 }
-*/
+

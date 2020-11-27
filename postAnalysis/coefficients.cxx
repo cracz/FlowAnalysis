@@ -172,16 +172,16 @@ void coefficients(TString jobID)
   canvas->SetLogy(0);
   canvas->SetTicks();
 
-  TH1D *vn_EpdE = new TH1D("vn_EpdE", ";Centrality (%);v_{2}", 16, 0, 80);   // Use these to change the x axis without fighting with TAxis.
-  TH1D *vn_EpdF = new TH1D("vn_EpdF", ";Centrality (%);v_{2}", 16, 0, 80);
-  TH1D *vn_TpcB = new TH1D("vn_TpcB", ";Centrality (%);v_{2}", 16, 0, 80);
-  TH1D *vn_pp = new TH1D("vn_pp", ";Centrality (%);v_{2}", 16, 0, 80);
-  TH1D *vn_pm = new TH1D("vn_pm", ";Centrality (%);v_{2}", 16, 0, 80);
-  TH1D *vn_kp = new TH1D("vn_kp", ";Centrality (%);v_{2}", 16, 0, 80);
-  TH1D *vn_km = new TH1D("vn_km", ";Centrality (%);v_{2}", 16, 0, 80);
-  TH1D *vn_pr = new TH1D("vn_pr", ";Centrality (%);v_{2}", 16, 0, 80);
+  TH1D *vn_EpdE = new TH1D("vn_EpdE", ";Centrality (%);v_{2}", 12, 0, 60);   // Use these to change the x axis without fighting with TAxis.
+  TH1D *vn_EpdF = new TH1D("vn_EpdF", ";Centrality (%);v_{2}", 12, 0, 60);
+  TH1D *vn_TpcB = new TH1D("vn_TpcB", ";Centrality (%);v_{2}", 12, 0, 60);
+  TH1D *vn_pp = new TH1D("vn_pp", ";Centrality (%);v_{2}", 12, 0, 60);
+  TH1D *vn_pm = new TH1D("vn_pm", ";Centrality (%);v_{2}", 12, 0, 60);
+  TH1D *vn_kp = new TH1D("vn_kp", ";Centrality (%);v_{2}", 12, 0, 60);
+  TH1D *vn_km = new TH1D("vn_km", ";Centrality (%);v_{2}", 12, 0, 60);
+  TH1D *vn_pr = new TH1D("vn_pr", ";Centrality (%);v_{2}", 12, 0, 60);
 
-  for (int i = 1; i <= 16; i++)
+  for (int i = 1; i <= 12; i++)
     {
       vn_EpdE->SetBinContent(i, h_vn_EpdE_flip->GetBinContent(i));
       vn_EpdE->SetBinError(i, h_vn_EpdE_flip->GetBinError(i));
@@ -238,26 +238,31 @@ void coefficients(TString jobID)
   kaStack->Add(vn_kp);
   kaStack->Add(vn_km);
 
-  TLegend *piLegend = new TLegend(0.775, 0.75, 0.9, 0.9);
+  TLegend *piLegend = new TLegend(0.775, 0.625, 0.9, 0.775);
   piLegend->AddEntry(vn_pp,"#pi^{+}");
   piLegend->AddEntry(vn_pm,"#pi^{-}");
+  piLegend->SetFillColorAlpha(0,0);
+  piLegend->SetLineColorAlpha(0,0);
 
-  TLegend *kaLegend = new TLegend(0.775, 0.75, 0.9, 0.9);
+  TLegend *kaLegend = new TLegend(0.2, 0.32, 0.35, 0.45);
   kaLegend->AddEntry(vn_kp,"K^{+}");
   kaLegend->AddEntry(vn_km,"K^{-}");
+  kaLegend->SetFillColorAlpha(0,0);
+  kaLegend->SetLineColorAlpha(0,0);
 
-  canvas->SetLeftMargin(0.12);
+  canvas->SetLeftMargin(0.13);
   canvas->SetGrid(0);
   gStyle->SetErrorX(0);
+  gStyle->SetOptStat(0);
 
-  TLine *zeroLine = new TLine(0, 0, 80, 0);
+  TLine *zeroLine = new TLine(0, 0, 60, 0);
   zeroLine->SetLineStyle(9);
 
   
   piStack->Draw();
   piStack->GetXaxis()->SetNdivisions(210);
   piStack->SetMaximum(0.01);
-  piStack->SetMinimum(-0.12);
+  piStack->SetMinimum(-0.05);
   piStack->Draw("NOSTACK E1P");
   zeroLine->Draw("SAME");
   piLegend->Draw();
@@ -266,6 +271,8 @@ void coefficients(TString jobID)
 
   kaStack->Draw();
   kaStack->GetXaxis()->SetNdivisions(210);
+  kaStack->SetMaximum(0.02);
+  kaStack->SetMinimum(-0.12);
   kaStack->Draw("NOSTACK E1P");
   zeroLine->Draw("SAME");
   kaLegend->Draw();
@@ -275,6 +282,8 @@ void coefficients(TString jobID)
   vn_pr->SetTitle("");
   vn_pr->GetXaxis()->SetNdivisions(210);
   vn_pr->Draw("E1P");
+  vn_pr->SetMaximum(0.01);
+  vn_pr->SetMinimum(-0.09);
   zeroLine->Draw("SAME");
   canvas->SaveAs(jobID + "_vn_pr.png");
   canvas->Clear();
