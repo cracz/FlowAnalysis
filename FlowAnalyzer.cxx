@@ -1085,7 +1085,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 
 	  //if (tileEta > MIN_ETA_CUT && tileEta < EF_ETA_CUT)
-	  if (tileRow <= 8 && tileEta >= -5.1)  // Sub E
+	  if (tileRow <= 8 /*&& tileEta >= -5.1*/)  // Sub E
 	    {
 	      eventInfo.nHitsEpdE++;
 	      eventInfo.XnEpdE += tileWeight * TMath::Cos(ORDER_M * tilePhi);
