@@ -105,8 +105,8 @@ void resolutions(TString jobID)
   // Fill resolution plots
   for (int i = 1; i <= centBins; i++)
     {
-      EpdEEpdF_save = h_EpdEEpdF->GetBinContent(i);      
-      TpcBEpdE_save = h_TpcBEpdE->GetBinContent(i);
+      EpdEEpdF_save = h_EpdEEpdF->GetBinContent(i);  //Don't use the flipped values here in the saved histogram!      
+      TpcBEpdE_save = h_TpcBEpdE->GetBinContent(i);  // We need the centrality ID's in order, not the centrality percentages.
       TpcBEpdF_save = h_TpcBEpdF->GetBinContent(i);
 
       dEpdEEpdF_save = h_EpdEEpdF->GetBinError(i);
