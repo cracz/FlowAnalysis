@@ -46,7 +46,7 @@
 //=========================================================
 //          SOME CONTROLS
 //=========================================================
-const Double_t ORDER_N = 3.0;          // Order of anisotropic flow (v_n)
+const Double_t ORDER_N = 2.0;          // Order of anisotropic flow (v_n)
 TString ORDER_N_STR;                   // ORDER_N but as a TString for titles/labels
 
 const Double_t ORDER_M = 1.0;          // Order of event plane angle (psi_m)
