@@ -91,6 +91,6 @@ void eventPlanes(TString jobID)
   stackTpcB->SetMaximum(1e6);
   stackTpcB->Draw("NOSTACK");
 
-  canvas->SaveAs("psiCombined.png");
+  canvas->SaveAs(jobID+"_psiCombined.png");
   file->Close();
 }

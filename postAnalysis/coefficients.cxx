@@ -497,8 +497,8 @@ void coefficients(TString jobID, TString order_n_str)
       kaLegend->SetLineColorAlpha(0,0);
 
       TLegend *etaLegend = new TLegend(0.65, 0.7, 0.9, 0.9);
-      etaLegend->AddEntry(vn_EpdE, "EPD Rings 1-8");
-      etaLegend->AddEntry(vn_EpdF, "EPD Rings 9-16");
+      etaLegend->AddEntry(vn_EpdE, "EPD -5.6 < #eta < -3.3");
+      etaLegend->AddEntry(vn_EpdF, "EPD -3.3 < #eta < -2.4");
       etaLegend->AddEntry(vn_TpcB, "TPC -1.0 < #eta < 0");
 
       TLegend *ppLegend = new TLegend(0.7, 0.75, 0.9, 0.9);
@@ -681,7 +681,7 @@ void coefficients(TString jobID, TString order_n_str)
       piLegend->SetFillColorAlpha(0,0);
       piLegend->SetLineColorAlpha(0,0);
 
-      TLegend *kaLegend = new TLegend(0.275, 0.21, 0.425, 0.33);
+      TLegend *kaLegend = new TLegend(0.275, 0.15, 0.425, 0.27);
       kaLegend->AddEntry(vn_kp,"K^{+}");
       kaLegend->AddEntry(vn_km,"K^{-}");
       kaLegend->SetFillColorAlpha(0,0);
@@ -689,8 +689,8 @@ void coefficients(TString jobID, TString order_n_str)
 
 
       TLegend *etaLegend = new TLegend(0.65, 0.25, 0.9, 0.45);
-      etaLegend->AddEntry(vn_EpdE, "EPD Rings 1-8");
-      etaLegend->AddEntry(vn_EpdF, "EPD Rings 9-16");
+      etaLegend->AddEntry(vn_EpdE, "EPD -5.6 < #eta < -3.3");
+      etaLegend->AddEntry(vn_EpdF, "EPD -3.3 < #eta < -2.4");
       etaLegend->AddEntry(vn_TpcB, "TPC -1.0 < #eta < 0");
 
 
@@ -733,10 +733,10 @@ void coefficients(TString jobID, TString order_n_str)
 
   
       piCentralityStack->Draw();
-      piCentralityStack->GetYaxis()->SetTitleOffset(1.7);
+      piCentralityStack->GetYaxis()->SetTitleOffset(1.8);
       piCentralityStack->GetXaxis()->SetNdivisions(210);
-      piCentralityStack->SetMaximum(0.02);
-      piCentralityStack->SetMinimum(-0.02);
+      piCentralityStack->SetMaximum(0.015);
+      piCentralityStack->SetMinimum(-0.015);
       piCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
       piLegend->Draw();
@@ -746,8 +746,8 @@ void coefficients(TString jobID, TString order_n_str)
       kaCentralityStack->Draw();
       kaCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       kaCentralityStack->GetXaxis()->SetNdivisions(210);
-      kaCentralityStack->SetMaximum(0.02);
-      kaCentralityStack->SetMinimum(-0.12);
+      kaCentralityStack->SetMaximum(0.1);
+      kaCentralityStack->SetMinimum(-0.16);
       kaCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
       kaLegend->Draw();

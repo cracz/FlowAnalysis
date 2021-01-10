@@ -1,4 +1,4 @@
-void resolutions(TString jobID)
+void resolutions(TString jobID, TString order_n_str)
 {
   if (!jobID) { std::cout << "Supply a job ID!" << std::endl; return; }
   TString fileName = jobID + ".picoDst.result.combined.root";
@@ -45,11 +45,11 @@ void resolutions(TString jobID)
 
 
   // Make the possible resolution plots
-  TH1D *h_resolEvsF = new TH1D("h_resolEvsF","EPD E vs EPD F and TPC B;Centrality (%);R^{E}_{21}",centBins,0,centBins);
-  TH1D *h_resolFvsE = new TH1D("h_resolFvsE","EPD F vs EPD E and TPC B;Centrality (%);R^{F}_{21}",centBins,0,centBins);
-  TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD E and EPD F;Centrality (%);R^{B}_{21}",centBins,0,centBins);
+  TH1D *h_resolEvsF = new TH1D("h_resolEvsF","EPD E vs EPD F and TPC B;Centrality (%);R^{E}_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolFvsE = new TH1D("h_resolFvsE","EPD F vs EPD E and TPC B;Centrality (%);R^{F}_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD E and EPD F;Centrality (%);R^{B}_{"+order_n_str+"1}",centBins,0,centBins);
 
-  TH1D *h_resolutions = new TH1D("h_resolutions","EPD E Resolutions;Centrality;R_{21}",centBins,0,centBins);
+  TH1D *h_resolutions = new TH1D("h_resolutions","EPD E Resolutions;Centrality;R_{"+order_n_str+"1}",centBins,0,centBins);
   
   const char *centralityBins[16] = {"75-80", "70-75", "65-70", "60-65", "55-60", "50-55", "45-50", "40-45", "35-40", "30-35", "25-30", "20-25", "15-20", "10-15", "5-10", "0-5"};
 
@@ -180,7 +180,7 @@ void resolutions(TString jobID)
   
   gStyle->SetOptStat(0);
 
-  THStack *stack = new THStack("stack", ";Centrality (%);R_{21}");
+  THStack *stack = new THStack("stack", ";Centrality (%);R_{"+order_n_str+"1}");
 
   h_resolEvsF->SetMarkerStyle(20);
   h_resolFvsE->SetMarkerStyle(20);
