@@ -6,12 +6,6 @@
 //////
 
 
-
-// THIS IS A TEST OF HAVING TWO SEPARATE BRANCHES
-
-
-
-
 // C++ headers
 #include <iostream>
 #include <vector>
@@ -107,6 +101,8 @@ struct Event
   Int_t centID;
   Int_t primTracks;   // Number of primary tracks before track cuts (used for centrality)
 
+  std::vector<Particle> particles;
+
   Int_t nTracksTpc;
   Double_t XnTpc;
   Double_t YnTpc;
@@ -116,27 +112,27 @@ struct Event
   Double_t XnTpcA;
   Double_t YnTpcA;
   Double_t psiTpcA;       // Overall EP angle without removing autocorrelations
-  std::vector<Double_t> phiValuesTpcA;   // Azimuthal angles for all TPC A particles in the event
-  std::vector<Double_t> etaValuesTpcA;
+  //std::vector<Double_t> phiValuesTpcA;   // Azimuthal angles for all TPC A particles in the event
+  //std::vector<Double_t> etaValuesTpcA;
 
   Int_t nTracksTpcB;
   Double_t XnTpcB;
   Double_t YnTpcB;
   Double_t psiTpcB;
-  std::vector<Double_t> phiValuesTpcB;
-  std::vector<Double_t> etaValuesTpcB;
+  //std::vector<Double_t> phiValuesTpcB;
+  //std::vector<Double_t> etaValuesTpcB;
 
-  std::vector<Double_t> phiValuesPionP;
-  std::vector<Double_t> phiValuesPionM;
-  std::vector<Double_t> phiValuesKaonP;
-  std::vector<Double_t> phiValuesKaonM;
-  std::vector<Double_t> phiValuesProton;
+  //std::vector<Double_t> phiValuesPionP;
+  //std::vector<Double_t> phiValuesPionM;
+  //std::vector<Double_t> phiValuesKaonP;
+  //std::vector<Double_t> phiValuesKaonM;
+  //std::vector<Double_t> phiValuesProton;
 
-  std::vector<Double_t> yValuesPionP;
-  std::vector<Double_t> yValuesPionM;
-  std::vector<Double_t> yValuesKaonP;
-  std::vector<Double_t> yValuesKaonM;
-  std::vector<Double_t> yValuesProton;
+  //std::vector<Double_t> yValuesPionP;
+  //std::vector<Double_t> yValuesPionM;
+  //std::vector<Double_t> yValuesKaonP;
+  //std::vector<Double_t> yValuesKaonM;
+  //std::vector<Double_t> yValuesProton;
 
   Int_t nHitsEpd;
   Double_t XnEpd;
@@ -147,17 +143,17 @@ struct Event
   Double_t XnEpdE;
   Double_t YnEpdE;
   Double_t psiEpdE;
-  std::vector<Double_t> phiValuesEpdE;
-  std::vector<Double_t> etaValuesEpdE;
-  std::vector<Double_t> tileWeightsEpdE;
-  std::vector<Double_t> eventPlanesEpdE;
+  //std::vector<Double_t> phiValuesEpdE;
+  //std::vector<Double_t> etaValuesEpdE;
+  //std::vector<Double_t> tileWeightsEpdE;
+  //std::vector<Double_t> eventPlanesEpdE;
 
   Int_t nHitsEpdF;
   Double_t XnEpdF;
   Double_t YnEpdF;
   Double_t psiEpdF;
-  std::vector<Double_t> phiValuesEpdF;
-  std::vector<Double_t> etaValuesEpdF;
+  //std::vector<Double_t> phiValuesEpdF;
+  //std::vector<Double_t> etaValuesEpdF;
 
 
   void reset()
@@ -165,6 +161,8 @@ struct Event
     badEvent  = false;  //Reset all values in the struct to reuse
     primTracks = 0;
     centID = I_BAD_VALUE;
+
+    std::vector<Double_t>().swap(particles);
 
     nTracksTpc = 0;
     XnTpc = 0;
@@ -175,27 +173,27 @@ struct Event
     XnTpcA = 0;
     YnTpcA = 0;
     psiTpcA = D_BAD_VALUE;
-    std::vector<Double_t>().swap(phiValuesTpcA);
-    std::vector<Double_t>().swap(etaValuesTpcA);
+    //std::vector<Double_t>().swap(phiValuesTpcA);
+    //std::vector<Double_t>().swap(etaValuesTpcA);
 
     nTracksTpcB = 0;
     XnTpcB = 0;
     YnTpcB = 0;
     psiTpcB = D_BAD_VALUE;
-    std::vector<Double_t>().swap(phiValuesTpcB);
-    std::vector<Double_t>().swap(etaValuesTpcB);
+    //std::vector<Double_t>().swap(phiValuesTpcB);
+    //std::vector<Double_t>().swap(etaValuesTpcB);
 
-    std::vector<Double_t>().swap(phiValuesPionP);
-    std::vector<Double_t>().swap(phiValuesPionM);
-    std::vector<Double_t>().swap(phiValuesKaonP);
-    std::vector<Double_t>().swap(phiValuesKaonM);
-    std::vector<Double_t>().swap(phiValuesProton);
+    //std::vector<Double_t>().swap(phiValuesPionP);
+    //std::vector<Double_t>().swap(phiValuesPionM);
+    //std::vector<Double_t>().swap(phiValuesKaonP);
+    //std::vector<Double_t>().swap(phiValuesKaonM);
+    //std::vector<Double_t>().swap(phiValuesProton);
 
-    std::vector<Double_t>().swap(yValuesPionP);
-    std::vector<Double_t>().swap(yValuesPionM);
-    std::vector<Double_t>().swap(yValuesKaonP);
-    std::vector<Double_t>().swap(yValuesKaonM);
-    std::vector<Double_t>().swap(yValuesProton);
+    //std::vector<Double_t>().swap(yValuesPionP);
+    //std::vector<Double_t>().swap(yValuesPionM);
+    //std::vector<Double_t>().swap(yValuesKaonP);
+    //std::vector<Double_t>().swap(yValuesKaonM);
+    //std::vector<Double_t>().swap(yValuesProton);
 
     nHitsEpd = 0;
     XnEpd = 0;
@@ -206,21 +204,58 @@ struct Event
     XnEpdE = 0;
     YnEpdE = 0;
     psiEpdE = D_BAD_VALUE;
-    std::vector<Double_t>().swap(phiValuesEpdE);
-    std::vector<Double_t>().swap(etaValuesEpdE);
-    std::vector<Double_t>().swap(tileWeightsEpdE);
-    std::vector<Double_t>().swap(eventPlanesEpdE);
+    //std::vector<Double_t>().swap(phiValuesEpdE);
+    //std::vector<Double_t>().swap(etaValuesEpdE);
+    //std::vector<Double_t>().swap(tileWeightsEpdE);
+    //std::vector<Double_t>().swap(eventPlanesEpdE);
 
     nHitsEpdF = 0;
     XnEpdF = 0;
     YnEpdF = 0;
     psiEpdF = D_BAD_VALUE;
-    std::vector<Double_t>().swap(phiValuesEpdF);
-    std::vector<Double_t>().swap(etaValuesEpdF);
+    //std::vector<Double_t>().swap(phiValuesEpdF);
+    //std::vector<Double_t>().swap(etaValuesEpdF);
   }
 };
 
 
+struct Particle
+{
+  Double_t phi;
+  Double_t eta;
+  Double_t weight;
+  Double_t rapidity;
+
+  Bool_t ppTag;
+  Bool_t pmTag;
+  Bool_t kpTag;
+  Bool_t kmTag;
+  Bool_t prTag;
+
+  Bool_t isInTpcA;
+  Bool_t isInTpcB;
+  Bool_t isInEpdE;
+  Bool_t isInEpdF;
+
+  reset()
+  {
+    phi = D_BAD_VALUE;
+    eta = D_BAD_VALUE;
+    weight = 0;
+    rapidity = D_BAD_VALUE;
+
+    ppTag = false;
+    pmTag = false;
+    kpTag = false;
+    kmTag = false;
+    prTag = false;
+
+    isInTpcA = false;
+    isInTpcB = false;
+    isInEpdE = false;
+    isInEpdF = false;
+  }
+};
 
 
 ////////
@@ -676,6 +711,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 
   Event eventInfo;
+  Particle particleInfo;
   std::vector<Event> v_events;    // Vector of all events and their info using the custom struct
   std::vector<UInt_t> triggerIDs;
 
@@ -759,6 +795,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
       // TRACK LOOP OVER PRIMARY TRACKS
       for(Int_t iTrk = 0; iTrk < nTracks; iTrk++)
 	{            
+	  particleInfo.reset();
+
 	  StPicoTrack *picoTrack = dst->track(iTrk);            
 	  if(picoTrack == NULL) continue;
 	  if(!picoTrack->isPrimary()) continue;  // Require primary tracks
@@ -826,16 +864,24 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		  eventInfo.nTracksTpcA++;
 		  eventInfo.XnTpcA += d_pT * TMath::Cos(ORDER_M * d_phi);
 		  eventInfo.YnTpcA += d_pT * TMath::Sin(ORDER_M * d_phi);
-		  eventInfo.phiValuesTpcA.push_back(d_phi);
-		  eventInfo.etaValuesTpcA.push_back(d_eta);
+		  //eventInfo.phiValuesTpcA.push_back(d_phi);
+		  //eventInfo.etaValuesTpcA.push_back(d_eta);
+		  particleInfo.isInTpcA = true;
+		  particleInfo.phi    = d_phi;
+		  particleInfo.eta    = d_eta;
+		  particleInfo.weight = d_pT;
 		}
 	      else if (d_eta > GAPB_TPC_ETA_CUT && d_eta < MAX_TPC_ETA_CUT)     // TPC B
 		{
 		  eventInfo.nTracksTpcB++;
 		  eventInfo.XnTpcB += d_pT * TMath::Cos(ORDER_M * d_phi);
 		  eventInfo.YnTpcB += d_pT * TMath::Sin(ORDER_M * d_phi);
-		  eventInfo.phiValuesTpcB.push_back(d_phi);
-		  eventInfo.etaValuesTpcB.push_back(d_eta);
+		  //eventInfo.phiValuesTpcB.push_back(d_phi);
+		  //eventInfo.etaValuesTpcB.push_back(d_eta);
+		  particleInfo.isInTpcB = true;
+		  particleInfo.phi    = d_phi;
+		  particleInfo.eta    = d_eta;
+		  particleInfo.weight = d_pT;
 		}
 	    }// End TPC event planes
 
