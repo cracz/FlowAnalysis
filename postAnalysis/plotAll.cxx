@@ -46,7 +46,7 @@ void plotAll(TString jobID)
 	  //gStyle->SetPalette(57); //kBird Doesn't work
 	  canvas->SetLogz();
 
-	  if (name.Contains("psi") || name.Contains("Search") || name.Contains("MvsY"))
+	  if (name.Contains("psi") || name.Contains("Scan") || name.Contains("MvsY") || name.Contains("pp_vs_eta"))
 	    {
 	      canvas->SetLogz(0); // Remove log z
 	    }

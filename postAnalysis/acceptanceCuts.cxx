@@ -21,27 +21,27 @@ void acceptanceCuts(TString jobID)
   h2_pT_vs_yCM_pr->SetTitle("");
 
   Double_t yCM_low_pp  = 0.0;
-  Double_t yCM_high_pp = 0.5;
+  Double_t yCM_high_pp = 1.0;
   Double_t pT_low_pp   = 0.18;
   Double_t pT_high_pp  = 1.633;
 
   Double_t yCM_low_pm  = 0.0;
-  Double_t yCM_high_pm = 0.5;
+  Double_t yCM_high_pm = 1.0;
   Double_t pT_low_pm   = 0.18;
   Double_t pT_high_pm  = 1.633;
 
   Double_t yCM_low_kp  = 0.0;
-  Double_t yCM_high_kp = 0.5;
+  Double_t yCM_high_kp = 1.0;
   Double_t pT_low_kp   = 0.4;
   Double_t pT_high_kp  = 1.62;
 
   Double_t yCM_low_km  = 0.0;
-  Double_t yCM_high_km = 0.5;
+  Double_t yCM_high_km = 1.0;
   Double_t pT_low_km   = 0.4;
   Double_t pT_high_km  = 1.62;
 
   Double_t yCM_low_pr  = 0.0;
-  Double_t yCM_high_pr = 0.5;
+  Double_t yCM_high_pr = 1.0;
   Double_t pT_low_pr   = 0.4;
   Double_t pT_high_pr  = 2.0314;
 
@@ -187,13 +187,13 @@ void acceptanceCuts(TString jobID)
 
   canvas->SetLogz(0);
   p2_pp_vs_eta->Draw("colz");
-  pp_vs_eta_cutoff->Draw("SAME");
+  //pp_vs_eta_cutoff->Draw("SAME");
   canvas->SaveAs("epdAcceptance_TnMIP.png");
   canvas->Clear();
 
   canvas->SetLogz();
   h2_phi_vs_eta_EPD->Draw("colz");
-  phi_vs_eta_cutoff->Draw("SAME");
+  //phi_vs_eta_cutoff->Draw("SAME");
   canvas->SaveAs("epdAcceptance_phi.png");
   canvas->Clear();
 

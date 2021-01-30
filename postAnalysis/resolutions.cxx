@@ -45,9 +45,9 @@ void resolutions(TString jobID, TString order_n_str)
 
 
   // Make the possible resolution plots
-  TH1D *h_resolEvsF = new TH1D("h_resolEvsF","EPD E vs EPD F and TPC B;Centrality (%);R^{E}_{"+order_n_str+"1}",centBins,0,centBins);
-  TH1D *h_resolFvsE = new TH1D("h_resolFvsE","EPD F vs EPD E and TPC B;Centrality (%);R^{F}_{"+order_n_str+"1}",centBins,0,centBins);
-  TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD E and EPD F;Centrality (%);R^{B}_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolEvsF = new TH1D("h_resolEvsF","EPD E vs EPD F and TPC B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolFvsE = new TH1D("h_resolFvsE","EPD F vs EPD E and TPC B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD E and EPD F;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
 
   TH1D *h_resolutions = new TH1D("h_resolutions","EPD E Resolutions;Centrality;R_{"+order_n_str+"1}",centBins,0,centBins);
   
@@ -211,6 +211,16 @@ void resolutions(TString jobID, TString order_n_str)
   stack->Draw("NOSTACK E1P");
   legend->Draw();
   canvas->SaveAs(jobID + "_resolutions.png");
+  canvas->Clear();
+
+  TLegend *legend2 = new TLegend(0.6, 0.8, 0.9, 0.9);
+  legend2->AddEntry(h_resolEvsF,"EPD E vs EPD F, TPC B");
+
+  h_resolEvsF->SetMaximum(0.7);
+  h_resolEvsF->SetTitle("");
+  h_resolEvsF->Draw("E1P");
+  legend2->Draw();
+  canvas->SaveAs(jobID + "_resolutionEonly.png");
   canvas->Clear();
 
   canvas->SetTicks(0);
