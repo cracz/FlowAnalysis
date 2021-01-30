@@ -638,7 +638,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH1D *h_XnEpdF = new TH1D("h_XnEpdF", "X_n Distribution (EPD F);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
   TH1D *h_YnEpdF = new TH1D("h_YnEpdF", "Y_n Distribution (EPD F);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
 
-  
+  /*  
   Int_t goodRunList[170] = { 19151031, 19151034, 19151036, 19151039, 19151041, 19151043, 19151044, 19151045,
 			     19151046, 19151047, 19151048, 19151049, 19151050, 19151052, 19151053, 19151054,
 			     19151055, 19151056, 19151066, 19151067, 19151068, 19151069, 19151070, 19151071,
@@ -661,6 +661,12 @@ void FlowAnalyzer(TString inFile, TString jobID)
 			     19154066, 19154067, 19155001, 19155003, 19155004, 19155005, 19155006, 19155008,
 			     19155009, 19155010, 19155011, 19155016, 19155017, 19155018, 19155019, 19155020,
 			     19155021, 19155022 };
+  */
+
+  // From Ben Kimelman Nov 6, 2020
+  Int_t badRunList[24] = {19151029, 19151045, 19152001, 19152078, 19153023, 19153032, 19153065, 19154012, 19154013, 19154014, 19154015, 19154016, 
+			  19154017, 19154018, 19154019, 19154020, 19154021, 19154022, 19154023, 19154024, 19154026, 19154046, 19154051, 19154056};
+
 
   Event eventInfo;
   std::vector<Event> v_events;    // Vector of all events and their info using the custom struct
@@ -678,8 +684,14 @@ void FlowAnalyzer(TString inFile, TString jobID)
       StPicoEvent *event = dst->event();
       if( !event ) { std::cout << "No event found; aborting analysis." << std::endl; break; }
 
+      /*
       Bool_t b_bad_run = true;
       for (Int_t i = 0; i < 170; i++) { if (event->runId() == goodRunList[i]) { b_bad_run = false; break; } }
+      if (b_bad_run) continue;
+      */
+
+      Bool_t b_bad_run = false;
+      for (Int_t i = 0; i < 24; i++) { if (event->runId() == badRunList[i]) { b_bad_run = true; break; } }
       if (b_bad_run) continue;
 
       h_eventCheck->Fill(eventSections[0], 1);
@@ -905,7 +917,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pp->Fill(d_rapidity - Y_MID, d_pT);
 			  
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.18 && d_pT <= 1.633)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.633)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pp_dndy, h_pp_dndm, h2_pp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -923,7 +935,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pm->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.18 && d_pT <= 1.633)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.633)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pm_dndy, h_pm_dndm, h2_pm_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -944,7 +956,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_kp->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 1.62)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.62)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_kp_dndy, h_kp_dndm, h2_kp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -962,7 +974,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 1.62)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.62)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_km_dndy, h_km_dndm, h2_km_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -983,7 +995,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 2.0314)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 2.0314)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pr, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -999,7 +1011,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	    }// End if(d_charge != 0)
 	}//End track loop
 
-
+      /*
       // ASSIGN CENTRALITY ID
       if     ( eventInfo.primTracks >=   3 && eventInfo.primTracks <=   4 ) eventInfo.centID =  0;  // 75% - 80% (Peripheral)
       else if( eventInfo.primTracks >=   5 && eventInfo.primTracks <=   6 ) eventInfo.centID =  1;
@@ -1017,6 +1029,26 @@ void FlowAnalyzer(TString inFile, TString jobID)
       else if( eventInfo.primTracks >=  99 && eventInfo.primTracks <= 117 ) eventInfo.centID = 13;
       else if( eventInfo.primTracks >= 118 && eventInfo.primTracks <= 140 ) eventInfo.centID = 14;
       else if( eventInfo.primTracks >= 141 && eventInfo.primTracks <= 195 ) eventInfo.centID = 15;  // 0% - 5% (Central)
+      */
+
+      // From Zachary Sweger Nov 11, 2020
+      if     ( eventInfo.primTracks >=   5 && eventInfo.primTracks <=   6 ) eventInfo.centID =  0;  // 75% - 80% (Peripheral)
+      else if( eventInfo.primTracks >=   7 && eventInfo.primTracks <=   8 ) eventInfo.centID =  1;
+      else if( eventInfo.primTracks >=   9 && eventInfo.primTracks <=  11 ) eventInfo.centID =  2;
+      else if( eventInfo.primTracks >=  12 && eventInfo.primTracks <=  15 ) eventInfo.centID =  3;
+      else if( eventInfo.primTracks >=  16 && eventInfo.primTracks <=  20 ) eventInfo.centID =  4;
+      else if( eventInfo.primTracks >=  21 && eventInfo.primTracks <=  25 ) eventInfo.centID =  5;
+      else if( eventInfo.primTracks >=  26 && eventInfo.primTracks <=  32 ) eventInfo.centID =  6;
+      else if( eventInfo.primTracks >=  33 && eventInfo.primTracks <=  40 ) eventInfo.centID =  7;
+      else if( eventInfo.primTracks >=  41 && eventInfo.primTracks <=  49 ) eventInfo.centID =  8;
+      else if( eventInfo.primTracks >=  50 && eventInfo.primTracks <=  59 ) eventInfo.centID =  9;
+      else if( eventInfo.primTracks >=  60 && eventInfo.primTracks <=  71 ) eventInfo.centID = 10;
+      else if( eventInfo.primTracks >=  72 && eventInfo.primTracks <=  85 ) eventInfo.centID = 11;
+      else if( eventInfo.primTracks >=  86 && eventInfo.primTracks <= 100 ) eventInfo.centID = 12;
+      else if( eventInfo.primTracks >= 101 && eventInfo.primTracks <= 118 ) eventInfo.centID = 13;
+      else if( eventInfo.primTracks >= 119 && eventInfo.primTracks <= 141 ) eventInfo.centID = 14;
+      else if( eventInfo.primTracks >= 142 && eventInfo.primTracks <= 195 ) eventInfo.centID = 15;  // 0% - 5% (Central)
+
 
       if (eventInfo.centID == I_BAD_VALUE) continue;
       
