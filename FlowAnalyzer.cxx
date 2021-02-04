@@ -93,6 +93,47 @@ Int_t RUN_ITERATION = 0;
 
 
 
+// Custom type to hold info for each good particle
+struct Particle
+{
+  Double_t phi;
+  Double_t eta;
+  Double_t weight;
+  Double_t rapidity;
+
+  Bool_t ppTag;
+  Bool_t pmTag;
+  Bool_t kpTag;
+  Bool_t kmTag;
+  Bool_t prTag;
+
+  Bool_t isInTpcA;
+  Bool_t isInTpcB;
+  Bool_t isInEpdE;
+  Bool_t isInEpdF;
+
+  void reset()
+  {
+    phi = D_BAD_VALUE;
+    eta = D_BAD_VALUE;
+    weight = 0;
+    rapidity = D_BAD_VALUE;
+
+    ppTag = false;
+    pmTag = false;
+    kpTag = false;
+    kmTag = false;
+    prTag = false;
+
+    isInTpcA = false;
+    isInTpcB = false;
+    isInEpdE = false;
+    isInEpdF = false;
+  }
+};
+
+
+
 
 // Custom type to hold important info for every good event
 struct Event
@@ -163,8 +204,8 @@ struct Event
     primTracks = 0;
     centID = I_BAD_VALUE;
 
-    std::vector<Double_t>().swap(tpcParticles);
-    std::vector<Double_t>().swap(epdParticles);
+    std::vector<Particle>().swap(tpcParticles);
+    std::vector<Particle>().swap(epdParticles);
 
     nTracksTpc = 0;
     XnTpc = 0;
@@ -221,43 +262,6 @@ struct Event
 };
 
 
-struct Particle
-{
-  Double_t phi;
-  Double_t eta;
-  Double_t weight;
-  Double_t rapidity;
-
-  Bool_t ppTag;
-  Bool_t pmTag;
-  Bool_t kpTag;
-  Bool_t kmTag;
-  Bool_t prTag;
-
-  Bool_t isInTpcA;
-  Bool_t isInTpcB;
-  Bool_t isInEpdE;
-  Bool_t isInEpdF;
-
-  reset()
-  {
-    phi = D_BAD_VALUE;
-    eta = D_BAD_VALUE;
-    weight = 0;
-    rapidity = D_BAD_VALUE;
-
-    ppTag = false;
-    pmTag = false;
-    kpTag = false;
-    kmTag = false;
-    prTag = false;
-
-    isInTpcA = false;
-    isInTpcB = false;
-    isInEpdE = false;
-    isInEpdF = false;
-  }
-};
 
 
 ////////
@@ -1746,89 +1750,69 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 	      for (UInt_t j = 0; j < currentEvent.tpcParticles.size(); j++)
 		{
+		  jthPhi = currentEvent.tpcParticles.at(j).phi;
+		  jthRapidity = currentEvent.tpcParticles.at(j).rapidity;
+
+
 		  // v2 from TPC B and relative jthPhi angles for dN/dphi fitting
 		  if (currentEvent.tpcParticles.at(j).isInTpcB)
 		    {
-		      jthPhi = currentEvent.tpcParticles.at(j).phi;
-
 		      p_vn_TpcB->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
 		      h_phiRelative->Fill(jthPhi - psi);
 		    }
+
+		  // PI+
+		  if (currentEvent.tpcParticles.at(j).ppTag)
+		    {		      
+		      p_vn_pp->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+
+		      if (centID == 15 || centID == 14)     p_vn_yCM_00to10_pp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_pp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_pp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_pp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		    }
+		  // PI-
+		  else if (currentEvent.tpcParticles.at(j).pmTag)
+		    {
+		      p_vn_pm->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+
+		      if (centID == 15 || centID == 14)     p_vn_yCM_00to10_pm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_pm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_pm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_pm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		    }
+		  // K+
+		  else if (currentEvent.tpcParticles.at(j).kpTag)
+		    {
+		      p_vn_kp->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+
+		      if (centID == 15 || centID == 14)     p_vn_yCM_00to10_kp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_kp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_kp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_kp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		    }
+		  // K-
+		  else if (currentEvent.tpcParticles.at(j).kmTag)
+		    {
+		      p_vn_km->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+
+		      if (centID == 15 || centID == 14)     p_vn_yCM_00to10_km->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_km->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_km->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_km->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		    }
+		  // PROTON
+		  else if (currentEvent.tpcParticles.at(j).prTag)
+		    {
+		      p_vn_pr->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+
+		      if (centID == 15 || centID == 14)     p_vn_yCM_00to10_pr->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_pr->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_pr->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_pr->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		    }
 		}
 
-
-	      ////   STOPPED HERE    ////
-
-
-	      // Pi+
-	      for (UInt_t j = 0; j < currentEvent.phiValuesPionP.size(); j++)
-		{
-		  jthPhi      = currentEvent.phiValuesPionP.at(j);
-		  jthRapidity = currentEvent.yValuesPionP.at(j);
-
-		  p_vn_pp->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-	      
-		  if (centID == 15 || centID == 14)     p_vn_yCM_00to10_pp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_pp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_pp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_pp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		}
-
-	      // Pi-
-	      for (UInt_t j = 0; j < currentEvent.phiValuesPionM.size(); j++)
-		{
-		  jthPhi      = currentEvent.phiValuesPionM.at(j);
-		  jthRapidity = currentEvent.yValuesPionM.at(j);
-
-		  p_vn_pm->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-
-		  if (centID == 15 || centID == 14)     p_vn_yCM_00to10_pm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_pm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_pm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_pm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		}
-
-	      // K+
-	      for (UInt_t j = 0; j < currentEvent.phiValuesKaonP.size(); j++)
-		{
-		  jthPhi      = currentEvent.phiValuesKaonP.at(j);
-		  jthRapidity = currentEvent.yValuesKaonP.at(j);
-
-		  p_vn_kp->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-
-		  if (centID == 15 || centID == 14)     p_vn_yCM_00to10_kp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_kp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_kp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_kp->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		}
-
-	      // K-
-	      for (UInt_t j = 0; j < currentEvent.phiValuesKaonM.size(); j++)
-		{
-		  jthPhi      = currentEvent.phiValuesKaonM.at(j);
-		  jthRapidity = currentEvent.yValuesKaonM.at(j);
-
-		  p_vn_km->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-
-		  if (centID == 15 || centID == 14)     p_vn_yCM_00to10_km->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_km->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_km->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_km->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		}
-
-	      // Proton
-	      for (UInt_t j = 0; j < currentEvent.phiValuesProton.size(); j++)
-		{
-		  jthPhi      = currentEvent.phiValuesProton.at(j);
-		  jthRapidity = currentEvent.yValuesProton.at(j);
-
-		  p_vn_pr->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-
-		  if (centID == 15 || centID == 14)     p_vn_yCM_00to10_pr->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 13 && centID >= 8) p_vn_yCM_10to40_pr->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  else if (centID <= 7 && centID >= 4)  p_vn_yCM_40to60_pr->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		  if (centID <= 15 && centID >= 4)      p_vn_yCM_00to60_pr->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
-		}
 
 	      /*
 	      // v2 from EPD E
@@ -1946,10 +1930,11 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  v_events.at(i).reset(); // Try to free up space?
 
         }// End shift loop over events
+
+      //=========================================================
+      //          End Event Plane Angle Shifting
+      //=========================================================
     }
-  //=========================================================
-  //          End Event Plane Angle Shifting
-  //=========================================================
 
   // Switch y-axis labels to centrality percentages
 
