@@ -576,11 +576,11 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TProfile2D *h2_v2ScanTpc = new TProfile2D("h2_v2ScanTpc", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 					      12, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2ScanEpd = new TProfile2D("h2_v2ScanEpd", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
-					      12, -6.0, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+					      12, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2ScanEpdTpcA = new TProfile2D("h2_v2ScanEpdTpcA", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,A}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
-						  12, -6.0, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+						  12, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2ScanEpdTpcB = new TProfile2D("h2_v2ScanEpdTpcB", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,B}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
-						  12, -6.0, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+						  12, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   h2_v2ScanTpc->SetStats(0);
   h2_v2ScanEpd->SetStats(0);
   h2_v2ScanEpdTpcA->SetStats(0);
@@ -638,7 +638,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH1D *h_XnEpdF = new TH1D("h_XnEpdF", "X_n Distribution (EPD F);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
   TH1D *h_YnEpdF = new TH1D("h_YnEpdF", "Y_n Distribution (EPD F);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
 
-  /*  
+  /*
   Int_t goodRunList[170] = { 19151031, 19151034, 19151036, 19151039, 19151041, 19151043, 19151044, 19151045,
 			     19151046, 19151047, 19151048, 19151049, 19151050, 19151052, 19151053, 19151054,
 			     19151055, 19151056, 19151066, 19151067, 19151068, 19151069, 19151070, 19151071,
@@ -690,9 +690,11 @@ void FlowAnalyzer(TString inFile, TString jobID)
       if (b_bad_run) continue;
       */
 
+
       Bool_t b_bad_run = false;
       for (Int_t i = 0; i < 24; i++) { if (event->runId() == badRunList[i]) { b_bad_run = true; break; } }
       if (b_bad_run) continue;
+
 
       h_eventCheck->Fill(eventSections[0], 1);
 
@@ -917,7 +919,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pp->Fill(d_rapidity - Y_MID, d_pT);
 			  
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.633)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.18 && d_pT <= 1.633)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pp_dndy, h_pp_dndm, h2_pp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -935,7 +937,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pm->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.633)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.18 && d_pT <= 1.633)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pm_dndy, h_pm_dndm, h2_pm_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -956,7 +958,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_kp->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.62)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 1.62)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_kp_dndy, h_kp_dndm, h2_kp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -974,7 +976,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.62)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 1.62)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_km_dndy, h_km_dndm, h2_km_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -995,7 +997,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 2.0314)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 2.0314)
 			{
 			  fillRawSpect(d_px, d_py, d_pz, d_m0_pr, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
