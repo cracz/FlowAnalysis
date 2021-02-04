@@ -282,6 +282,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
   if (gSystem->AccessPathName(inFile)) { std::cout << "Error reading input file!" << std::endl; return;}
 
+  std::cout << "THIS IS THE ORIGINAL FORM OF CODE" << std::endl;
 
   ORDER_N_STR.Form("%d", (Int_t)ORDER_N);
   ORDER_M_STR.Form("%d", (Int_t)ORDER_M);
