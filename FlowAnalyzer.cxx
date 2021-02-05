@@ -1260,7 +1260,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	}
       for (unsigned int i = 0; i < eventInfo.epdParticles.size(); i++)
 	{
-	  h_eta_s->Fill(eventInfo.tpcParticles.at(i).eta - Y_MID);
+	  h_eta_s->Fill(eventInfo.epdParticles.at(i).eta - Y_MID);
 	}
 
       /*
