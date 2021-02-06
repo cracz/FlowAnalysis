@@ -716,14 +716,13 @@ void FlowAnalyzer(TString inFile, TString jobID)
 			  19154017, 19154018, 19154019, 19154020, 19154021, 19154022, 19154023, 19154024, 19154026, 19154046, 19154051, 19154056};
 
 
-  Event eventInfo;
-  Particle particleInfo;
   std::vector<Event> v_events;    // Vector of all events and their info using the custom struct
   std::vector<UInt_t> triggerIDs;
 
   // EVENT LOOP
   for (Long64_t ievent = 0; ievent < events2read; ievent++)
     {
+      Event eventInfo;
       eventInfo.reset();
 
       Bool_t readEvent = picoReader->readPicoEvent(ievent);
@@ -801,6 +800,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
       // TRACK LOOP OVER PRIMARY TRACKS
       for(Int_t iTrk = 0; iTrk < nTracks; iTrk++)
 	{            
+	  Particle particleInfo;
 	  particleInfo.reset();
 
 	  StPicoTrack *picoTrack = dst->track(iTrk);            
@@ -1092,6 +1092,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  eventInfo.tpcParticles.push_back(particleInfo);
 	}//End TPC track loop
 
+      std::cout << "made it past the TPC track loop" << std::endl;
+
       /*
       // ASSIGN CENTRALITY ID
       if     ( eventInfo.primTracks >=   3 && eventInfo.primTracks <=   4 ) eventInfo.centID =  0;  // 75% - 80% (Peripheral)
@@ -1151,6 +1153,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
       for (int iEpdHit = 0; iEpdHit < epdHits->GetEntries(); iEpdHit++)
 	{
+	  Particle particleInfo;
 	  particleInfo.reset();
 
 	  epdHit = (StPicoEpdHit*)(epdHits->At(iEpdHit));
@@ -1214,6 +1217,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
       //=========================================================
       //            END EPD STUFF
       //=========================================================
+
+      std::cout << "made it past the epd loop" << std::endl;
 
 
       //if (eventInfo.nTracksTpc  < MIN_TRACKS) continue;
@@ -1307,7 +1312,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
       v_events.push_back(eventInfo);   // Store this event with all of its particles and attributes
     }//End event loop
 
-  eventInfo.reset();
+  //eventInfo.reset();
 
   TH1D *h_XnTpc_RC;   // Re-centered histograms
   TH1D *h_YnTpc_RC;
