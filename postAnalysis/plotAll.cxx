@@ -77,7 +77,7 @@ void plotAll(TString jobID)
 	      continue;
 	    }
 	  else if (name.Contains("vtx") || name.Contains("pT") || name.Contains("nhits") || name.Contains("mom")
-		   || name.Contains("primTracks") || name.Contains("dndm"))
+		   || name.Contains("primTracks") || name.Contains("dndm") || name.Contains("tofBeta"))
 	    {
 	      canvas->SetLogy();
 	    }
