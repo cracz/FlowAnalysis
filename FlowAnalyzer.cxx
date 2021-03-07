@@ -47,7 +47,7 @@
 //=========================================================
 //          SOME CONTROLS
 //=========================================================
-const Double_t ORDER_N = 2.0;          // Order of anisotropic flow (v_n)
+const Double_t ORDER_N = 3.0;          // Order of anisotropic flow (v_n)
 TString ORDER_N_STR;                   // ORDER_N but as a TString for titles/labels
 
 const Double_t ORDER_M = 1.0;          // Order of event plane angle (psi_m)
@@ -112,8 +112,6 @@ struct Particle
   Bool_t isInEpdE;
   Bool_t isInEpdF;
 
-  Bool_t badTofBeta;
-
   void reset()
   {
     phi = D_BAD_VALUE;
@@ -131,8 +129,6 @@ struct Particle
     isInTpcB = false;
     isInEpdE = false;
     isInEpdF = false;
-
-    badTofBeta = false;
   }
 };
 
@@ -906,19 +902,17 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		  d_m2 = d_mom*d_mom*( (1 / (d_tofBeta*d_tofBeta)) - 1);
 		  
 		  h_tofBeta->Fill(d_tofBeta);
-
-		  if (d_tofBeta < 0.01) particleInfo.badTofBeta = true; //continue;
 		}
 	      //=========================================================
 	      //          End TOF Beta Cuts
 	      //=========================================================
 
-	      if (!particleInfo.badTofBeta) h_trackCheck->Fill(trackSections[2], 1);
+	      h_trackCheck->Fill(trackSections[2], 1);
 
 
 	      // Fill histos and save important event info in the custom struct type
 
-	      if (tofTrack && !particleInfo.badTofBeta)
+	      if (tofTrack)
 		{
 		  h2_betap->Fill(d_charge * d_mom, 1/d_tofBeta);
 		  h2_m2_qp->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
@@ -944,9 +938,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      //=========================================================
 	      Bool_t pion = false;
 	      Bool_t kaon = false;
-	      Bool_t proton = (d_TPCnSigmaProton > -2) && (d_TPCnSigmaProton < 2) && !particleInfo.badTofBeta;
+	      Bool_t proton = (d_TPCnSigmaProton > -2) && (d_TPCnSigmaProton < 2);
 
-	      if (tofTrack && !particleInfo.badTofBeta)
+	      if (tofTrack)
 		{
 		  pion = (d_TPCnSigmaPion > -3) && (d_TPCnSigmaPion < 3) && (d_m2 > -0.1) && (d_m2 < 0.1);
 		  kaon = (d_TPCnSigmaKaon > -3) && (d_TPCnSigmaKaon < 3) && (d_m2 > 0.15) && (d_m2 < 0.34);
@@ -986,9 +980,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 			  h2_y_vs_eta_pp->Fill(d_eta, d_rapidity);
 			  h_pp_pT->Fill(d_pT);
 			  h_pp_mom->Fill(d_mom);
-
-			  //eventInfo.phiValuesPionP.push_back(d_phi);
-			  //eventInfo.yValuesPionP.push_back(d_rapidity);
 			}
 		    }
 		  else if (d_charge < 0) 
@@ -1008,9 +999,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 			  h2_y_vs_eta_pm->Fill(d_eta, d_rapidity);
 			  h_pm_pT->Fill(d_pT);
 			  h_pm_mom->Fill(d_mom);
-
-			  //eventInfo.phiValuesPionM.push_back(d_phi);
-			  //eventInfo.yValuesPionM.push_back(d_rapidity);
 			}
 		    }
 		}
@@ -1033,9 +1021,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 			  h2_y_vs_eta_kp->Fill(d_eta, d_rapidity);
 			  h_kp_pT->Fill(d_pT);
 			  h_kp_mom->Fill(d_mom);
-
-			  //eventInfo.phiValuesKaonP.push_back(d_phi);
-			  //eventInfo.yValuesKaonP.push_back(d_rapidity);
 			}
 		    }
 		  else if (d_charge < 0)		 
@@ -1055,9 +1040,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 			  h2_y_vs_eta_km->Fill(d_eta, d_rapidity);
 			  h_km_pT->Fill(d_pT);
 			  h_km_mom->Fill(d_mom);
-
-			  //eventInfo.phiValuesKaonM.push_back(d_phi);
-			  //eventInfo.yValuesKaonM.push_back(d_rapidity);
 			}
 		    }
 		}
@@ -1080,9 +1062,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 			  h2_y_vs_eta_pr->Fill(d_eta, d_rapidity);
 			  h_pr_pT->Fill(d_pT);
 			  h_pr_mom->Fill(d_mom);
-
-			  //eventInfo.phiValuesProton.push_back(d_phi);
-			  //eventInfo.yValuesProton.push_back(d_rapidity);
 			}
 		    }
 		}
@@ -1181,9 +1160,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      eventInfo.nHitsEpdE++;
 	      eventInfo.XnEpdE += tileWeight * TMath::Cos(ORDER_M * tilePhi);
 	      eventInfo.YnEpdE += tileWeight * TMath::Sin(ORDER_M * tilePhi);
-	      //eventInfo.phiValuesEpdE.push_back(tilePhi);
-	      //eventInfo.etaValuesEpdE.push_back(tileEta);
-	      //eventInfo.tileWeightsEpdE.push_back(tileWeight);
 
 	      particleInfo.isInEpdE = true;
 	      particleInfo.phi    = tilePhi;
@@ -1198,8 +1174,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      eventInfo.nHitsEpdF++;
 	      eventInfo.XnEpdF += tileWeight * TMath::Cos(ORDER_M * tilePhi);
 	      eventInfo.YnEpdF += tileWeight * TMath::Sin(ORDER_M * tilePhi);
-	      //eventInfo.phiValuesEpdF.push_back(tilePhi);
-	      //eventInfo.etaValuesEpdF.push_back(tileEta);
 
 	      particleInfo.isInEpdF = true;
 	      particleInfo.phi    = tilePhi;
@@ -1263,20 +1237,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  h_eta_s->Fill(eventInfo.epdParticles.at(i).eta - Y_MID);
 	}
 
-      /*
-      for (unsigned int i = 0; i < eventInfo.etaValuesTpcA.size(); i++) 
-	{ 
-	  h_eta_s->Fill(eventInfo.etaValuesTpcA.at(i) - Y_MID); 
-	  h_eta_TPC_s->Fill(eventInfo.etaValuesTpcA.at(i) - Y_MID); 
-	} 
-      for (unsigned int i = 0; i < eventInfo.etaValuesTpcB.size(); i++) 
-	{ 
-	  h_eta_s->Fill(eventInfo.etaValuesTpcB.at(i) - Y_MID); 
-	  h_eta_TPC_s->Fill(eventInfo.etaValuesTpcB.at(i) - Y_MID); 
-	} 
-      for (unsigned int i = 0; i < eventInfo.etaValuesEpdE.size(); i++) { h_eta_s->Fill(eventInfo.etaValuesEpdE.at(i) - Y_MID); } 
-      for (unsigned int i = 0; i < eventInfo.etaValuesEpdF.size(); i++) { h_eta_s->Fill(eventInfo.etaValuesEpdF.at(i) - Y_MID); } 
-      */
       h2_hits_vs_cent_EpdE->Fill(eventInfo.centID, eventInfo.nHitsEpdE);
       h2_hits_vs_cent_EpdF->Fill(eventInfo.centID, eventInfo.nHitsEpdF);
       h2_hits_vs_cent_TpcB->Fill(eventInfo.centID, eventInfo.nTracksTpcB);
@@ -1304,10 +1264,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
       h_psiEpdE_RAW->Fill(eventInfo.psiEpdE);
       h_psiEpdF_RAW->Fill(eventInfo.psiEpdF);
 
-      //v_events.push_back(eventInfo);   // Store this event with all of its particles and attributes
-      // ORIGINAL END OF EVENT LOOP HERE
-
-      //eventInfo.reset();
 
 
       //=========================================================
