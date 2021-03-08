@@ -17,5 +17,5 @@ order_n="3"
 #root -l -b -q overlay.cxx\(\"${jobID}\",\"E\"\)
 
 # EP Resolution and Flow Calculations
-root -l -b -q resolutions.cxx\(\"${jobID}\",\"${order_n}\"\)
+#root -l -b -q resolutions.cxx\(\"${jobID}\",\"${order_n}\"\)
 root -l -b -q coefficients.cxx\(\"${jobID}\",\"${order_n}\"\)
