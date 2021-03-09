@@ -218,63 +218,16 @@ struct Event
 };
 
 
-
-
-////////
-//   Moves event plane angles back into the correct period.
-////////
-Double_t angleShift(Double_t angle, Int_t order)
-{
-  if (angle < -TMath::Pi()/(Double_t)order) { angle += TMath::TwoPi()/(Double_t)order; }
-  else if (angle >  TMath::Pi()/(Double_t)order) { angle -= TMath::TwoPi()/(Double_t)order; }
-  return angle;
-};
-
-////////
-//   Checks if an event has any flow vectors equal to zero. Updates the event's member variable "badEvent".
-////////
-void checkZeroQ(Event event)
-{
-  if (event.XnTpc == 0 && event.YnTpc == 0) { event.badEvent = true; }
-  //else if (event.XnTpcA == 0 && event.YnTpcA == 0) { event.badEvent = true; }
-  if (event.XnTpcB == 0 && event.YnTpcB == 0) { event.badEvent = true; }
-  else if (event.XnEpd  == 0 && event.YnEpd  == 0) { event.badEvent = true; }
-  else if (event.XnEpdE == 0 && event.YnEpdE == 0) { event.badEvent = true; }
-  else if (event.XnEpdF == 0 && event.YnEpdF == 0) { event.badEvent = true; }
-};
-
-
-////////
-//   Using px, py, pz, and rest mass, return rapidity
-////////
-Double_t rapidity(Double_t px, Double_t py, Double_t pz, Double_t mass)
-{
-  Double_t rapidity, energy, momentum = 0;
-  momentum = TMath::Sqrt(px*px + py*py + pz*pz);
-  energy   = TMath::Sqrt(momentum*momentum + mass*mass);
-  rapidity = TMath::ATanH(pz/energy);
-  return rapidity;
-};
-
-////////
-//   Using px, py, pz, and rest mass, return transverse mass
-////////
-Double_t transMass(Double_t px, Double_t py, Double_t mass) {return TMath::Sqrt(mass*mass + px*px + py*py);};
-
-
-////////
-//   Using px, py, pz, and rest mass, fill histograms raw of dN/dy,
-// and dN/dmT (shifted left by m0), and a 2D histogram of mT-m0 vs y.
-////////
-void fillRawSpect(Double_t px, Double_t py, Double_t pz, Double_t mass, TH1D *dndy, TH1D *dndm, TH2D *MvsY)
-{
-  Double_t y  = rapidity(px, py, pz, mass);
-  Double_t mT = transMass(px, py, mass);
-  Double_t M  = mT - mass;
-  dndy->Fill(y);
-  dndm->Fill(M);
-  MvsY->Fill(y,M, 1/(TMath::TwoPi() * mT));
-};
+// Functions' code is at the bottom.
+void getAllPsi(Event &eventInfo, Double_t order_m);
+void setAllPeriods(Event &eventInfo, Double_t order_m);
+Double_t angleShift(Double_t angle, Int_t order);
+void checkZeroQ(Event &event);
+Double_t rapidity(Double_t px, Double_t py, Double_t pz, Double_t mass);
+Double_t transMass(Double_t px, Double_t py, Double_t mass);
+void fillRawSpect(Double_t px, Double_t py, Double_t pz, Double_t mass, TH1D *dndy, TH1D *dndm, TH2D *MvsY);
+void recenterQ(Event &eventInfo, TFile *correctionInputFile, Double_t order_m);
+void shiftPsi(Event &eventInfo, TFile *correctionInputFile, Double_t order_m, Int_t shiftTerms);
 
 
 
@@ -285,8 +238,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
   std::cout << "Initializing..." << std::endl;
 
   if (gSystem->AccessPathName(inFile)) { std::cout << "Error reading input file!" << std::endl; return;}
-
-  std::cout << "THIS IS THE ORIGINAL FORM OF CODE" << std::endl;
 
   ORDER_N_STR.Form("%d", (Int_t)ORDER_N);
   ORDER_M_STR.Form("%d", (Int_t)ORDER_M);
@@ -583,12 +534,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH2D *h2_pT_vs_yCM_pr = new TH2D("h2_pT_vs_yCM_pr", "Proton;y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 3.0);
   
 
-  /*
-  TH2D *h2_phiSearchTpc = new TH2D("h2_phiSearchTpc", "Azimuthal Distribution by Centrality;#phi;Centrality (%)", 
-				   200, -4, 4, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  TH2D *h2_phiSearchEpd = new TH2D("h2_phiSearchEpd", "Azimuthal Distribution by Centrality;#phi;Centrality (%)", 
-				   200, -4, 4, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  */
   // Here the name refers to the eta region that will be displayed/searched using the event plane angle from the opposite region
 
   TProfile2D *h2_v2ScanTpc = new TProfile2D("h2_v2ScanTpc", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
@@ -719,7 +664,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
   Event eventInfo;
   Particle particleInfo;
-  //std::vector<Event> v_events;    // Vector of all events and their info using the custom struct
   std::vector<UInt_t> triggerIDs;
 
   // EVENT LOOP
@@ -972,7 +916,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pp->Fill(d_rapidity - Y_MID, d_pT);
 			  
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.18 && d_pT <= 1.633)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.633)
 			{
 			  particleInfo.ppTag = true;
 			  particleInfo.phi = d_phi;
@@ -991,7 +935,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pm->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.18 && d_pT <= 1.633)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.633)
 			{
 			  particleInfo.pmTag = true;
 			  particleInfo.phi = d_phi;
@@ -1013,7 +957,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_kp->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 1.62)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.62)
 			{
 			  particleInfo.kpTag = true;
 			  particleInfo.phi = d_phi;
@@ -1032,7 +976,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 1.62)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.62)
 			{
 			  particleInfo.kmTag = true;
 			  particleInfo.phi = d_phi;
@@ -1054,7 +998,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 0.5 && d_pT >= 0.4 && d_pT <= 2.0314)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 2.0314)
 			{
 			  particleInfo.prTag = true;
 			  particleInfo.phi = d_phi;
@@ -1198,13 +1142,10 @@ void FlowAnalyzer(TString inFile, TString jobID)
       if (eventInfo.nTracksTpcB < MIN_TRACKS) continue;
       if (eventInfo.nHitsEpd    < MIN_TRACKS) continue;
       if (eventInfo.nHitsEpdE   < MIN_TRACKS) continue;
-      
       if (eventInfo.nHitsEpdF   >= MIN_TRACKS) h_eventCheck_EpdF->Fill(eventSections_EpdF[0], 1);
       if (eventInfo.nHitsEpdF   >= MIN_TRACKS+4) h_eventCheck_EpdF->Fill(eventSections_EpdF[1], 1);
-
       if (eventInfo.nHitsEpdF   < MIN_TRACKS+4) continue;
       
-
       checkZeroQ(eventInfo);
       if (eventInfo.badEvent) continue;
 
@@ -1221,12 +1162,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  eventInfo.XnEpdF *= -1.0;
 	  eventInfo.YnEpdF *= -1.0;
 	}
-      eventInfo.psiTpc  = TMath::ATan2(eventInfo.YnTpc,  eventInfo.XnTpc)  / ORDER_M;
-      eventInfo.psiTpcA = TMath::ATan2(eventInfo.YnTpcA, eventInfo.XnTpcA) / ORDER_M;
-      eventInfo.psiTpcB = TMath::ATan2(eventInfo.YnTpcB, eventInfo.XnTpcB) / ORDER_M;
-      eventInfo.psiEpd  = TMath::ATan2(eventInfo.YnEpd,  eventInfo.XnEpd)  / ORDER_M;
-      eventInfo.psiEpdE = TMath::ATan2(eventInfo.YnEpdE, eventInfo.XnEpdE) / ORDER_M;
-      eventInfo.psiEpdF = TMath::ATan2(eventInfo.YnEpdF, eventInfo.XnEpdF) / ORDER_M;
+
+
+      getAllPsi(eventInfo, ORDER_M);
 
 
       // Fill eta/phi distributions here since this is past all possible cuts.
@@ -1236,9 +1174,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  h_eta_TPC_s->Fill(eventInfo.tpcParticles.at(i).eta - Y_MID);
 	}
       for (unsigned int i = 0; i < eventInfo.epdParticles.size(); i++)
-	{
-	  h_eta_s->Fill(eventInfo.epdParticles.at(i).eta - Y_MID);
-	}
+	{ h_eta_s->Fill(eventInfo.epdParticles.at(i).eta - Y_MID); }
 
       h2_hits_vs_cent_EpdE->Fill(eventInfo.centID, eventInfo.nHitsEpdE);
       h2_hits_vs_cent_EpdF->Fill(eventInfo.centID, eventInfo.nHitsEpdF);
@@ -1275,55 +1211,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
       if (RUN_ITERATION == 1 || RUN_ITERATION == 2)
 	{
-	  std::cout << "Re-centering flow vectors and accumulating sin/cos averages..." << std::endl;
+	  recenterQ(eventInfo, correctionInputFile, ORDER_M);
 
-	  TH1D *h_XnTpc_INPUT  = (TH1D*)correctionInputFile->Get("h_XnTpc");
-	  TH1D *h_XnTpcA_INPUT = (TH1D*)correctionInputFile->Get("h_XnTpcA");
-	  TH1D *h_XnTpcB_INPUT = (TH1D*)correctionInputFile->Get("h_XnTpcB");
-	  TH1D *h_XnEpd_INPUT  = (TH1D*)correctionInputFile->Get("h_XnEpd");
-	  TH1D *h_XnEpdE_INPUT = (TH1D*)correctionInputFile->Get("h_XnEpdE");
-	  TH1D *h_XnEpdF_INPUT = (TH1D*)correctionInputFile->Get("h_XnEpdF");
-
-	  TH1D *h_YnTpc_INPUT  = (TH1D*)correctionInputFile->Get("h_YnTpc");
-	  TH1D *h_YnTpcA_INPUT = (TH1D*)correctionInputFile->Get("h_YnTpcA");
-	  TH1D *h_YnTpcB_INPUT = (TH1D*)correctionInputFile->Get("h_YnTpcB");
-	  TH1D *h_YnEpd_INPUT  = (TH1D*)correctionInputFile->Get("h_YnEpd");
-	  TH1D *h_YnEpdE_INPUT = (TH1D*)correctionInputFile->Get("h_YnEpdE");
-	  TH1D *h_YnEpdF_INPUT = (TH1D*)correctionInputFile->Get("h_YnEpdF");
-
-	  Double_t d_XnTpc_Avg  = h_XnTpc_INPUT->GetMean();
-	  Double_t d_XnTpcA_Avg = h_XnTpcA_INPUT->GetMean();
-	  Double_t d_XnTpcB_Avg = h_XnTpcB_INPUT->GetMean();
-	  Double_t d_XnEpd_Avg  = h_XnEpd_INPUT->GetMean();
-	  Double_t d_XnEpdE_Avg = h_XnEpdE_INPUT->GetMean();
-	  Double_t d_XnEpdF_Avg = h_XnEpdF_INPUT->GetMean();
-
-	  Double_t d_YnTpc_Avg  = h_YnTpc_INPUT->GetMean();
-	  Double_t d_YnTpcA_Avg = h_YnTpcA_INPUT->GetMean();
-	  Double_t d_YnTpcB_Avg = h_YnTpcB_INPUT->GetMean();
-	  Double_t d_YnEpd_Avg  = h_YnEpd_INPUT->GetMean();
-	  Double_t d_YnEpdE_Avg = h_YnEpdE_INPUT->GetMean();
-	  Double_t d_YnEpdF_Avg = h_YnEpdF_INPUT->GetMean();
-
-
-	  Int_t badEvents = 0;
-
-	  eventInfo.XnTpc  -= d_XnTpc_Avg;
-	  eventInfo.XnTpcA -= d_XnTpcA_Avg;
-	  eventInfo.XnTpcB -= d_XnTpcB_Avg;
-	  eventInfo.XnEpd  -= d_XnEpd_Avg;
-	  eventInfo.XnEpdE -= d_XnEpdE_Avg;
-	  eventInfo.XnEpdF -= d_XnEpdF_Avg;
-
-	  eventInfo.YnTpc  -= d_YnTpc_Avg;
-	  eventInfo.YnTpcA -= d_YnTpcA_Avg;
-	  eventInfo.YnTpcB -= d_YnTpcB_Avg;
-	  eventInfo.YnEpd  -= d_YnEpd_Avg;
-	  eventInfo.YnEpdE -= d_YnEpdE_Avg;
-	  eventInfo.YnEpdF -= d_YnEpdF_Avg;
-
-	  checkZeroQ(eventInfo);
-	  //if (eventInfo.badEvent) { badEvents++; continue; }
+	  if (eventInfo.badEvent) continue;
 
 	  h_XnTpc_RC->Fill(eventInfo.XnTpc);
 	  h_XnTpcA_RC->Fill(eventInfo.XnTpcA);
@@ -1339,29 +1229,12 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  h_YnEpdE_RC->Fill(eventInfo.YnEpdE);
 	  h_YnEpdF_RC->Fill(eventInfo.YnEpdF);
 
-	  // Recalculate the event plane angles after re-centering	  
-	  eventInfo.psiTpc  = TMath::ATan2(eventInfo.YnTpc,  eventInfo.XnTpc)  / ORDER_M; 
-	  eventInfo.psiTpcA = TMath::ATan2(eventInfo.YnTpcA, eventInfo.XnTpcA) / ORDER_M; 
-	  eventInfo.psiTpcB = TMath::ATan2(eventInfo.YnTpcB, eventInfo.XnTpcB) / ORDER_M; 
-	  eventInfo.psiEpd  = TMath::ATan2(eventInfo.YnEpd,  eventInfo.XnEpd)  / ORDER_M;
-	  eventInfo.psiEpdE = TMath::ATan2(eventInfo.YnEpdE, eventInfo.XnEpdE) / ORDER_M; 
-	  eventInfo.psiEpdF = TMath::ATan2(eventInfo.YnEpdF, eventInfo.XnEpdF) / ORDER_M; 
-	  
-	  // Keep angles within the correct period
-	  eventInfo.psiTpc  = angleShift(eventInfo.psiTpc,  ORDER_M);
-	  eventInfo.psiTpcA = angleShift(eventInfo.psiTpcA, ORDER_M);
-	  eventInfo.psiTpcB = angleShift(eventInfo.psiTpcB, ORDER_M);
-	  eventInfo.psiEpd  = angleShift(eventInfo.psiEpd,  ORDER_M);
-	  eventInfo.psiEpdE = angleShift(eventInfo.psiEpdE, ORDER_M);
-	  eventInfo.psiEpdF = angleShift(eventInfo.psiEpdF, ORDER_M);
-
 	  h_psiTpc_RC->Fill(eventInfo.psiTpc);
 	  h_psiTpcA_RC->Fill(eventInfo.psiTpcA);
 	  h_psiTpcB_RC->Fill(eventInfo.psiTpcB);
 	  h_psiEpd_RC->Fill(eventInfo.psiEpd);
 	  h_psiEpdE_RC->Fill(eventInfo.psiEpdE);
 	  h_psiEpdF_RC->Fill(eventInfo.psiEpdF);
-
 
 	  // Accumulate terms for averages over the re-centered angles for event plane angle shifting
 	  for (int j = 1; j <= SHIFT_TERMS; j++)
@@ -1379,8 +1252,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      p_sinAvgsEpdF->Fill(j, TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpdF));
 	      p_cosAvgsEpdF->Fill(j, TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpdF));
 	    }
-
-	  std::cout << "Bad Events after re-centering: " << badEvents << std::endl;
 	}
       //=========================================================
       //          End Re-centering
@@ -1394,90 +1265,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
       if (RUN_ITERATION == 2)
 	{
-	  std::cout << "Performing event plane angle shifting..." << std::endl;
-
-	  TProfile *p_sinAvgsTpc_INPUT  = (TProfile*)correctionInputFile->Get("p_sinAvgsTpc");
-	  TProfile *p_cosAvgsTpc_INPUT  = (TProfile*)correctionInputFile->Get("p_cosAvgsTpc");
-	  TProfile *p_sinAvgsTpcA_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsTpcA");
-	  TProfile *p_cosAvgsTpcA_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsTpcA");
-	  TProfile *p_sinAvgsTpcB_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsTpcB");
-	  TProfile *p_cosAvgsTpcB_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsTpcB");
-	  TProfile *p_sinAvgsEpd_INPUT  = (TProfile*)correctionInputFile->Get("p_sinAvgsEpd");
-	  TProfile *p_cosAvgsEpd_INPUT  = (TProfile*)correctionInputFile->Get("p_cosAvgsEpd");
-	  TProfile *p_sinAvgsEpdE_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsEpdE");
-	  TProfile *p_cosAvgsEpdE_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsEpdE");
-	  TProfile *p_sinAvgsEpdF_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsEpdF");
-	  TProfile *p_cosAvgsEpdF_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsEpdF");
-
-
-	  // Get corrected event plane angles //
-	  //if ( eventInfo.badEvent == true) { continue; }
-
-	  Double_t psiTpc_delta  = 0;
-	  Double_t psiTpcA_delta = 0;
-	  Double_t psiTpcB_delta = 0;
-	  Double_t psiEpd_delta  = 0;
-	  Double_t psiEpdE_delta = 0;
-	  Double_t psiEpdF_delta = 0;
-
-	  Double_t jthSinAvg_Tpc  = 0;
-	  Double_t jthCosAvg_Tpc  = 0;
-	  Double_t jthSinAvg_TpcA = 0;
-	  Double_t jthCosAvg_TpcA = 0;
-	  Double_t jthSinAvg_TpcB = 0;
-	  Double_t jthCosAvg_TpcB = 0;
-	  Double_t jthSinAvg_Epd  = 0;
-	  Double_t jthCosAvg_Epd  = 0;
-	  Double_t jthSinAvg_EpdE = 0;
-	  Double_t jthCosAvg_EpdE = 0;
-	  Double_t jthSinAvg_EpdF = 0;
-	  Double_t jthCosAvg_EpdF = 0;
-
-
-	  for (Int_t j = 1; j <= SHIFT_TERMS; j++)    // Build the correction sums
-	    {
-	      jthSinAvg_Tpc  = p_sinAvgsTpc_INPUT->GetBinContent(j);
-	      jthCosAvg_Tpc  = p_cosAvgsTpc_INPUT->GetBinContent(j);
-	      jthSinAvg_TpcA = p_sinAvgsTpcA_INPUT->GetBinContent(j);
-	      jthCosAvg_TpcA = p_cosAvgsTpcA_INPUT->GetBinContent(j);
-	      jthSinAvg_TpcB = p_sinAvgsTpcB_INPUT->GetBinContent(j);
-	      jthCosAvg_TpcB = p_cosAvgsTpcB_INPUT->GetBinContent(j);
-	      jthSinAvg_Epd  = p_sinAvgsEpd_INPUT->GetBinContent(j);
-	      jthCosAvg_Epd  = p_cosAvgsEpd_INPUT->GetBinContent(j);
-	      jthSinAvg_EpdE = p_sinAvgsEpdE_INPUT->GetBinContent(j);
-	      jthCosAvg_EpdE = p_cosAvgsEpdE_INPUT->GetBinContent(j);
-	      jthSinAvg_EpdF = p_sinAvgsEpdF_INPUT->GetBinContent(j);
-	      jthCosAvg_EpdF = p_cosAvgsEpdF_INPUT->GetBinContent(j);
-
-	      psiTpc_delta  += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_Tpc * TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiTpc) 
-							      +jthCosAvg_Tpc * TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiTpc));
-	      psiTpcA_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_TpcA * TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiTpcA) 
-							      +jthCosAvg_TpcA * TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiTpcA));
-	      psiTpcB_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_TpcB * TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiTpcB) 
-							      +jthCosAvg_TpcB * TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiTpcB));
-	      psiEpd_delta  += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_Epd * TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpd)
-							      +jthCosAvg_Epd * TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpd));
-	      psiEpdE_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_EpdE * TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpdE)
-							      +jthCosAvg_EpdE * TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpdE));
-	      psiEpdF_delta += (2.0/((Double_t)j*ORDER_M)) * (-jthSinAvg_EpdF * TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpdF)
-							      +jthCosAvg_EpdF * TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpdF));
-	    }
-
-	  // Shift event plane angles
-	  eventInfo.psiTpc  += psiTpc_delta;
-	  eventInfo.psiTpcA += psiTpcA_delta;
-	  eventInfo.psiTpcB += psiTpcB_delta;
-	  eventInfo.psiEpd  += psiEpd_delta;
-	  eventInfo.psiEpdE += psiEpdE_delta;
-	  eventInfo.psiEpdF += psiEpdF_delta;
-
-	  // Keep angles in the correct period
-	  eventInfo.psiTpc  = angleShift(eventInfo.psiTpc,  ORDER_M);
-	  eventInfo.psiTpcA = angleShift(eventInfo.psiTpcA, ORDER_M);
-	  eventInfo.psiTpcB = angleShift(eventInfo.psiTpcB, ORDER_M);
-	  eventInfo.psiEpd  = angleShift(eventInfo.psiEpd,  ORDER_M);
-	  eventInfo.psiEpdE = angleShift(eventInfo.psiEpdE, ORDER_M);
-	  eventInfo.psiEpdF = angleShift(eventInfo.psiEpdF, ORDER_M);
+	  shiftPsi(eventInfo, correctionInputFile, ORDER_M, SHIFT_TERMS);
 
 	  h_psiTpc_FLAT->Fill(eventInfo.psiTpc);
 	  h_psiTpcA_FLAT->Fill(eventInfo.psiTpcA);
@@ -1681,9 +1469,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  //            End Flow Calculations
 	  //=========================================================
 	}// End if(RUN_ITERATION == 2)
-      //=========================================================
-      //          End Event Plane Angle Shifting
-      //=========================================================
     }//END EVENT LOOP
 
 
@@ -1699,8 +1484,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
       h2_v2ScanEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
-      //h2_phiSearchTpc->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
-      //h2_phiSearchEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
     }
 
 
@@ -1755,3 +1538,231 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
   std::cout << "Done!" << std::endl;
 }//End FlowAnalyzer()
+
+
+
+
+////////
+//   Calculates the event plane angle in every subevent.
+////////
+void getAllPsi(Event &eventInfo, Double_t order_m)
+{
+  eventInfo.psiTpc  = TMath::ATan2(eventInfo.YnTpc,  eventInfo.XnTpc)  / order_m;
+  eventInfo.psiTpcA = TMath::ATan2(eventInfo.YnTpcA, eventInfo.XnTpcA) / order_m;
+  eventInfo.psiTpcB = TMath::ATan2(eventInfo.YnTpcB, eventInfo.XnTpcB) / order_m;
+  eventInfo.psiEpd  = TMath::ATan2(eventInfo.YnEpd,  eventInfo.XnEpd)  / order_m;
+  eventInfo.psiEpdE = TMath::ATan2(eventInfo.YnEpdE, eventInfo.XnEpdE) / order_m;
+  eventInfo.psiEpdF = TMath::ATan2(eventInfo.YnEpdF, eventInfo.XnEpdF) / order_m;
+}
+
+////////
+//   Moves all event plane angles into the -pi to pi period.
+////////
+void setAllPeriods(Event &eventInfo, Double_t order_m)
+{
+  eventInfo.psiTpc  = angleShift(eventInfo.psiTpc,  order_m);
+  eventInfo.psiTpcA = angleShift(eventInfo.psiTpcA, order_m);
+  eventInfo.psiTpcB = angleShift(eventInfo.psiTpcB, order_m);
+  eventInfo.psiEpd  = angleShift(eventInfo.psiEpd,  order_m);
+  eventInfo.psiEpdE = angleShift(eventInfo.psiEpdE, order_m);
+  eventInfo.psiEpdF = angleShift(eventInfo.psiEpdF, order_m);
+}
+
+////////
+//   Moves event plane angles back into the -pi to pi period.
+////////
+Double_t angleShift(Double_t angle, Int_t order)
+{
+  if (angle < -TMath::Pi()/(Double_t)order) { angle += TMath::TwoPi()/(Double_t)order; }
+  else if (angle >  TMath::Pi()/(Double_t)order) { angle -= TMath::TwoPi()/(Double_t)order; }
+  return angle;
+};
+
+////////
+//   Checks if an event has any flow vectors equal to zero. Updates the event's member variable "badEvent".
+////////
+void checkZeroQ(Event &event)
+{
+  if (event.XnTpc == 0 && event.YnTpc == 0) { event.badEvent = true; }
+  //else if (event.XnTpcA == 0 && event.YnTpcA == 0) { event.badEvent = true; }
+  if (event.XnTpcB == 0 && event.YnTpcB == 0) { event.badEvent = true; }
+  else if (event.XnEpd  == 0 && event.YnEpd  == 0) { event.badEvent = true; }
+  else if (event.XnEpdE == 0 && event.YnEpdE == 0) { event.badEvent = true; }
+  else if (event.XnEpdF == 0 && event.YnEpdF == 0) { event.badEvent = true; }
+};
+
+
+////////
+//   Using px, py, pz, and rest mass, return rapidity
+////////
+Double_t rapidity(Double_t px, Double_t py, Double_t pz, Double_t mass)
+{
+  Double_t rapidity, energy, momentum = 0;
+  momentum = TMath::Sqrt(px*px + py*py + pz*pz);
+  energy   = TMath::Sqrt(momentum*momentum + mass*mass);
+  rapidity = TMath::ATanH(pz/energy);
+  return rapidity;
+};
+
+////////
+//   Using px, py, pz, and rest mass, return transverse mass
+////////
+Double_t transMass(Double_t px, Double_t py, Double_t mass) 
+{return TMath::Sqrt(mass*mass + px*px + py*py);};
+
+
+////////
+//   Using px, py, pz, and rest mass, fill histograms raw of dN/dy,
+// and dN/dmT (shifted left by m0), and a 2D histogram of mT-m0 vs y.
+////////
+void fillRawSpect(Double_t px, Double_t py, Double_t pz, Double_t mass, TH1D *dndy, TH1D *dndm, TH2D *MvsY)
+{
+  Double_t y  = rapidity(px, py, pz, mass);
+  Double_t mT = transMass(px, py, mass);
+  Double_t M  = mT - mass;
+  dndy->Fill(y);
+  dndm->Fill(M);
+  MvsY->Fill(y,M, 1/(TMath::TwoPi() * mT));
+};
+
+
+////////
+//   Recenters the flow vectors of every subevent region in an event using the averages 
+//  found over all events in the full dataset and then recalculates event plane angles.
+////////
+void recenterQ(Event &eventInfo, TFile *correctionInputFile, Double_t order_m)
+{
+  TH1D *h_XnTpc_INPUT  = (TH1D*)correctionInputFile->Get("h_XnTpc");
+  TH1D *h_XnTpcA_INPUT = (TH1D*)correctionInputFile->Get("h_XnTpcA");
+  TH1D *h_XnTpcB_INPUT = (TH1D*)correctionInputFile->Get("h_XnTpcB");
+  TH1D *h_XnEpd_INPUT  = (TH1D*)correctionInputFile->Get("h_XnEpd");
+  TH1D *h_XnEpdE_INPUT = (TH1D*)correctionInputFile->Get("h_XnEpdE");
+  TH1D *h_XnEpdF_INPUT = (TH1D*)correctionInputFile->Get("h_XnEpdF");
+
+  TH1D *h_YnTpc_INPUT  = (TH1D*)correctionInputFile->Get("h_YnTpc");
+  TH1D *h_YnTpcA_INPUT = (TH1D*)correctionInputFile->Get("h_YnTpcA");
+  TH1D *h_YnTpcB_INPUT = (TH1D*)correctionInputFile->Get("h_YnTpcB");
+  TH1D *h_YnEpd_INPUT  = (TH1D*)correctionInputFile->Get("h_YnEpd");
+  TH1D *h_YnEpdE_INPUT = (TH1D*)correctionInputFile->Get("h_YnEpdE");
+  TH1D *h_YnEpdF_INPUT = (TH1D*)correctionInputFile->Get("h_YnEpdF");
+
+  Double_t d_XnTpc_Avg  = h_XnTpc_INPUT->GetMean();
+  Double_t d_XnTpcA_Avg = h_XnTpcA_INPUT->GetMean();
+  Double_t d_XnTpcB_Avg = h_XnTpcB_INPUT->GetMean();
+  Double_t d_XnEpd_Avg  = h_XnEpd_INPUT->GetMean();
+  Double_t d_XnEpdE_Avg = h_XnEpdE_INPUT->GetMean();
+  Double_t d_XnEpdF_Avg = h_XnEpdF_INPUT->GetMean();
+
+  Double_t d_YnTpc_Avg  = h_YnTpc_INPUT->GetMean();
+  Double_t d_YnTpcA_Avg = h_YnTpcA_INPUT->GetMean();
+  Double_t d_YnTpcB_Avg = h_YnTpcB_INPUT->GetMean();
+  Double_t d_YnEpd_Avg  = h_YnEpd_INPUT->GetMean();
+  Double_t d_YnEpdE_Avg = h_YnEpdE_INPUT->GetMean();
+  Double_t d_YnEpdF_Avg = h_YnEpdF_INPUT->GetMean();
+
+
+  eventInfo.XnTpc  -= d_XnTpc_Avg;
+  eventInfo.XnTpcA -= d_XnTpcA_Avg;
+  eventInfo.XnTpcB -= d_XnTpcB_Avg;
+  eventInfo.XnEpd  -= d_XnEpd_Avg;
+  eventInfo.XnEpdE -= d_XnEpdE_Avg;
+  eventInfo.XnEpdF -= d_XnEpdF_Avg;
+
+  eventInfo.YnTpc  -= d_YnTpc_Avg;
+  eventInfo.YnTpcA -= d_YnTpcA_Avg;
+  eventInfo.YnTpcB -= d_YnTpcB_Avg;
+  eventInfo.YnEpd  -= d_YnEpd_Avg;
+  eventInfo.YnEpdE -= d_YnEpdE_Avg;
+  eventInfo.YnEpdF -= d_YnEpdF_Avg;
+
+  checkZeroQ(eventInfo);
+
+  getAllPsi(eventInfo, order_m);
+  setAllPeriods(eventInfo, order_m);
+}// End recenterQ()
+
+
+////////
+//   Performs the event-by-event shifting described in the Poskanzer paper to flatten the event 
+//  plane angle distributions of each subevent.
+////////
+void shiftPsi(Event &eventInfo, TFile *correctionInputFile, Double_t order_m, Int_t shiftTerms)
+{
+  TProfile *p_sinAvgsTpc_INPUT  = (TProfile*)correctionInputFile->Get("p_sinAvgsTpc");
+  TProfile *p_cosAvgsTpc_INPUT  = (TProfile*)correctionInputFile->Get("p_cosAvgsTpc");
+  TProfile *p_sinAvgsTpcA_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsTpcA");
+  TProfile *p_cosAvgsTpcA_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsTpcA");
+  TProfile *p_sinAvgsTpcB_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsTpcB");
+  TProfile *p_cosAvgsTpcB_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsTpcB");
+  TProfile *p_sinAvgsEpd_INPUT  = (TProfile*)correctionInputFile->Get("p_sinAvgsEpd");
+  TProfile *p_cosAvgsEpd_INPUT  = (TProfile*)correctionInputFile->Get("p_cosAvgsEpd");
+  TProfile *p_sinAvgsEpdE_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsEpdE");
+  TProfile *p_cosAvgsEpdE_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsEpdE");
+  TProfile *p_sinAvgsEpdF_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsEpdF");
+  TProfile *p_cosAvgsEpdF_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsEpdF");
+
+
+  // Get corrected event plane angles //
+
+  Double_t psiTpc_delta  = 0;
+  Double_t psiTpcA_delta = 0;
+  Double_t psiTpcB_delta = 0;
+  Double_t psiEpd_delta  = 0;
+  Double_t psiEpdE_delta = 0;
+  Double_t psiEpdF_delta = 0;
+
+  Double_t jthSinAvg_Tpc  = 0;
+  Double_t jthCosAvg_Tpc  = 0;
+  Double_t jthSinAvg_TpcA = 0;
+  Double_t jthCosAvg_TpcA = 0;
+  Double_t jthSinAvg_TpcB = 0;
+  Double_t jthCosAvg_TpcB = 0;
+  Double_t jthSinAvg_Epd  = 0;
+  Double_t jthCosAvg_Epd  = 0;
+  Double_t jthSinAvg_EpdE = 0;
+  Double_t jthCosAvg_EpdE = 0;
+  Double_t jthSinAvg_EpdF = 0;
+  Double_t jthCosAvg_EpdF = 0;
+
+
+  for (Int_t j = 1; j <= shiftTerms; j++)    // Build the correction sums
+    {
+      jthSinAvg_Tpc  = p_sinAvgsTpc_INPUT->GetBinContent(j);
+      jthCosAvg_Tpc  = p_cosAvgsTpc_INPUT->GetBinContent(j);
+      jthSinAvg_TpcA = p_sinAvgsTpcA_INPUT->GetBinContent(j);
+      jthCosAvg_TpcA = p_cosAvgsTpcA_INPUT->GetBinContent(j);
+      jthSinAvg_TpcB = p_sinAvgsTpcB_INPUT->GetBinContent(j);
+      jthCosAvg_TpcB = p_cosAvgsTpcB_INPUT->GetBinContent(j);
+      jthSinAvg_Epd  = p_sinAvgsEpd_INPUT->GetBinContent(j);
+      jthCosAvg_Epd  = p_cosAvgsEpd_INPUT->GetBinContent(j);
+      jthSinAvg_EpdE = p_sinAvgsEpdE_INPUT->GetBinContent(j);
+      jthCosAvg_EpdE = p_cosAvgsEpdE_INPUT->GetBinContent(j);
+      jthSinAvg_EpdF = p_sinAvgsEpdF_INPUT->GetBinContent(j);
+      jthCosAvg_EpdF = p_cosAvgsEpdF_INPUT->GetBinContent(j);
+
+      psiTpc_delta  += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_Tpc * TMath::Cos((Double_t)j * order_m * eventInfo.psiTpc) 
+						      +jthCosAvg_Tpc * TMath::Sin((Double_t)j * order_m * eventInfo.psiTpc));
+      psiTpcA_delta += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_TpcA * TMath::Cos((Double_t)j * order_m * eventInfo.psiTpcA) 
+						      +jthCosAvg_TpcA * TMath::Sin((Double_t)j * order_m * eventInfo.psiTpcA));
+      psiTpcB_delta += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_TpcB * TMath::Cos((Double_t)j * order_m * eventInfo.psiTpcB) 
+						      +jthCosAvg_TpcB * TMath::Sin((Double_t)j * order_m * eventInfo.psiTpcB));
+      psiEpd_delta  += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_Epd * TMath::Cos((Double_t)j * order_m * eventInfo.psiEpd)
+						      +jthCosAvg_Epd * TMath::Sin((Double_t)j * order_m * eventInfo.psiEpd));
+      psiEpdE_delta += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_EpdE * TMath::Cos((Double_t)j * order_m * eventInfo.psiEpdE)
+						      +jthCosAvg_EpdE * TMath::Sin((Double_t)j * order_m * eventInfo.psiEpdE));
+      psiEpdF_delta += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_EpdF * TMath::Cos((Double_t)j * order_m * eventInfo.psiEpdF)
+						      +jthCosAvg_EpdF * TMath::Sin((Double_t)j * order_m * eventInfo.psiEpdF));
+    }
+
+  // Shift event plane angles
+  eventInfo.psiTpc  += psiTpc_delta;
+  eventInfo.psiTpcA += psiTpcA_delta;
+  eventInfo.psiTpcB += psiTpcB_delta;
+  eventInfo.psiEpd  += psiEpd_delta;
+  eventInfo.psiEpdE += psiEpdE_delta;
+  eventInfo.psiEpdF += psiEpdF_delta;
+
+  // Keep angles in the correct period
+  setAllPeriods(eventInfo, order_m);
+}// End shiftPsi()
+
