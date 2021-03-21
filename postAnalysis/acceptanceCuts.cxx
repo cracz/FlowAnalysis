@@ -20,6 +20,19 @@ void acceptanceCuts(TString jobID)
   h2_pT_vs_yCM_km->SetTitle("");
   h2_pT_vs_yCM_pr->SetTitle("");
 
+  Double_t maxScale = h2_pT_vs_yCM_pr->GetMaximum();
+  h2_pT_vs_yCM_pp->SetMaximum(maxScale);
+  h2_pT_vs_yCM_pm->SetMaximum(maxScale);
+  h2_pT_vs_yCM_kp->SetMaximum(maxScale);
+  h2_pT_vs_yCM_km->SetMaximum(maxScale);
+  /*
+  h2_pT_vs_yCM_pp->GetXaxis()->SetRangeUser(-1.1, 1.5);
+  h2_pT_vs_yCM_pm->GetXaxis()->SetRangeUser(-1.1, 1.5);
+  h2_pT_vs_yCM_kp->GetXaxis()->SetRangeUser(-1.1, 1.5);
+  h2_pT_vs_yCM_km->GetXaxis()->SetRangeUser(-1.1, 1.5);
+  h2_pT_vs_yCM_pr->GetXaxis()->SetRangeUser(-1.1, 1.5);
+  */
+  
   Double_t yCM_low_pp  = 0.0;
   Double_t yCM_high_pp = 0.5;
   Double_t pT_low_pp   = 0.18;
@@ -49,10 +62,20 @@ void acceptanceCuts(TString jobID)
   y_mid->SetLineColor(kRed);
   y_mid->SetLineWidth(4);
 
-  TLine *y_mid_pr = new TLine(0, 0, 0, 3);
+  TLine *y_mid_pr = new TLine(0, 0, 0, 3.0);
   y_mid_pr->SetLineColor(kRed);
   y_mid_pr->SetLineWidth(4);
 
+  TLine *y_target = new TLine(1.05, 0, 1.05, 2.5);
+  y_target->SetLineStyle(9);
+  y_target->SetLineColor(kRed);
+  y_target->SetLineWidth(4);
+  
+  TLine *y_target_pr = new TLine(1.05, 0, 1.05, 3.0);
+  y_target_pr->SetLineStyle(9);
+  y_target_pr->SetLineColor(kRed);
+  y_target_pr->SetLineWidth(4);
+  
   TLine *left_pp = new TLine(yCM_low_pp, pT_low_pp, yCM_low_pp, pT_high_pp);
   TLine *right_pp = new TLine(yCM_high_pp, pT_low_pp, yCM_high_pp, pT_high_pp);
   TLine *top_pp = new TLine(yCM_low_pp, pT_high_pp, yCM_high_pp, pT_high_pp);
@@ -98,6 +121,16 @@ void acceptanceCuts(TString jobID)
   top_pr->SetLineWidth(4);
   bottom_pr->SetLineWidth(4);
 
+  TPaveText *text_Target = new TPaveText(0.85, 2.5, 1.25, 2.65);
+  text_Target->SetFillColorAlpha(0,0);
+  text_Target->AddText("y_{target}-y_{mid}");
+
+  TPaveText *text_Target_pr = new TPaveText(0.85, 3.0, 1.25, 3.15);
+  text_Target_pr->SetFillColorAlpha(0,0);
+  text_Target_pr->AddText("y_{target}-y_{mid}");
+
+
+  /*
   TLine *pp_vs_eta_cutoff = new TLine(-5.1, 0.5, -5.1, 12.5);
   pp_vs_eta_cutoff->SetLineWidth(3);
   pp_vs_eta_cutoff->SetLineColor(kRed);
@@ -105,7 +138,7 @@ void acceptanceCuts(TString jobID)
   TLine *phi_vs_eta_cutoff = new TLine(-5.1, -4.0, -5.1, 4.0);
   phi_vs_eta_cutoff->SetLineWidth(3);
   phi_vs_eta_cutoff->SetLineColor(kRed);
-
+  */
   TCanvas *canvas = new TCanvas("canvas", "canvas", 875, 675);
   canvas->SetRightMargin(0.12);
   canvas->SetGrid();
@@ -137,51 +170,61 @@ void acceptanceCuts(TString jobID)
   
   h2_pT_vs_yCM_pp->Draw("colz");
   y_mid->Draw("SAME");
+  y_target->Draw("SAME");
   left_pp->Draw("SAME");
   right_pp->Draw("SAME");
   top_pp->Draw("SAME");
   bottom_pp->Draw("SAME");
   text_pp->Draw("SAME");
+  text_Target->Draw("SAME");
   canvas->SaveAs("Acceptance_pp.png");
   canvas->Clear();
 
   h2_pT_vs_yCM_pm->Draw("colz");
   y_mid->Draw("SAME");
+  y_target->Draw("SAME");
   left_pm->Draw("SAME");
   right_pm->Draw("SAME");
   top_pm->Draw("SAME");
   bottom_pm->Draw("SAME");
   text_pm->Draw("SAME");
+  text_Target->Draw("SAME");
   canvas->SaveAs("Acceptance_pm.png");
   canvas->Clear();
 
   h2_pT_vs_yCM_kp->Draw("colz");
   y_mid->Draw("SAME");
+  y_target->Draw("SAME");
   left_kp->Draw("SAME");
   right_kp->Draw("SAME");
   top_kp->Draw("SAME");
   bottom_kp->Draw("SAME");
   text_kp->Draw("SAME");
+  text_Target->Draw("SAME");
   canvas->SaveAs("Acceptance_kp.png");
   canvas->Clear();
 
   h2_pT_vs_yCM_km->Draw("colz");
   y_mid->Draw("SAME");
+  y_target->Draw("SAME");
   left_km->Draw("SAME");
   right_km->Draw("SAME");
   top_km->Draw("SAME");
   bottom_km->Draw("SAME");
   text_km->Draw("SAME");
+  text_Target->Draw("SAME");
   canvas->SaveAs("Acceptance_km.png");
   canvas->Clear();
 
   h2_pT_vs_yCM_pr->Draw("colz");
   y_mid_pr->Draw("SAME");
+  y_target_pr->Draw("SAME");
   left_pr->Draw("SAME");
   right_pr->Draw("SAME");
   top_pr->Draw("SAME");
   bottom_pr->Draw("SAME");
   text_pr->Draw("SAME");
+  text_Target_pr->Draw("SAME");
   canvas->SaveAs("Acceptance_pr.png");
   canvas->Clear();
 

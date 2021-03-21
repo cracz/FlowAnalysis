@@ -50,6 +50,7 @@ void resolutions(TString jobID, TString order_n_str)
   TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD E and EPD F;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
 
   TH1D *h_resolutions = new TH1D("h_resolutions","EPD E Resolutions;Centrality;R_{"+order_n_str+"1}",centBins,0,centBins);
+  TH2D *h2_resolutions = new TH2D("h2_resolutions","EPD E Resolutions;Centrality;y-y_{mid}",centBins,0,centBins, 20, -1, 1);
   
   const char *centralityBins[16] = {"75-80", "70-75", "65-70", "60-65", "55-60", "50-55", "45-50", "40-45", "35-40", "30-35", "25-30", "20-25", "15-20", "10-15", "5-10", "0-5"};
 
@@ -161,10 +162,17 @@ void resolutions(TString jobID, TString order_n_str)
 	{
 	  h_resolutions->SetBinContent(i, R_EvsF_save);
 	  h_resolutions->SetBinError(i, dR_EvsF_save);
+
+	  for (int j = 11; j <= 20; j++)
+	    {
+	      h2_resolutions->SetBinContent(i, j, R_EvsF_save);
+	      h2_resolutions->SetBinError(i, j, dR_EvsF_save);
+	    }
 	}
     }
 
   h_resolutions->Write();
+  h2_resolutions->Write();
   
   // Put the bin labels on the new histograms
   for (int i = 1; i <= centBins; i++)

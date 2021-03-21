@@ -46,7 +46,8 @@ void plotAll(TString jobID)
 	  //gStyle->SetPalette(57); //kBird Doesn't work
 	  canvas->SetLogz();
 
-	  if (name.Contains("psi") || name.Contains("Scan") || name.Contains("MvsY") || name.Contains("pp_vs_eta"))
+	  if (name.Contains("psi") || name.Contains("Scan") || name.Contains("MvsY") ||
+	      name.Contains("pp_vs_eta") || name.Contains("p2"))
 	    {
 	      canvas->SetLogz(0); // Remove log z
 	    }
@@ -93,7 +94,7 @@ void plotAll(TString jobID)
 	      hist->GetYaxis()->SetRangeUser(0.1,10E+7);
 	      gStyle->SetOptStat(11);
 	    }
-	  else if (name.Contains("check"))
+	  else if (name.Contains("Check"))
 	    {
 	      hist->SetFillColorAlpha(4,0.6);
 	    }
@@ -104,11 +105,11 @@ void plotAll(TString jobID)
 	      errors = true;
 	    }
 
-
+	  
 	  if (errors) 
 	    hist->Draw("E1");
 	  else 
-	    hist->Draw();
+	    hist->Draw("HIST");
 
 	  canvas->Update();
 	}

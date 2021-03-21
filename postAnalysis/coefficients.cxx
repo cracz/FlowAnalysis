@@ -1,11 +1,47 @@
+void applyResolution(TH1D *histogram, Double_t resolution, Double_t resolutionError)
+{
+  for (int i = 1; i < histogram->GetNbinsX(); i++)
+    {
+      Double_t rawBinContent = histogram->GetBinContent(i);
+      if (rawBinContent == 0.0) continue;
+      
+      Double_t rawBinError = histogram->GetBinError(i);
+
+      Double_t newBinContent = rawBinContent/resolution;
+      Double_t newBinError = newBinContent * TMath::Sqrt( pow(rawBinError/rawBinContent, 2) + pow(resolutionError/resolution, 2) );
+
+      histogram->SetBinContent(i, newBinContent);
+      histogram->SetBinError(i, newBinError);
+    }
+}
+
+
+
 void coefficients(TString jobID, TString order_n_str)
 {
+  //TH1::SetDefaultSumw2();
+  
   if (!jobID) { std::cout << "Supply a job ID!" << std::endl; return; }
   TString fileName = jobID + ".picoDst.result.combined.root";
 
   TFile *file = TFile::Open(fileName);
   if(!file) {cout << "Wrong file!" << endl; return;}
 
+  TFile *resolutionInfo_INPUT = TFile::Open("resolutionInfo_INPUT.root", "READ");
+  if(!resolutionInfo_INPUT) { cout << "No resolution file found!" << endl; return; }
+
+  TH1D *h_resolutions = (TH1D*)resolutionInfo_INPUT->Get("h_resolutions");
+  TH2D *h2_resolutions = (TH2D*)resolutionInfo_INPUT->Get("h2_resolutions");
+  /*
+  Double_t resolutionIDs[16] = {};
+  Double_t resolutionIDsError[16] = {};
+  
+  for (int i = 1; i < h_resolutions->GetNbinsX(); i++)
+    {
+      resolutionIDs[i-1] = h_resolutions->GetBinContent(i);
+      resolutionIDsError[i-1] = h_resolutions->GetBinError(i);
+    }
+  */
   TCanvas *canvas = new TCanvas("canvas", "Canvas", 800, 800);
   canvas->SetGridx();
   canvas->SetGridy();
@@ -131,12 +167,107 @@ void coefficients(TString jobID, TString order_n_str)
   TProfile *p_vn_km = (TProfile*)file->Get("p_vn_km");
   TProfile *p_vn_pr = (TProfile*)file->Get("p_vn_pr");
 
+  p_vn_kp->Rebin();
+  p_vn_km->Rebin();
+
   TProfile *p_vn_pp_ext = (TProfile*)file->Get("p_vn_pp_ext");
   TProfile *p_vn_pm_ext = (TProfile*)file->Get("p_vn_pm_ext");
   TProfile *p_vn_kp_ext = (TProfile*)file->Get("p_vn_kp_ext");
   TProfile *p_vn_km_ext = (TProfile*)file->Get("p_vn_km_ext");
   TProfile *p_vn_pr_ext = (TProfile*)file->Get("p_vn_pr_ext");
 
+  p_vn_kp_ext->Rebin();
+  p_vn_km_ext->Rebin();
+
+  TProfile2D *p2_vn_yCM_cent_pp = (TProfile2D*)file->Get("p2_vn_yCM_cent_pp");
+  TProfile2D *p2_vn_yCM_cent_pm = (TProfile2D*)file->Get("p2_vn_yCM_cent_pm");
+  TProfile2D *p2_vn_yCM_cent_kp = (TProfile2D*)file->Get("p2_vn_yCM_cent_kp");
+  TProfile2D *p2_vn_yCM_cent_km = (TProfile2D*)file->Get("p2_vn_yCM_cent_km");
+  TProfile2D *p2_vn_yCM_cent_pr = (TProfile2D*)file->Get("p2_vn_yCM_cent_pr");
+
+  p2_vn_yCM_cent_kp->RebinY();
+  p2_vn_yCM_cent_km->RebinY();
+  
+  /*
+  // RESOLUTION APPLICATION
+  TH1D *h_vn_EpdE = p_vn_EpdE->ProjectionX();
+  TH1D *h_vn_EpdF = p_vn_EpdF->ProjectionX();
+  TH1D *h_vn_TpcB = p_vn_TpcB->ProjectionX();
+  TH1D *h_vn_pp = p_vn_pp->ProjectionX();
+  TH1D *h_vn_pm = p_vn_pm->ProjectionX();
+  TH1D *h_vn_kp = p_vn_kp->ProjectionX();
+  TH1D *h_vn_km = p_vn_km->ProjectionX();
+  TH1D *h_vn_pr = p_vn_pr->ProjectionX();
+
+  TH1D *h_vn_pp_ext = p_vn_pp_ext->ProjectionX();
+  TH1D *h_vn_pm_ext = p_vn_pm_ext->ProjectionX();
+  TH1D *h_vn_kp_ext = p_vn_kp_ext->ProjectionX();
+  TH1D *h_vn_km_ext = p_vn_km_ext->ProjectionX();
+  TH1D *h_vn_pr_ext = p_vn_pr_ext->ProjectionX();
+
+  TH2D *h2_vn_yCM_cent_pp = p2_vn_yCM_cent_pp->ProjectionXY();
+  TH2D *h2_vn_yCM_cent_pm = p2_vn_yCM_cent_pm->ProjectionXY();
+  TH2D *h2_vn_yCM_cent_kp = p2_vn_yCM_cent_kp->ProjectionXY();
+  TH2D *h2_vn_yCM_cent_km = p2_vn_yCM_cent_km->ProjectionXY();
+  TH2D *h2_vn_yCM_cent_pr = p2_vn_yCM_cent_pr->ProjectionXY();
+
+  h_vn_EpdE->Divide(h_resolutions);
+  h_vn_EpdF->Divide(h_resolutions);
+  h_vn_TpcB->Divide(h_resolutions);
+  h_vn_pp->Divide(h_resolutions);
+  h_vn_pm->Divide(h_resolutions);
+  h_vn_kp->Divide(h_resolutions);
+  h_vn_km->Divide(h_resolutions);
+  h_vn_pr->Divide(h_resolutions);
+
+  h_vn_pp_ext->Divide(h_resolutions);
+  h_vn_pm_ext->Divide(h_resolutions);
+  h_vn_kp_ext->Divide(h_resolutions);
+  h_vn_km_ext->Divide(h_resolutions);
+  h_vn_pr_ext->Divide(h_resolutions);
+  
+  h2_vn_yCM_cent_pp->Divide(h2_resolutions);
+  h2_vn_yCM_cent_pm->Divide(h2_resolutions);
+  h2_vn_yCM_cent_kp->Divide(h2_resolutions);
+  h2_vn_yCM_cent_km->Divide(h2_resolutions);
+  h2_vn_yCM_cent_pr->Divide(h2_resolutions);
+  */
+  ////
+
+  
+  /*
+  TH1D *pp_cent15 = p2_vn_yCM_cent_pp->ProfileX("pp_cent15", 16, 16)->ProjectionX();
+  TH1D *pp_cent14 = p2_vn_yCM_cent_pp->ProfileX("pp_cent14", 15, 15)->ProjectionX();
+  TH1D *pp_cent13 = p2_vn_yCM_cent_pp->ProfileX("pp_cent13", 14, 14)->ProjectionX();
+  TH1D *pp_cent12 = p2_vn_yCM_cent_pp->ProfileX("pp_cent12", 13, 13)->ProjectionX();
+  TH1D *pp_cent11 = p2_vn_yCM_cent_pp->ProfileX("pp_cent11", 12, 12)->ProjectionX();
+  TH1D *pp_cent10 = p2_vn_yCM_cent_pp->ProfileX("pp_cent10", 11, 11)->ProjectionX();
+  TH1D *pp_cent9 = p2_vn_yCM_cent_pp->ProfileX("pp_cent9", 10, 10)->ProjectionX();
+  TH1D *pp_cent8 = p2_vn_yCM_cent_pp->ProfileX("pp_cent8", 9, 9)->ProjectionX();
+  TH1D *pp_cent7 = p2_vn_yCM_cent_pp->ProfileX("pp_cent7", 8, 8)->ProjectionX();
+  TH1D *pp_cent6 = p2_vn_yCM_cent_pp->ProfileX("pp_cent6", 7, 7)->ProjectionX();
+  TH1D *pp_cent5 = p2_vn_yCM_cent_pp->ProfileX("pp_cent5", 6, 6)->ProjectionX();
+  TH1D *pp_cent4 = p2_vn_yCM_cent_pp->ProfileX("pp_cent3", 5, 5)->ProjectionX();
+
+  std::cout << "pp_cent10 bin 18 content: " << pp_cent10->GetBinContent(18) << std::endl;
+
+  applyResolution(pp_cent15, resolutionIDs[15], resolutionIDsError[15]);
+  applyResolution(pp_cent14, resolutionIDs[14], resolutionIDsError[14]);
+  applyResolution(pp_cent13, resolutionIDs[13], resolutionIDsError[13]);
+  applyResolution(pp_cent12, resolutionIDs[12], resolutionIDsError[12]);
+  applyResolution(pp_cent11, resolutionIDs[11], resolutionIDsError[11]);
+  applyResolution(pp_cent10, resolutionIDs[10], resolutionIDsError[10]);
+  applyResolution(pp_cent9, resolutionIDs[9], resolutionIDsError[9]);
+  applyResolution(pp_cent8, resolutionIDs[8], resolutionIDsError[8]);
+  applyResolution(pp_cent7, resolutionIDs[7], resolutionIDsError[7]);
+  applyResolution(pp_cent6, resolutionIDs[6], resolutionIDsError[6]);
+  applyResolution(pp_cent5, resolutionIDs[5], resolutionIDsError[5]);
+  applyResolution(pp_cent4, resolutionIDs[4], resolutionIDsError[4]);
+  
+  std::cout << "pp_cent10 bin 18 content: " << pp_cent10->GetBinContent(18) << std::endl;
+  */
+
+  /*
   TProfile *p_vn_yCM_00to10_pp = (TProfile*)file->Get("p_vn_yCM_00to10_pp");
   TProfile *p_vn_yCM_10to40_pp = (TProfile*)file->Get("p_vn_yCM_10to40_pp");
   TProfile *p_vn_yCM_40to60_pp = (TProfile*)file->Get("p_vn_yCM_40to60_pp");
@@ -161,27 +292,32 @@ void coefficients(TString jobID, TString order_n_str)
   TProfile *p_vn_yCM_10to40_pr = (TProfile*)file->Get("p_vn_yCM_10to40_pr");
   TProfile *p_vn_yCM_40to60_pr = (TProfile*)file->Get("p_vn_yCM_40to60_pr");
   TProfile *p_vn_yCM_00to60_pr = (TProfile*)file->Get("p_vn_yCM_00to60_pr");
+  */
+  TProfile *p_vn_yCM_00to10_pp = p2_vn_yCM_cent_pp->ProfileY("p_vn_yCM_00to10_pp", 15, 16);
+  TProfile *p_vn_yCM_10to40_pp = p2_vn_yCM_cent_pp->ProfileY("p_vn_yCM_10to40_pp", 9, 14);
+  TProfile *p_vn_yCM_40to60_pp = p2_vn_yCM_cent_pp->ProfileY("p_vn_yCM_40to60_pp", 5, 8);
+  //TProfile *p_vn_yCM_00to60_pp = (TProfile*)file->Get("p_vn_yCM_00to60_pp");
+  
+  TProfile *p_vn_yCM_00to10_pm = p2_vn_yCM_cent_pm->ProfileY("p_vn_yCM_00to10_pm", 15, 16);
+  TProfile *p_vn_yCM_10to40_pm = p2_vn_yCM_cent_pm->ProfileY("p_vn_yCM_10to40_pm", 9, 14);
+  TProfile *p_vn_yCM_40to60_pm = p2_vn_yCM_cent_pm->ProfileY("p_vn_yCM_40to60_pm", 5, 8);
+  //TProfile *p_vn_yCM_00to60_pm = (TProfile*)file->Get("p_vn_yCM_00to60_pm");
 
+  TProfile *p_vn_yCM_00to10_kp = p2_vn_yCM_cent_kp->ProfileY("p_vn_yCM_00to10_kp", 15, 16);
+  TProfile *p_vn_yCM_10to40_kp = p2_vn_yCM_cent_kp->ProfileY("p_vn_yCM_10to40_kp", 9, 14);
+  TProfile *p_vn_yCM_40to60_kp = p2_vn_yCM_cent_kp->ProfileY("p_vn_yCM_40to60_kp", 5, 8);
+  //TProfile *p_vn_yCM_00to60_kp = (TProfile*)file->Get("p_vn_yCM_00to60_kp");
 
+  TProfile *p_vn_yCM_00to10_km = p2_vn_yCM_cent_km->ProfileY("p_vn_yCM_00to10_km", 15, 16);
+  TProfile *p_vn_yCM_10to40_km = p2_vn_yCM_cent_km->ProfileY("p_vn_yCM_10to40_km", 9, 14);
+  TProfile *p_vn_yCM_40to60_km = p2_vn_yCM_cent_km->ProfileY("p_vn_yCM_40to60_km", 5, 8);
+  //TProfile *p_vn_yCM_00to60_km = (TProfile*)file->Get("p_vn_yCM_00to60_km");
 
+  TProfile *p_vn_yCM_00to10_pr = p2_vn_yCM_cent_pr->ProfileY("p_vn_yCM_00to10_pr", 15, 16);
+  TProfile *p_vn_yCM_10to40_pr = p2_vn_yCM_cent_pr->ProfileY("p_vn_yCM_10to40_pr", 9, 14);
+  TProfile *p_vn_yCM_40to60_pr = p2_vn_yCM_cent_pr->ProfileY("p_vn_yCM_40to60_pr", 5, 8);
+  //TProfile *p_vn_yCM_00to60_pr = (TProfile*)file->Get("p_vn_yCM_00to60_pr");
 
-  TH1D *h_vn_EpdE = new TH1D("h_vn_EpdE", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_EpdF = new TH1D("h_vn_EpdF", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_TpcB = new TH1D("h_vn_TpcB", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pp = new TH1D("h_vn_pp", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pm = new TH1D("h_vn_pm", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_kp = new TH1D("h_vn_kp", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_km = new TH1D("h_vn_km", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pr = new TH1D("h_vn_pr", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-
-  TH1D *h_vn_EpdE_ext = new TH1D("h_vn_EpdE_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_EpdF_ext = new TH1D("h_vn_EpdF_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_TpcB_ext = new TH1D("h_vn_TpcB_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pp_ext = new TH1D("h_vn_pp_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pm_ext = new TH1D("h_vn_pm_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_kp_ext = new TH1D("h_vn_kp_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_km_ext = new TH1D("h_vn_km_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pr_ext = new TH1D("h_vn_pr_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
 
   TH1D *h_vn_yCM_00to10_pp = new TH1D("h_vn_yCM_00to10_pp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_10to40_pp = new TH1D("h_vn_yCM_10to40_pp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
@@ -193,20 +329,209 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_yCM_40to60_pm = new TH1D("h_vn_yCM_40to60_pm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_00to60_pm = new TH1D("h_vn_yCM_00to60_pm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
 
-  TH1D *h_vn_yCM_00to10_kp = new TH1D("h_vn_yCM_00to10_kp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_10to40_kp = new TH1D("h_vn_yCM_10to40_kp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_40to60_kp = new TH1D("h_vn_yCM_40to60_kp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_00to60_kp = new TH1D("h_vn_yCM_00to60_kp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_00to10_kp = new TH1D("h_vn_yCM_00to10_kp", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_10to40_kp = new TH1D("h_vn_yCM_10to40_kp", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_40to60_kp = new TH1D("h_vn_yCM_40to60_kp", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_00to60_kp = new TH1D("h_vn_yCM_00to60_kp", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
 
-  TH1D *h_vn_yCM_00to10_km = new TH1D("h_vn_yCM_00to10_km", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_10to40_km = new TH1D("h_vn_yCM_10to40_km", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_40to60_km = new TH1D("h_vn_yCM_40to60_km", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_00to60_km = new TH1D("h_vn_yCM_00to60_km", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_00to10_km = new TH1D("h_vn_yCM_00to10_km", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_10to40_km = new TH1D("h_vn_yCM_10to40_km", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_40to60_km = new TH1D("h_vn_yCM_40to60_km", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_00to60_km = new TH1D("h_vn_yCM_00to60_km", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
 
   TH1D *h_vn_yCM_00to10_pr = new TH1D("h_vn_yCM_00to10_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_10to40_pr = new TH1D("h_vn_yCM_10to40_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_40to60_pr = new TH1D("h_vn_yCM_40to60_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_00to60_pr = new TH1D("h_vn_yCM_00to60_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  /*
+  for (int i = 11; i <= 20; i++)
+    {
+      // 0 to 10%
+      h_vn_yCM_00to10_pp->SetBinContent(i, (h2_vn_yCM_cent_pp->GetBinContent(15, i) + h2_vn_yCM_cent_pp->GetBinContent(16, i)) /2);
+      h_vn_yCM_00to10_pp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pp->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_pp->GetBinError(16, i) / 2, 2) ));
+
+      h_vn_yCM_00to10_pm->SetBinContent(i, (h2_vn_yCM_cent_pm->GetBinContent(15, i) + h2_vn_yCM_cent_pm->GetBinContent(16, i)) /2);
+      h_vn_yCM_00to10_pm->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pm->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_pm->GetBinError(16, i) / 2, 2) ));
+
+      h_vn_yCM_00to10_kp->SetBinContent(i, (h2_vn_yCM_cent_kp->GetBinContent(15, i) + h2_vn_yCM_cent_kp->GetBinContent(16, i)) /2);
+      h_vn_yCM_00to10_kp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_kp->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_kp->GetBinError(16, i) / 2, 2) ));
+
+      h_vn_yCM_00to10_km->SetBinContent(i, (h2_vn_yCM_cent_km->GetBinContent(15, i) + h2_vn_yCM_cent_km->GetBinContent(16, i)) /2);
+      h_vn_yCM_00to10_km->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_km->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_km->GetBinError(16, i) / 2, 2) ));
+
+      h_vn_yCM_00to10_pr->SetBinContent(i, (h2_vn_yCM_cent_pr->GetBinContent(15, i) + h2_vn_yCM_cent_pr->GetBinContent(16, i)) /2);
+      h_vn_yCM_00to10_pr->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pr->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_pr->GetBinError(16, i) / 2, 2) ));
+
+      // 10 to 40%
+      h_vn_yCM_10to40_pp->SetBinContent(i, (h2_vn_yCM_cent_pp->GetBinContent(9, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(10, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(11, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(12, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(13, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(14, i)) /6);
+      h_vn_yCM_10to40_pp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pp->GetBinError(9, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(10, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(11, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(12, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(13, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(14, i) / 6, 2) ));
+
+      h_vn_yCM_10to40_pm->SetBinContent(i, (h2_vn_yCM_cent_pm->GetBinContent(9, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(10, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(11, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(12, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(13, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(14, i)) /6);
+      h_vn_yCM_10to40_pm->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pm->GetBinError(9, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(10, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(11, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(12, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(13, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(14, i) / 6, 2) ));
+
+      h_vn_yCM_10to40_kp->SetBinContent(i, (h2_vn_yCM_cent_kp->GetBinContent(9, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(10, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(11, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(12, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(13, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(14, i)) /6);
+      h_vn_yCM_10to40_kp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_kp->GetBinError(9, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(10, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(11, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(12, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(13, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(14, i) / 6, 2) ));
+
+      h_vn_yCM_10to40_km->SetBinContent(i, (h2_vn_yCM_cent_km->GetBinContent(9, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(10, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(11, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(12, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(13, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(14, i)) /6);
+      h_vn_yCM_10to40_km->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_km->GetBinError(9, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(10, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(11, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(12, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(13, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(14, i) / 6, 2) ));
+
+      h_vn_yCM_10to40_pr->SetBinContent(i, (h2_vn_yCM_cent_pr->GetBinContent(9, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(10, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(11, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(12, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(13, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(14, i)) /6);
+      h_vn_yCM_10to40_pr->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pr->GetBinError(9, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(10, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(11, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(12, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(13, i) / 6, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(14, i) / 6, 2) ));
+
+      
+
+      // 40 to 60%
+      h_vn_yCM_40to60_pp->SetBinContent(i, (h2_vn_yCM_cent_pp->GetBinContent(4, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(5, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(6, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(7, i) +
+					    h2_vn_yCM_cent_pp->GetBinContent(8, i)) /5);
+      h_vn_yCM_40to60_pp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pp->GetBinError(4, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(5, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(6, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(7, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pp->GetBinError(8, i) / 5, 2) ));
+
+      h_vn_yCM_40to60_pm->SetBinContent(i, (h2_vn_yCM_cent_pm->GetBinContent(4, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(5, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(6, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(7, i) +
+					    h2_vn_yCM_cent_pm->GetBinContent(8, i)) /5);
+      h_vn_yCM_40to60_pm->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pm->GetBinError(4, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(5, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(6, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(7, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pm->GetBinError(8, i) / 5, 2) ));
+
+      h_vn_yCM_40to60_kp->SetBinContent(i, (h2_vn_yCM_cent_kp->GetBinContent(4, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(5, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(6, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(7, i) +
+					    h2_vn_yCM_cent_kp->GetBinContent(8, i)) /5);
+      h_vn_yCM_40to60_kp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_kp->GetBinError(4, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(5, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(6, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(7, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_kp->GetBinError(8, i) / 5, 2) ));
+
+      h_vn_yCM_40to60_km->SetBinContent(i, (h2_vn_yCM_cent_km->GetBinContent(4, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(5, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(6, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(7, i) +
+					    h2_vn_yCM_cent_km->GetBinContent(8, i)) /5);
+      h_vn_yCM_40to60_km->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_km->GetBinError(4, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(5, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(6, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(7, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_km->GetBinError(8, i) / 5, 2) ));
+
+      h_vn_yCM_40to60_pr->SetBinContent(i, (h2_vn_yCM_cent_pr->GetBinContent(4, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(5, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(6, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(7, i) +
+					    h2_vn_yCM_cent_pr->GetBinContent(8, i)) /5);
+      h_vn_yCM_40to60_pr->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pr->GetBinError(4, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(5, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(6, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(7, i) / 5, 2) +
+						      pow(h2_vn_yCM_cent_pr->GetBinError(8, i) / 5, 2) ));
+
+    }
+  */
+  /*
+  h_vn_yCM_00to10_pp->Draw();
+  h_vn_yCM_00to10_pp->SetMinimum(-0.05);
+  h_vn_yCM_00to10_pp->SetMaximum(0.03);
+  h_vn_yCM_00to10_pp->Draw("E1P");
+  return;
+  */
+
+
+  TH1D *h_vn_EpdE = new TH1D("h_vn_EpdE", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_EpdF = new TH1D("h_vn_EpdF", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_TpcB = new TH1D("h_vn_TpcB", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_pp = new TH1D("h_vn_pp", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_pm = new TH1D("h_vn_pm", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_kp = new TH1D("h_vn_kp", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
+  TH1D *h_vn_km = new TH1D("h_vn_km", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
+  TH1D *h_vn_pr = new TH1D("h_vn_pr", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+
+  TH1D *h_vn_EpdE_ext = new TH1D("h_vn_EpdE_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_EpdF_ext = new TH1D("h_vn_EpdF_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_TpcB_ext = new TH1D("h_vn_TpcB_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_pp_ext = new TH1D("h_vn_pp_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_pm_ext = new TH1D("h_vn_pm_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_kp_ext = new TH1D("h_vn_kp_ext", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
+  TH1D *h_vn_km_ext = new TH1D("h_vn_km_ext", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
+  TH1D *h_vn_pr_ext = new TH1D("h_vn_pr_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+
+
+
+  /*
+  h_vn_yCM_00to10_pp->Add(pp_cent15, pp_cent14);
+  
+  h_vn_yCM_10to40_pp->Add(pp_cent13, pp_cent12);
+  h_vn_yCM_10to40_pp->Add(h_vn_yCM_10to40_pp, pp_cent11);
+  h_vn_yCM_10to40_pp->Add(h_vn_yCM_10to40_pp, pp_cent10);
+  h_vn_yCM_10to40_pp->Add(h_vn_yCM_10to40_pp, pp_cent9);
+  h_vn_yCM_10to40_pp->Add(h_vn_yCM_10to40_pp, pp_cent8);
+
+  
+  
+  h_vn_yCM_40to60_pp->Add(pp_cent7, pp_cent6);
+  h_vn_yCM_40to60_pp->Add(h_vn_yCM_40to60_pp, pp_cent5);
+  h_vn_yCM_40to60_pp->Add(h_vn_yCM_40to60_pp, pp_cent4);
+  */
 
   //mirrored plots
   TH1D *h_vn_yCM_00to10_pp_mirror = new TH1D("h_vn_yCM_00to10_pp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
@@ -219,15 +544,15 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_yCM_40to60_pm_mirror = new TH1D("h_vn_yCM_40to60_pm_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_00to60_pm_mirror = new TH1D("h_vn_yCM_00to60_pm_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
 
-  TH1D *h_vn_yCM_00to10_kp_mirror = new TH1D("h_vn_yCM_00to10_kp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_10to40_kp_mirror = new TH1D("h_vn_yCM_10to40_kp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_40to60_kp_mirror = new TH1D("h_vn_yCM_40to60_kp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_00to60_kp_mirror = new TH1D("h_vn_yCM_00to60_kp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_00to10_kp_mirror = new TH1D("h_vn_yCM_00to10_kp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_10to40_kp_mirror = new TH1D("h_vn_yCM_10to40_kp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_40to60_kp_mirror = new TH1D("h_vn_yCM_40to60_kp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_00to60_kp_mirror = new TH1D("h_vn_yCM_00to60_kp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
 
-  TH1D *h_vn_yCM_00to10_km_mirror = new TH1D("h_vn_yCM_00to10_km_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_10to40_km_mirror = new TH1D("h_vn_yCM_10to40_km_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_40to60_km_mirror = new TH1D("h_vn_yCM_40to60_km_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  TH1D *h_vn_yCM_00to60_km_mirror = new TH1D("h_vn_yCM_00to60_km_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_00to10_km_mirror = new TH1D("h_vn_yCM_00to10_km_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_10to40_km_mirror = new TH1D("h_vn_yCM_10to40_km_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_40to60_km_mirror = new TH1D("h_vn_yCM_40to60_km_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
+  TH1D *h_vn_yCM_00to60_km_mirror = new TH1D("h_vn_yCM_00to60_km_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 10, -1, 1);
 
   TH1D *h_vn_yCM_00to10_pr_mirror = new TH1D("h_vn_yCM_00to10_pr_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_10to40_pr_mirror = new TH1D("h_vn_yCM_10to40_pr_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
@@ -235,6 +560,22 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_yCM_00to60_pr_mirror = new TH1D("h_vn_yCM_00to60_pr_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
 
   // Convert profiles to histograms
+
+  for (int i = 1; i <= 8; i++)     // KAONS
+    {
+      h_vn_kp->SetBinContent(i, p_vn_kp->GetBinContent(i));
+      h_vn_kp->SetBinError(i, p_vn_kp->GetBinError(i));
+
+      h_vn_km->SetBinContent(i, p_vn_km->GetBinContent(i));
+      h_vn_km->SetBinError(i, p_vn_km->GetBinError(i));
+
+      h_vn_kp_ext->SetBinContent(i, p_vn_kp_ext->GetBinContent(i));
+      h_vn_kp_ext->SetBinError(i, p_vn_kp_ext->GetBinError(i));
+
+      h_vn_km_ext->SetBinContent(i, p_vn_km_ext->GetBinContent(i));
+      h_vn_km_ext->SetBinError(i, p_vn_km_ext->GetBinError(i));
+    }
+  
   for (int i = 1; i <= 16; i++)
     {
       h_vn_EpdE->SetBinContent(i, p_vn_EpdE->GetBinContent(i));
@@ -252,12 +593,7 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_pm->SetBinContent(i, p_vn_pm->GetBinContent(i));
       h_vn_pm->SetBinError(i, p_vn_pm->GetBinError(i));
 
-      h_vn_kp->SetBinContent(i, p_vn_kp->GetBinContent(i));
-      h_vn_kp->SetBinError(i, p_vn_kp->GetBinError(i));
-
-      h_vn_km->SetBinContent(i, p_vn_km->GetBinContent(i));
-      h_vn_km->SetBinError(i, p_vn_km->GetBinError(i));
-
+      
       h_vn_pr->SetBinContent(i, p_vn_pr->GetBinContent(i));
       h_vn_pr->SetBinError(i, p_vn_pr->GetBinError(i));
 
@@ -268,17 +604,66 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_pm_ext->SetBinContent(i, p_vn_pm_ext->GetBinContent(i));
       h_vn_pm_ext->SetBinError(i, p_vn_pm_ext->GetBinError(i));
 
-      h_vn_kp_ext->SetBinContent(i, p_vn_kp_ext->GetBinContent(i));
-      h_vn_kp_ext->SetBinError(i, p_vn_kp_ext->GetBinError(i));
-
-      h_vn_km_ext->SetBinContent(i, p_vn_km_ext->GetBinContent(i));
-      h_vn_km_ext->SetBinError(i, p_vn_km_ext->GetBinError(i));
 
       h_vn_pr_ext->SetBinContent(i, p_vn_pr_ext->GetBinContent(i));
       h_vn_pr_ext->SetBinError(i, p_vn_pr_ext->GetBinError(i));
     }
 
   // Convert profiles to histograms and make mirrored plots
+
+  for (int i = 1; i <= 10; i++)     // KAONS
+    {
+      int j = 0;  // mirrored bin
+      
+      switch(i)
+	{
+	case 6: j = 5; break;
+	case 7: j = 4; break;
+	case 8: j = 3; break;
+	case 9: j = 2; break;
+	case 10: j = 1; break;
+	}
+
+      h_vn_yCM_00to10_kp->SetBinContent(i, p_vn_yCM_00to10_kp->GetBinContent(i));
+      h_vn_yCM_00to10_kp->SetBinError(i, p_vn_yCM_00to10_kp->GetBinError(i));
+      h_vn_yCM_10to40_kp->SetBinContent(i, p_vn_yCM_10to40_kp->GetBinContent(i));
+      h_vn_yCM_10to40_kp->SetBinError(i, p_vn_yCM_10to40_kp->GetBinError(i));
+      h_vn_yCM_40to60_kp->SetBinContent(i, p_vn_yCM_40to60_kp->GetBinContent(i));
+      h_vn_yCM_40to60_kp->SetBinError(i, p_vn_yCM_40to60_kp->GetBinError(i));
+      //h_vn_yCM_00to60_kp->SetBinContent(i, p_vn_yCM_00to60_kp->GetBinContent(i));
+      //h_vn_yCM_00to60_kp->SetBinError(i, p_vn_yCM_00to60_kp->GetBinError(i));
+
+      h_vn_yCM_00to10_km->SetBinContent(i, p_vn_yCM_00to10_km->GetBinContent(i));
+      h_vn_yCM_00to10_km->SetBinError(i, p_vn_yCM_00to10_km->GetBinError(i));
+      h_vn_yCM_10to40_km->SetBinContent(i, p_vn_yCM_10to40_km->GetBinContent(i));
+      h_vn_yCM_10to40_km->SetBinError(i, p_vn_yCM_10to40_km->GetBinError(i));
+      h_vn_yCM_40to60_km->SetBinContent(i, p_vn_yCM_40to60_km->GetBinContent(i));
+      h_vn_yCM_40to60_km->SetBinError(i, p_vn_yCM_40to60_km->GetBinError(i));
+      //h_vn_yCM_00to60_km->SetBinContent(i, p_vn_yCM_00to60_km->GetBinContent(i));
+      //h_vn_yCM_00to60_km->SetBinError(i, p_vn_yCM_00to60_km->GetBinError(i));
+
+      if (j!=0)
+	{
+	  h_vn_yCM_00to10_kp_mirror->SetBinContent(j, h_vn_yCM_00to10_kp->GetBinContent(i));
+	  h_vn_yCM_00to10_kp_mirror->SetBinError(j, h_vn_yCM_00to10_kp->GetBinError(i));
+	  h_vn_yCM_10to40_kp_mirror->SetBinContent(j, h_vn_yCM_10to40_kp->GetBinContent(i));
+	  h_vn_yCM_10to40_kp_mirror->SetBinError(j, h_vn_yCM_10to40_kp->GetBinError(i));
+	  h_vn_yCM_40to60_kp_mirror->SetBinContent(j, h_vn_yCM_40to60_kp->GetBinContent(i));
+	  h_vn_yCM_40to60_kp_mirror->SetBinError(j, h_vn_yCM_40to60_kp->GetBinError(i));
+	  //h_vn_yCM_00to60_kp_mirror->SetBinContent(j, h_vn_yCM_00to60_kp->GetBinContent(i));
+	  //h_vn_yCM_00to60_kp_mirror->SetBinError(j, h_vn_yCM_00to60_kp->GetBinError(i));
+
+	  h_vn_yCM_00to10_km_mirror->SetBinContent(j, h_vn_yCM_00to10_km->GetBinContent(i));
+	  h_vn_yCM_00to10_km_mirror->SetBinError(j, h_vn_yCM_00to10_km->GetBinError(i));
+	  h_vn_yCM_10to40_km_mirror->SetBinContent(j, h_vn_yCM_10to40_km->GetBinContent(i));
+	  h_vn_yCM_10to40_km_mirror->SetBinError(j, h_vn_yCM_10to40_km->GetBinError(i));
+	  h_vn_yCM_40to60_km_mirror->SetBinContent(j, h_vn_yCM_40to60_km->GetBinContent(i));
+	  h_vn_yCM_40to60_km_mirror->SetBinError(j, h_vn_yCM_40to60_km->GetBinError(i));
+	  //h_vn_yCM_00to60_km_mirror->SetBinContent(j, h_vn_yCM_00to60_km->GetBinContent(i));
+	  //h_vn_yCM_00to60_km_mirror->SetBinError(j, h_vn_yCM_00to60_km->GetBinError(i));
+	}
+    }
+  
   for (int i = 1; i <= 20; i++)
     {
       int j = 0;  // mirrored bin
@@ -296,15 +681,15 @@ void coefficients(TString jobID, TString order_n_str)
 	case 19: j = 2; break;
 	case 20: j = 1; break;
 	}
-      
+
       h_vn_yCM_00to10_pp->SetBinContent(i, p_vn_yCM_00to10_pp->GetBinContent(i));
       h_vn_yCM_00to10_pp->SetBinError(i, p_vn_yCM_00to10_pp->GetBinError(i));
       h_vn_yCM_10to40_pp->SetBinContent(i, p_vn_yCM_10to40_pp->GetBinContent(i));
       h_vn_yCM_10to40_pp->SetBinError(i, p_vn_yCM_10to40_pp->GetBinError(i));
       h_vn_yCM_40to60_pp->SetBinContent(i, p_vn_yCM_40to60_pp->GetBinContent(i));
       h_vn_yCM_40to60_pp->SetBinError(i, p_vn_yCM_40to60_pp->GetBinError(i));
-      h_vn_yCM_00to60_pp->SetBinContent(i, p_vn_yCM_00to60_pp->GetBinContent(i));
-      h_vn_yCM_00to60_pp->SetBinError(i, p_vn_yCM_00to60_pp->GetBinError(i));
+      //h_vn_yCM_00to60_pp->SetBinContent(i, p_vn_yCM_00to60_pp->GetBinContent(i));
+      //h_vn_yCM_00to60_pp->SetBinError(i, p_vn_yCM_00to60_pp->GetBinError(i));
 
       h_vn_yCM_00to10_pm->SetBinContent(i, p_vn_yCM_00to10_pm->GetBinContent(i));
       h_vn_yCM_00to10_pm->SetBinError(i, p_vn_yCM_00to10_pm->GetBinError(i));
@@ -312,26 +697,9 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_yCM_10to40_pm->SetBinError(i, p_vn_yCM_10to40_pm->GetBinError(i));
       h_vn_yCM_40to60_pm->SetBinContent(i, p_vn_yCM_40to60_pm->GetBinContent(i));
       h_vn_yCM_40to60_pm->SetBinError(i, p_vn_yCM_40to60_pm->GetBinError(i));
-      h_vn_yCM_00to60_pm->SetBinContent(i, p_vn_yCM_00to60_pm->GetBinContent(i));
-      h_vn_yCM_00to60_pm->SetBinError(i, p_vn_yCM_00to60_pm->GetBinError(i));
+      //h_vn_yCM_00to60_pm->SetBinContent(i, p_vn_yCM_00to60_pm->GetBinContent(i));
+      //h_vn_yCM_00to60_pm->SetBinError(i, p_vn_yCM_00to60_pm->GetBinError(i));
 
-      h_vn_yCM_00to10_kp->SetBinContent(i, p_vn_yCM_00to10_kp->GetBinContent(i));
-      h_vn_yCM_00to10_kp->SetBinError(i, p_vn_yCM_00to10_kp->GetBinError(i));
-      h_vn_yCM_10to40_kp->SetBinContent(i, p_vn_yCM_10to40_kp->GetBinContent(i));
-      h_vn_yCM_10to40_kp->SetBinError(i, p_vn_yCM_10to40_kp->GetBinError(i));
-      h_vn_yCM_40to60_kp->SetBinContent(i, p_vn_yCM_40to60_kp->GetBinContent(i));
-      h_vn_yCM_40to60_kp->SetBinError(i, p_vn_yCM_40to60_kp->GetBinError(i));
-      h_vn_yCM_00to60_kp->SetBinContent(i, p_vn_yCM_00to60_kp->GetBinContent(i));
-      h_vn_yCM_00to60_kp->SetBinError(i, p_vn_yCM_00to60_kp->GetBinError(i));
-
-      h_vn_yCM_00to10_km->SetBinContent(i, p_vn_yCM_00to10_km->GetBinContent(i));
-      h_vn_yCM_00to10_km->SetBinError(i, p_vn_yCM_00to10_km->GetBinError(i));
-      h_vn_yCM_10to40_km->SetBinContent(i, p_vn_yCM_10to40_km->GetBinContent(i));
-      h_vn_yCM_10to40_km->SetBinError(i, p_vn_yCM_10to40_km->GetBinError(i));
-      h_vn_yCM_40to60_km->SetBinContent(i, p_vn_yCM_40to60_km->GetBinContent(i));
-      h_vn_yCM_40to60_km->SetBinError(i, p_vn_yCM_40to60_km->GetBinError(i));
-      h_vn_yCM_00to60_km->SetBinContent(i, p_vn_yCM_00to60_km->GetBinContent(i));
-      h_vn_yCM_00to60_km->SetBinError(i, p_vn_yCM_00to60_km->GetBinError(i));
 
       h_vn_yCM_00to10_pr->SetBinContent(i, p_vn_yCM_00to10_pr->GetBinContent(i));
       h_vn_yCM_00to10_pr->SetBinError(i, p_vn_yCM_00to10_pr->GetBinError(i));
@@ -339,65 +707,44 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_yCM_10to40_pr->SetBinError(i, p_vn_yCM_10to40_pr->GetBinError(i));
       h_vn_yCM_40to60_pr->SetBinContent(i, p_vn_yCM_40to60_pr->GetBinContent(i));
       h_vn_yCM_40to60_pr->SetBinError(i, p_vn_yCM_40to60_pr->GetBinError(i));
-      h_vn_yCM_00to60_pr->SetBinContent(i, p_vn_yCM_00to60_pr->GetBinContent(i));
-      h_vn_yCM_00to60_pr->SetBinError(i, p_vn_yCM_00to60_pr->GetBinError(i));
+      //h_vn_yCM_00to60_pr->SetBinContent(i, p_vn_yCM_00to60_pr->GetBinContent(i));
+      //h_vn_yCM_00to60_pr->SetBinError(i, p_vn_yCM_00to60_pr->GetBinError(i));
 
 
       if(j != 0)
 	{
-	  h_vn_yCM_00to10_pp_mirror->SetBinContent(j, p_vn_yCM_00to10_pp->GetBinContent(i));
-	  h_vn_yCM_00to10_pp_mirror->SetBinError(j, p_vn_yCM_00to10_pp->GetBinError(i));
-	  h_vn_yCM_10to40_pp_mirror->SetBinContent(j, p_vn_yCM_10to40_pp->GetBinContent(i));
-	  h_vn_yCM_10to40_pp_mirror->SetBinError(j, p_vn_yCM_10to40_pp->GetBinError(i));
-	  h_vn_yCM_40to60_pp_mirror->SetBinContent(j, p_vn_yCM_40to60_pp->GetBinContent(i));
-	  h_vn_yCM_40to60_pp_mirror->SetBinError(j, p_vn_yCM_40to60_pp->GetBinError(i));
-	  h_vn_yCM_00to60_pp_mirror->SetBinContent(j, p_vn_yCM_00to60_pp->GetBinContent(i));
-	  h_vn_yCM_00to60_pp_mirror->SetBinError(j, p_vn_yCM_00to60_pp->GetBinError(i));
+	  h_vn_yCM_00to10_pp_mirror->SetBinContent(j, h_vn_yCM_00to10_pp->GetBinContent(i));
+	  h_vn_yCM_00to10_pp_mirror->SetBinError(j, h_vn_yCM_00to10_pp->GetBinError(i));
+	  h_vn_yCM_10to40_pp_mirror->SetBinContent(j, h_vn_yCM_10to40_pp->GetBinContent(i));
+	  h_vn_yCM_10to40_pp_mirror->SetBinError(j, h_vn_yCM_10to40_pp->GetBinError(i));
+	  h_vn_yCM_40to60_pp_mirror->SetBinContent(j, h_vn_yCM_40to60_pp->GetBinContent(i));
+	  h_vn_yCM_40to60_pp_mirror->SetBinError(j, h_vn_yCM_40to60_pp->GetBinError(i));
+	  //h_vn_yCM_00to60_pp_mirror->SetBinContent(j, h_vn_yCM_00to60_pp->GetBinContent(i));
+	  //h_vn_yCM_00to60_pp_mirror->SetBinError(j, h_vn_yCM_00to60_pp->GetBinError(i));
 
-	  h_vn_yCM_00to10_pm_mirror->SetBinContent(j, p_vn_yCM_00to10_pm->GetBinContent(i));
-	  h_vn_yCM_00to10_pm_mirror->SetBinError(j, p_vn_yCM_00to10_pm->GetBinError(i));
-	  h_vn_yCM_10to40_pm_mirror->SetBinContent(j, p_vn_yCM_10to40_pm->GetBinContent(i));
-	  h_vn_yCM_10to40_pm_mirror->SetBinError(j, p_vn_yCM_10to40_pm->GetBinError(i));
-	  h_vn_yCM_40to60_pm_mirror->SetBinContent(j, p_vn_yCM_40to60_pm->GetBinContent(i));
-	  h_vn_yCM_40to60_pm_mirror->SetBinError(j, p_vn_yCM_40to60_pm->GetBinError(i));
-	  h_vn_yCM_00to60_pm_mirror->SetBinContent(j, p_vn_yCM_00to60_pm->GetBinContent(i));
-	  h_vn_yCM_00to60_pm_mirror->SetBinError(j, p_vn_yCM_00to60_pm->GetBinError(i));
+	  h_vn_yCM_00to10_pm_mirror->SetBinContent(j, h_vn_yCM_00to10_pm->GetBinContent(i));
+	  h_vn_yCM_00to10_pm_mirror->SetBinError(j, h_vn_yCM_00to10_pm->GetBinError(i));
+	  h_vn_yCM_10to40_pm_mirror->SetBinContent(j, h_vn_yCM_10to40_pm->GetBinContent(i));
+	  h_vn_yCM_10to40_pm_mirror->SetBinError(j, h_vn_yCM_10to40_pm->GetBinError(i));
+	  h_vn_yCM_40to60_pm_mirror->SetBinContent(j, h_vn_yCM_40to60_pm->GetBinContent(i));
+	  h_vn_yCM_40to60_pm_mirror->SetBinError(j, h_vn_yCM_40to60_pm->GetBinError(i));
+	  //h_vn_yCM_00to60_pm_mirror->SetBinContent(j, h_vn_yCM_00to60_pm->GetBinContent(i));
+	  //h_vn_yCM_00to60_pm_mirror->SetBinError(j, h_vn_yCM_00to60_pm->GetBinError(i));
 
-	  h_vn_yCM_00to10_kp_mirror->SetBinContent(j, p_vn_yCM_00to10_kp->GetBinContent(i));
-	  h_vn_yCM_00to10_kp_mirror->SetBinError(j, p_vn_yCM_00to10_kp->GetBinError(i));
-	  h_vn_yCM_10to40_kp_mirror->SetBinContent(j, p_vn_yCM_10to40_kp->GetBinContent(i));
-	  h_vn_yCM_10to40_kp_mirror->SetBinError(j, p_vn_yCM_10to40_kp->GetBinError(i));
-	  h_vn_yCM_40to60_kp_mirror->SetBinContent(j, p_vn_yCM_40to60_kp->GetBinContent(i));
-	  h_vn_yCM_40to60_kp_mirror->SetBinError(j, p_vn_yCM_40to60_kp->GetBinError(i));
-	  h_vn_yCM_00to60_kp_mirror->SetBinContent(j, p_vn_yCM_00to60_kp->GetBinContent(i));
-	  h_vn_yCM_00to60_kp_mirror->SetBinError(j, p_vn_yCM_00to60_kp->GetBinError(i));
 
-	  h_vn_yCM_00to10_km_mirror->SetBinContent(j, p_vn_yCM_00to10_km->GetBinContent(i));
-	  h_vn_yCM_00to10_km_mirror->SetBinError(j, p_vn_yCM_00to10_km->GetBinError(i));
-	  h_vn_yCM_10to40_km_mirror->SetBinContent(j, p_vn_yCM_10to40_km->GetBinContent(i));
-	  h_vn_yCM_10to40_km_mirror->SetBinError(j, p_vn_yCM_10to40_km->GetBinError(i));
-	  h_vn_yCM_40to60_km_mirror->SetBinContent(j, p_vn_yCM_40to60_km->GetBinContent(i));
-	  h_vn_yCM_40to60_km_mirror->SetBinError(j, p_vn_yCM_40to60_km->GetBinError(i));
-	  h_vn_yCM_00to60_km_mirror->SetBinContent(j, p_vn_yCM_00to60_km->GetBinContent(i));
-	  h_vn_yCM_00to60_km_mirror->SetBinError(j, p_vn_yCM_00to60_km->GetBinError(i));
-
-	  h_vn_yCM_00to10_pr_mirror->SetBinContent(j, p_vn_yCM_00to10_pr->GetBinContent(i));
-	  h_vn_yCM_00to10_pr_mirror->SetBinError(j, p_vn_yCM_00to10_pr->GetBinError(i));
-	  h_vn_yCM_10to40_pr_mirror->SetBinContent(j, p_vn_yCM_10to40_pr->GetBinContent(i));
-	  h_vn_yCM_10to40_pr_mirror->SetBinError(j, p_vn_yCM_10to40_pr->GetBinError(i));
-	  h_vn_yCM_40to60_pr_mirror->SetBinContent(j, p_vn_yCM_40to60_pr->GetBinContent(i));
-	  h_vn_yCM_40to60_pr_mirror->SetBinError(j, p_vn_yCM_40to60_pr->GetBinError(i));
-	  h_vn_yCM_00to60_pr_mirror->SetBinContent(j, p_vn_yCM_00to60_pr->GetBinContent(i));
-	  h_vn_yCM_00to60_pr_mirror->SetBinError(j, p_vn_yCM_00to60_pr->GetBinError(i));
+	  h_vn_yCM_00to10_pr_mirror->SetBinContent(j, h_vn_yCM_00to10_pr->GetBinContent(i));
+	  h_vn_yCM_00to10_pr_mirror->SetBinError(j, h_vn_yCM_00to10_pr->GetBinError(i));
+	  h_vn_yCM_10to40_pr_mirror->SetBinContent(j, h_vn_yCM_10to40_pr->GetBinContent(i));
+	  h_vn_yCM_10to40_pr_mirror->SetBinError(j, h_vn_yCM_10to40_pr->GetBinError(i));
+	  h_vn_yCM_40to60_pr_mirror->SetBinContent(j, h_vn_yCM_40to60_pr->GetBinContent(i));
+	  h_vn_yCM_40to60_pr_mirror->SetBinError(j, h_vn_yCM_40to60_pr->GetBinError(i));
+	  //h_vn_yCM_00to60_pr_mirror->SetBinContent(j, h_vn_yCM_00to60_pr->GetBinContent(i));
+	  //h_vn_yCM_00to60_pr_mirror->SetBinError(j, h_vn_yCM_00to60_pr->GetBinError(i));
 	}
     }
 
+
   /*
-  TFile *resolutionInfo_INPUT = TFile::Open("resolutionInfo_INPUT.root", "READ");
-  if(!resolutionInfo_INPUT) { cout << "No resolution file found!" << endl; return; }
-
-  TH1D *h_resolutions = (TH1D*)resolutionInfo_INPUT->Get("h_resolutions");
-
   h_vn_EpdE->Divide(h_vn_EpdE, h_resolutions);
   h_vn_EpdF->Divide(h_vn_EpdF, h_resolutions);
   h_vn_TpcB->Divide(h_vn_TpcB, h_resolutions);
@@ -432,11 +779,11 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_pm_flip->GetXaxis()->SetTitle((TString)h_vn_pm->GetXaxis()->GetTitle()+" (%)");
   h_vn_pm_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pm->GetYaxis()->GetTitle());
 
-  TH1D *h_vn_kp_flip = new TH1D("h_vn_kp_flip",h_vn_kp->GetTitle(),centBins,0,centBins);
+  TH1D *h_vn_kp_flip = new TH1D("h_vn_kp_flip",h_vn_kp->GetTitle(),centBins / 2,0,centBins);
   h_vn_kp_flip->GetXaxis()->SetTitle((TString)h_vn_kp->GetXaxis()->GetTitle()+" (%)");
   h_vn_kp_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_kp->GetYaxis()->GetTitle());
 
-  TH1D *h_vn_km_flip = new TH1D("h_vn_km_flip",h_vn_km->GetTitle(),centBins,0,centBins);
+  TH1D *h_vn_km_flip = new TH1D("h_vn_km_flip",h_vn_km->GetTitle(),centBins / 2,0,centBins);
   h_vn_km_flip->GetXaxis()->SetTitle((TString)h_vn_km->GetXaxis()->GetTitle()+" (%)");
   h_vn_km_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_km->GetYaxis()->GetTitle());
 
@@ -453,11 +800,11 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_pm_ext_flip->GetXaxis()->SetTitle((TString)h_vn_pm_ext->GetXaxis()->GetTitle()+" (%)");
   h_vn_pm_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pm_ext->GetYaxis()->GetTitle());
 
-  TH1D *h_vn_kp_ext_flip = new TH1D("h_vn_kp_ext_flip",h_vn_kp_ext->GetTitle(),centBins,0,centBins);
+  TH1D *h_vn_kp_ext_flip = new TH1D("h_vn_kp_ext_flip",h_vn_kp_ext->GetTitle(),centBins / 2,0,centBins);
   h_vn_kp_ext_flip->GetXaxis()->SetTitle((TString)h_vn_kp_ext->GetXaxis()->GetTitle()+" (%)");
   h_vn_kp_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_kp_ext->GetYaxis()->GetTitle());
 
-  TH1D *h_vn_km_ext_flip = new TH1D("h_vn_km_ext_flip",h_vn_km_ext->GetTitle(),centBins,0,centBins);
+  TH1D *h_vn_km_ext_flip = new TH1D("h_vn_km_ext_flip",h_vn_km_ext->GetTitle(),centBins / 2,0,centBins);
   h_vn_km_ext_flip->GetXaxis()->SetTitle((TString)h_vn_km_ext->GetXaxis()->GetTitle()+" (%)");
   h_vn_km_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_km_ext->GetYaxis()->GetTitle());
 
@@ -476,6 +823,24 @@ void coefficients(TString jobID, TString order_n_str)
 
   // Flip the bin contents into the new histograms
   int j = 1;
+  for (int i = centBins / 2; i >= 1; i--)     // KAONS
+    {
+      h_vn_kp_flip->SetBinContent(j, h_vn_kp->GetBinContent(i));
+      h_vn_kp_flip->SetBinError(j, h_vn_kp->GetBinError(i));
+
+      h_vn_km_flip->SetBinContent(j, h_vn_km->GetBinContent(i));
+      h_vn_km_flip->SetBinError(j, h_vn_km->GetBinError(i));
+
+      h_vn_kp_ext_flip->SetBinContent(j, h_vn_kp_ext->GetBinContent(i));
+      h_vn_kp_ext_flip->SetBinError(j, h_vn_kp_ext->GetBinError(i));
+
+      h_vn_km_ext_flip->SetBinContent(j, h_vn_km_ext->GetBinContent(i));
+      h_vn_km_ext_flip->SetBinError(j, h_vn_km_ext->GetBinError(i));
+
+      j++;
+    }
+
+  j = 1;
   for (int i = centBins; i >= 1; i--)
     {
       h_vn_EpdE_flip->SetBinContent(j, h_vn_EpdE->GetBinContent(i));
@@ -493,11 +858,6 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_pm_flip->SetBinContent(j, h_vn_pm->GetBinContent(i));
       h_vn_pm_flip->SetBinError(j, h_vn_pm->GetBinError(i));
 
-      h_vn_kp_flip->SetBinContent(j, h_vn_kp->GetBinContent(i));
-      h_vn_kp_flip->SetBinError(j, h_vn_kp->GetBinError(i));
-
-      h_vn_km_flip->SetBinContent(j, h_vn_km->GetBinContent(i));
-      h_vn_km_flip->SetBinError(j, h_vn_km->GetBinError(i));
 
       h_vn_pr_flip->SetBinContent(j, h_vn_pr->GetBinContent(i));
       h_vn_pr_flip->SetBinError(j, h_vn_pr->GetBinError(i));
@@ -509,11 +869,6 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_pm_ext_flip->SetBinContent(j, h_vn_pm_ext->GetBinContent(i));
       h_vn_pm_ext_flip->SetBinError(j, h_vn_pm_ext->GetBinError(i));
 
-      h_vn_kp_ext_flip->SetBinContent(j, h_vn_kp_ext->GetBinContent(i));
-      h_vn_kp_ext_flip->SetBinError(j, h_vn_kp_ext->GetBinError(i));
-
-      h_vn_km_ext_flip->SetBinContent(j, h_vn_km_ext->GetBinContent(i));
-      h_vn_km_ext_flip->SetBinError(j, h_vn_km_ext->GetBinError(i));
 
       h_vn_pr_ext_flip->SetBinContent(j, h_vn_pr_ext->GetBinContent(i));
       h_vn_pr_ext_flip->SetBinError(j, h_vn_pr_ext->GetBinError(i));
@@ -549,14 +904,29 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *vn_TpcB = new TH1D("vn_TpcB", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_pp = new TH1D("vn_pp", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_pm = new TH1D("vn_pm", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_kp = new TH1D("vn_kp", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_km = new TH1D("vn_km", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
+  TH1D *vn_kp = new TH1D("vn_kp", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
+  TH1D *vn_km = new TH1D("vn_km", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
   TH1D *vn_pr = new TH1D("vn_pr", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_pp_ext = new TH1D("vn_pp_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_pm_ext = new TH1D("vn_pm_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_kp_ext = new TH1D("vn_kp_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_km_ext = new TH1D("vn_km_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
+  TH1D *vn_kp_ext = new TH1D("vn_kp_ext", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
+  TH1D *vn_km_ext = new TH1D("vn_km_ext", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
   TH1D *vn_pr_ext = new TH1D("vn_pr_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
+
+  for (int i = 1; i <= 6; i++)     // KAONS
+    {
+      vn_kp->SetBinContent(i, h_vn_kp_flip->GetBinContent(i));
+      vn_kp->SetBinError(i, h_vn_kp_flip->GetBinError(i));
+
+      vn_km->SetBinContent(i, h_vn_km_flip->GetBinContent(i));
+      vn_km->SetBinError(i, h_vn_km_flip->GetBinError(i));
+
+      vn_kp_ext->SetBinContent(i, h_vn_kp_ext_flip->GetBinContent(i));
+      vn_kp_ext->SetBinError(i, h_vn_kp_ext_flip->GetBinError(i));
+
+      vn_km_ext->SetBinContent(i, h_vn_km_ext_flip->GetBinContent(i));
+      vn_km_ext->SetBinError(i, h_vn_km_ext_flip->GetBinError(i));
+    }
 
   for (int i = 1; i <= 12; i++)
     {
@@ -575,11 +945,7 @@ void coefficients(TString jobID, TString order_n_str)
       vn_pm->SetBinContent(i, h_vn_pm_flip->GetBinContent(i));
       vn_pm->SetBinError(i, h_vn_pm_flip->GetBinError(i));
 
-      vn_kp->SetBinContent(i, h_vn_kp_flip->GetBinContent(i));
-      vn_kp->SetBinError(i, h_vn_kp_flip->GetBinError(i));
-
-      vn_km->SetBinContent(i, h_vn_km_flip->GetBinContent(i));
-      vn_km->SetBinError(i, h_vn_km_flip->GetBinError(i));
+      
 
       vn_pr->SetBinContent(i, h_vn_pr_flip->GetBinContent(i));
       vn_pr->SetBinError(i, h_vn_pr_flip->GetBinError(i));
@@ -590,17 +956,14 @@ void coefficients(TString jobID, TString order_n_str)
       vn_pm_ext->SetBinContent(i, h_vn_pm_ext_flip->GetBinContent(i));
       vn_pm_ext->SetBinError(i, h_vn_pm_ext_flip->GetBinError(i));
 
-      vn_kp_ext->SetBinContent(i, h_vn_kp_ext_flip->GetBinContent(i));
-      vn_kp_ext->SetBinError(i, h_vn_kp_ext_flip->GetBinError(i));
-
-      vn_km_ext->SetBinContent(i, h_vn_km_ext_flip->GetBinContent(i));
-      vn_km_ext->SetBinError(i, h_vn_km_ext_flip->GetBinError(i));
+      
 
       vn_pr_ext->SetBinContent(i, h_vn_pr_ext_flip->GetBinContent(i));
       vn_pr_ext->SetBinError(i, h_vn_pr_ext_flip->GetBinError(i));
-}
+    }
   
 
+  
   THStack *piCentralityStack = new THStack("piCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
   THStack *kaCentralityStack = new THStack("kaCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
 
@@ -698,28 +1061,18 @@ void coefficients(TString jobID, TString order_n_str)
 
   vn_pp_ext->SetMarkerStyle(20);
   vn_pp_ext->SetMarkerSize(2);
-  vn_pp_ext->SetMarkerColor(kOrange+7);
-  vn_pp_ext->SetLineColor(kOrange+7);
 
   vn_pm_ext->SetMarkerStyle(20);
   vn_pm_ext->SetMarkerSize(2);
-  vn_pm_ext->SetMarkerColor(kOrange+7);
-  vn_pm_ext->SetLineColor(kOrange+7);
 
   vn_kp_ext->SetMarkerStyle(20);
   vn_kp_ext->SetMarkerSize(2);
-  vn_kp_ext->SetMarkerColor(kOrange+7);
-  vn_kp_ext->SetLineColor(kOrange+7);
 
   vn_km_ext->SetMarkerStyle(20);
   vn_km_ext->SetMarkerSize(2);
-  vn_km_ext->SetMarkerColor(kOrange+7);
-  vn_km_ext->SetLineColor(kOrange+7);
 
   vn_pr_ext->SetMarkerStyle(20);
   vn_pr_ext->SetMarkerSize(2);
-  vn_pr_ext->SetMarkerColor(kOrange+7);
-  vn_pr_ext->SetLineColor(kOrange+7);
 
   
   vn_EpdE->SetMarkerStyle(20);
@@ -938,47 +1291,30 @@ void coefficients(TString jobID, TString order_n_str)
   etaRegionStack->Add(vn_TpcB);
 
 
-  ppRapidityStack->Add(h_vn_yCM_00to10_pp);
-  ppRapidityStack->Add(h_vn_yCM_00to10_pp_mirror);
-  ppRapidityStack->Add(h_vn_yCM_10to40_pp);
-  ppRapidityStack->Add(h_vn_yCM_10to40_pp_mirror);
-  ppRapidityStack->Add(h_vn_yCM_40to60_pp);
-  ppRapidityStack->Add(h_vn_yCM_40to60_pp_mirror);
-
-  pmRapidityStack->Add(h_vn_yCM_00to10_pm);
-  pmRapidityStack->Add(h_vn_yCM_00to10_pm_mirror);
-  pmRapidityStack->Add(h_vn_yCM_10to40_pm);
-  pmRapidityStack->Add(h_vn_yCM_10to40_pm_mirror);
-  pmRapidityStack->Add(h_vn_yCM_40to60_pm);
-  pmRapidityStack->Add(h_vn_yCM_40to60_pm_mirror);
-
-  kpRapidityStack->Add(h_vn_yCM_00to10_kp);
-  kpRapidityStack->Add(h_vn_yCM_00to10_kp_mirror);
-  kpRapidityStack->Add(h_vn_yCM_10to40_kp);
-  kpRapidityStack->Add(h_vn_yCM_10to40_kp_mirror);
-  kpRapidityStack->Add(h_vn_yCM_40to60_kp);
-  kpRapidityStack->Add(h_vn_yCM_40to60_kp_mirror);
-  /*
-  if (order_n_str == "3")
-    {
-      h_vn_yCM_10to40_km->Rebin(2);
-      h_vn_yCM_10to40_km_mirror->Rebin(2);
-    }
-  */
-  //kmRapidityStack->Add(h_vn_yCM_00to10_km);
-  kmRapidityStack->Add(h_vn_yCM_10to40_km);
-  kmRapidityStack->Add(h_vn_yCM_10to40_km_mirror);
-  //kmRapidityStack->Add(h_vn_yCM_40to60_km);
-
-  prRapidityStack->Add(h_vn_yCM_00to10_pr);
-  prRapidityStack->Add(h_vn_yCM_00to10_pr_mirror);
-  prRapidityStack->Add(h_vn_yCM_10to40_pr);
-  prRapidityStack->Add(h_vn_yCM_10to40_pr_mirror);
-  prRapidityStack->Add(h_vn_yCM_40to60_pr);
-  prRapidityStack->Add(h_vn_yCM_40to60_pr_mirror);
 
   if (order_n_str == "2")
     {
+      ppRapidityStack->Add(h_vn_yCM_00to10_pp);
+      ppRapidityStack->Add(h_vn_yCM_10to40_pp);
+      ppRapidityStack->Add(h_vn_yCM_40to60_pp);
+
+      pmRapidityStack->Add(h_vn_yCM_00to10_pm);
+      pmRapidityStack->Add(h_vn_yCM_10to40_pm);
+      pmRapidityStack->Add(h_vn_yCM_40to60_pm);
+
+      kpRapidityStack->Add(h_vn_yCM_00to10_kp);
+      kpRapidityStack->Add(h_vn_yCM_10to40_kp);
+      kpRapidityStack->Add(h_vn_yCM_40to60_kp);
+
+      //kmRapidityStack->Add(h_vn_yCM_00to10_km);
+      kmRapidityStack->Add(h_vn_yCM_10to40_km);
+      //kmRapidityStack->Add(h_vn_yCM_40to60_km);
+
+      prRapidityStack->Add(h_vn_yCM_00to10_pr);
+      prRapidityStack->Add(h_vn_yCM_10to40_pr);
+      prRapidityStack->Add(h_vn_yCM_40to60_pr);
+
+
       TLegend *piLegend = new TLegend(0.775, 0.7, 0.9, 0.85);
       piLegend->AddEntry(vn_pp,"#pi^{+}");
       piLegend->AddEntry(vn_pm,"#pi^{-}");
@@ -1369,6 +1705,39 @@ void coefficients(TString jobID, TString order_n_str)
     }
   else if (order_n_str == "3")
     {
+      ppRapidityStack->Add(h_vn_yCM_00to10_pp);
+      //ppRapidityStack->Add(h_vn_yCM_00to10_pp_mirror);
+      ppRapidityStack->Add(h_vn_yCM_10to40_pp);
+      //ppRapidityStack->Add(h_vn_yCM_10to40_pp_mirror);
+      ppRapidityStack->Add(h_vn_yCM_40to60_pp);
+      //ppRapidityStack->Add(h_vn_yCM_40to60_pp_mirror);
+
+      pmRapidityStack->Add(h_vn_yCM_00to10_pm);
+      //pmRapidityStack->Add(h_vn_yCM_00to10_pm_mirror);
+      pmRapidityStack->Add(h_vn_yCM_10to40_pm);
+      //pmRapidityStack->Add(h_vn_yCM_10to40_pm_mirror);
+      pmRapidityStack->Add(h_vn_yCM_40to60_pm);
+      //pmRapidityStack->Add(h_vn_yCM_40to60_pm_mirror);
+
+      kpRapidityStack->Add(h_vn_yCM_00to10_kp);
+      //kpRapidityStack->Add(h_vn_yCM_00to10_kp_mirror);
+      kpRapidityStack->Add(h_vn_yCM_10to40_kp);
+      //kpRapidityStack->Add(h_vn_yCM_10to40_kp_mirror);
+      kpRapidityStack->Add(h_vn_yCM_40to60_kp);
+      //kpRapidityStack->Add(h_vn_yCM_40to60_kp_mirror);
+
+      //kmRapidityStack->Add(h_vn_yCM_00to10_km);
+      kmRapidityStack->Add(h_vn_yCM_10to40_km);
+      //kmRapidityStack->Add(h_vn_yCM_10to40_km_mirror);
+      //kmRapidityStack->Add(h_vn_yCM_40to60_km);
+
+      prRapidityStack->Add(h_vn_yCM_00to10_pr);
+      //prRapidityStack->Add(h_vn_yCM_00to10_pr_mirror);
+      prRapidityStack->Add(h_vn_yCM_10to40_pr);
+      //prRapidityStack->Add(h_vn_yCM_10to40_pr_mirror);
+      prRapidityStack->Add(h_vn_yCM_40to60_pr);
+      //prRapidityStack->Add(h_vn_yCM_40to60_pr_mirror);
+
       TLegend *piLegend = new TLegend(0.67, 0.71, 0.805, 0.87);
       piLegend->AddEntry(vn_pp,"#pi^{+}");
       piLegend->AddEntry(vn_pm,"#pi^{-}");
@@ -1637,7 +2006,7 @@ void coefficients(TString jobID, TString order_n_str)
       prExtCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       prExtCentralityStack->GetXaxis()->SetNdivisions(210);
       prExtCentralityStack->SetMaximum(0.01);
-      prExtCentralityStack->SetMinimum(-0.05);
+      prExtCentralityStack->SetMinimum(-0.08);
       prExtCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
       prExtLegend->Draw();
