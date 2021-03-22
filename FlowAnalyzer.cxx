@@ -47,7 +47,7 @@
 //=========================================================
 //          SOME CONTROLS
 //=========================================================
-const Double_t ORDER_N = 2.0;          // Order of anisotropic flow (v_n)
+const Double_t ORDER_N = 3.0;          // Order of anisotropic flow (v_n)
 TString ORDER_N_STR;                   // ORDER_N but as a TString for titles/labels
 
 const Double_t ORDER_M = 1.0;          // Order of event plane angle (psi_m)
@@ -65,9 +65,9 @@ const Double_t AGAP_TPC_ETA_CUT = -1.1;//-1.6;
 const Double_t GAPB_TPC_ETA_CUT = -1.0;//-0.5;
 const Double_t MAX_TPC_ETA_CUT = 0.0;
 
-const Double_t R_VTX_CUT = 2.0;         // 2D radius, good vertices are within this value
-const Double_t Z_VTX_CUT_LOW  = 199.5;
-const Double_t Z_VTX_CUT_HIGH = 201.5;
+const Double_t R_VTX_CUT = 1.5;         // 2D radius, good vertices are within this value
+const Double_t Z_VTX_CUT_LOW  = 198;
+const Double_t Z_VTX_CUT_HIGH = 202;
 
 const Int_t MIN_TRACKS = 5;             // Min number of tracks/hits in each sub-event
 
@@ -351,7 +351,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
   h_eventCheck->SetStats(0);
 
   TH1D *h_trackCheck = new TH1D("h_trackCheck","Track number after each cut;;Tracks", 4, 0, 4);
-  const char *trackSections[4] = {"Event cuts only", "QA Cuts", "TOF #beta cut", "PID cuts"};  
+  const char *trackSections[3] = {"Event cuts only", "QA Cuts", "PID cuts"};  
   h_trackCheck->SetStats(0);
 
   TH1D *h_eventCheck_EpdF = new TH1D("h_eventCheck_EpdF","EPD F Event Number;;Events", 2, 0, 2);
@@ -419,6 +419,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TProfile *p_vn_TpcA = new TProfile("p_vn_TpcA", "v_{"+ORDER_N_STR+"} by Centrality (TPC A);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
   TProfile *p_vn_TpcB = new TProfile("p_vn_TpcB", "v_{"+ORDER_N_STR+"} by Centrality (TPC B);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  TProfile *p_vn_Tpc = new TProfile("p_vn_Tpc", "v_{"+ORDER_N_STR+"} by Centrality (All TPC Tracks);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
 
   TProfile *p_vn_pp = new TProfile("p_vn_pp", "#pi^{+} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
@@ -718,7 +720,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
       h_eventCheck->Fill(eventSections[1], 1);
             
       //=========================================================
-      //          Z-VTX Selection
+      //          VTX Selection
       //=========================================================
       // Fill vertex coordinates and check the z-vertex position
 
@@ -743,7 +745,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
       h2_trans_vtx_cut->Fill(d_xvtx, d_yvtx);
       //=========================================================
-      //      END Z-VTX Selection
+      //      END VTX Selection
       //=========================================================
 
       h_eventCheck->Fill(eventSections[2], 1);
@@ -861,8 +863,6 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      //          End TOF Beta Cuts
 	      //=========================================================
 
-	      h_trackCheck->Fill(trackSections[2], 1);
-
 
 	      // Fill histos and save important event info in the custom struct type
 
@@ -908,7 +908,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	      //          END PID Cuts
 	      //=========================================================
 
-	      if (pion || kaon || proton) h_trackCheck->Fill(trackSections[3], 1);
+	      if (pion || kaon || proton) h_trackCheck->Fill(trackSections[2], 1);
 
 	      Double_t d_m0_pi = 0.1396;   //Rest masses
 	      Double_t d_m0_ka = 0.4937;
@@ -923,7 +923,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pp->Fill(d_rapidity - Y_MID, d_pT);
 			  
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.633)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.6/*1.633*/)
 			{
 			  particleInfo.ppTag = true;
 			  particleInfo.phi = d_phi;
@@ -942,7 +942,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pm->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.633)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.18 && d_pT <= 1.6/*1.633*/)
 			{
 			  particleInfo.pmTag = true;
 			  particleInfo.phi = d_phi;
@@ -964,7 +964,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_kp->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.62)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.6/*1.62*/)
 			{
 			  particleInfo.kpTag = true;
 			  particleInfo.phi = d_phi;
@@ -983,7 +983,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.62)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 1.6/*1.62*/)
 			{
 			  particleInfo.kmTag = true;
 			  particleInfo.phi = d_phi;
@@ -1005,7 +1005,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 2.0314)
+		      if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 2.0/*2.0314*/)
 			{
 			  particleInfo.prTag = true;
 			  particleInfo.phi = d_phi;
@@ -1397,6 +1397,9 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		{
 		  jthPhi = eventInfo.tpcParticles.at(j).phi;
 		  jthRapidity = eventInfo.tpcParticles.at(j).rapidity;
+
+		  // ALL CHARGED TRACKS
+		  p_vn_Tpc->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
 
 		  // v2 from TPC B and relative jthPhi angles for dN/dphi fitting
 		  if (eventInfo.tpcParticles.at(j).isInTpcB)
