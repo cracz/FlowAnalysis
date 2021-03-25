@@ -26,12 +26,13 @@ void coefficients(TString jobID, TString order_n_str)
 
   TFile *file = TFile::Open(fileName);
   if(!file) {cout << "Wrong file!" << endl; return;}
-
+  /*
   TFile *resolutionInfo_INPUT = TFile::Open("resolutionInfo_INPUT.root", "READ");
   if(!resolutionInfo_INPUT) { cout << "No resolution file found!" << endl; return; }
 
   TH1D *h_resolutions = (TH1D*)resolutionInfo_INPUT->Get("h_resolutions");
   TH2D *h2_resolutions = (TH2D*)resolutionInfo_INPUT->Get("h2_resolutions");
+  */
   /*
   Double_t resolutionIDs[16] = {};
   Double_t resolutionIDsError[16] = {};
@@ -161,6 +162,7 @@ void coefficients(TString jobID, TString order_n_str)
   TProfile *p_vn_EpdE = (TProfile*)file->Get("p_vn_EpdE");
   TProfile *p_vn_EpdF = (TProfile*)file->Get("p_vn_EpdF");
   TProfile *p_vn_TpcB = (TProfile*)file->Get("p_vn_TpcB");
+  TProfile *p_vn_Tpc = (TProfile*)file->Get("p_vn_Tpc_pT_0p2to2");
   TProfile *p_vn_pp = (TProfile*)file->Get("p_vn_pp");
   TProfile *p_vn_pm = (TProfile*)file->Get("p_vn_pm");
   TProfile *p_vn_kp = (TProfile*)file->Get("p_vn_kp");
@@ -500,6 +502,7 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_EpdE = new TH1D("h_vn_EpdE", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
   TH1D *h_vn_EpdF = new TH1D("h_vn_EpdF", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
   TH1D *h_vn_TpcB = new TH1D("h_vn_TpcB", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
+  TH1D *h_vn_Tpc = new TH1D("h_vn_Tpc", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
   TH1D *h_vn_pp = new TH1D("h_vn_pp", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
   TH1D *h_vn_pm = new TH1D("h_vn_pm", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
   TH1D *h_vn_kp = new TH1D("h_vn_kp", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
@@ -586,6 +589,9 @@ void coefficients(TString jobID, TString order_n_str)
 
       h_vn_TpcB->SetBinContent(i, p_vn_TpcB->GetBinContent(i));
       h_vn_TpcB->SetBinError(i, p_vn_TpcB->GetBinError(i));
+
+      h_vn_Tpc->SetBinContent(i, p_vn_Tpc->GetBinContent(i));
+      h_vn_Tpc->SetBinError(i, p_vn_Tpc->GetBinError(i));
 
       h_vn_pp->SetBinContent(i, p_vn_pp->GetBinContent(i));
       h_vn_pp->SetBinError(i, p_vn_pp->GetBinError(i));
@@ -770,7 +776,11 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_TpcB_flip = new TH1D("h_vn_TpcB_flip",h_vn_TpcB->GetTitle(),centBins,0,centBins);
   h_vn_TpcB_flip->GetXaxis()->SetTitle((TString)h_vn_TpcB->GetXaxis()->GetTitle()+" (%)");
   h_vn_TpcB_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_TpcB->GetYaxis()->GetTitle());
-  
+
+  TH1D *h_vn_Tpc_flip = new TH1D("h_vn_Tpc_flip",h_vn_Tpc->GetTitle(),centBins,0,centBins);
+  h_vn_Tpc_flip->GetXaxis()->SetTitle((TString)h_vn_Tpc->GetXaxis()->GetTitle()+" (%)");
+  h_vn_Tpc_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_Tpc->GetYaxis()->GetTitle());
+
   TH1D *h_vn_pp_flip = new TH1D("h_vn_pp_flip",h_vn_pp->GetTitle(),centBins,0,centBins);
   h_vn_pp_flip->GetXaxis()->SetTitle((TString)h_vn_pp->GetXaxis()->GetTitle()+" (%)");
   h_vn_pp_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pp->GetYaxis()->GetTitle());
@@ -852,6 +862,9 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_TpcB_flip->SetBinContent(j, h_vn_TpcB->GetBinContent(i));
       h_vn_TpcB_flip->SetBinError(j, h_vn_TpcB->GetBinError(i));
 
+      h_vn_Tpc_flip->SetBinContent(j, h_vn_Tpc->GetBinContent(i));
+      h_vn_Tpc_flip->SetBinError(j, h_vn_Tpc->GetBinError(i));
+
       h_vn_pp_flip->SetBinContent(j, h_vn_pp->GetBinContent(i));
       h_vn_pp_flip->SetBinError(j, h_vn_pp->GetBinError(i));
 
@@ -902,6 +915,7 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *vn_EpdE = new TH1D("vn_EpdE", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_EpdF = new TH1D("vn_EpdF", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_TpcB = new TH1D("vn_TpcB", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
+  TH1D *vn_Tpc = new TH1D("vn_Tpc", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_pp = new TH1D("vn_pp", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_pm = new TH1D("vn_pm", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
   TH1D *vn_kp = new TH1D("vn_kp", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
@@ -938,6 +952,9 @@ void coefficients(TString jobID, TString order_n_str)
 
       vn_TpcB->SetBinContent(i, h_vn_TpcB_flip->GetBinContent(i));
       vn_TpcB->SetBinError(i, h_vn_TpcB_flip->GetBinError(i));
+
+      vn_Tpc->SetBinContent(i, h_vn_Tpc_flip->GetBinContent(i));
+      vn_Tpc->SetBinError(i, h_vn_Tpc_flip->GetBinError(i));
 
       vn_pp->SetBinContent(i, h_vn_pp_flip->GetBinContent(i));
       vn_pp->SetBinError(i, h_vn_pp_flip->GetBinError(i));
@@ -1090,6 +1107,10 @@ void coefficients(TString jobID, TString order_n_str)
   vn_TpcB->SetMarkerColor(8);
   vn_TpcB->SetLineColor(8);
 
+  vn_Tpc->SetMarkerStyle(20);
+  vn_Tpc->SetMarkerSize(2);
+  //vn_Tpc->SetMarkerColor(8);
+  //vn_Tpc->SetLineColor(8);
 
   h_vn_yCM_00to10_pp->SetMarkerStyle(20);
   h_vn_yCM_10to40_pp->SetMarkerStyle(20);
@@ -1546,6 +1567,15 @@ void coefficients(TString jobID, TString order_n_str)
       canvas->SaveAs(jobID + "_vn_TpcB.png");
       canvas->Clear();
 
+      vn_Tpc->SetMarkerStyle(20);
+      vn_Tpc->SetMarkerSize(2);
+      vn_Tpc->GetXaxis()->SetNdivisions(210);
+      vn_Tpc->GetYaxis()->SetTitleOffset(1.7);
+      //vn_Tpc->SetMaximum(0.002);
+      vn_Tpc->Draw("E1P");
+      zeroLine->Draw("SAME");
+      canvas->SaveAs(jobID + "_vn_Tpc.png");
+      canvas->Clear();
 
 
       ppExtCentralityStack->Draw();
@@ -1901,7 +1931,7 @@ void coefficients(TString jobID, TString order_n_str)
       kaCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       kaCentralityStack->GetXaxis()->SetNdivisions(210);
       kaCentralityStack->SetMaximum(0.2);
-      kaCentralityStack->SetMinimum(-0.2);
+      kaCentralityStack->SetMinimum(-0.15);
       kaCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
       kaLegend->Draw();
@@ -1951,6 +1981,16 @@ void coefficients(TString jobID, TString order_n_str)
       vn_TpcB->SetMinimum(-0.03);
       zeroLine->Draw("SAME");
       canvas->SaveAs(jobID + "_vn_TpcB.png");
+      canvas->Clear();
+
+      vn_Tpc->SetMarkerStyle(20);
+      vn_Tpc->SetMarkerSize(2);
+      vn_Tpc->GetXaxis()->SetNdivisions(210);
+      vn_Tpc->GetYaxis()->SetTitleOffset(1.7);
+      vn_Tpc->SetMaximum(0.002);
+      vn_Tpc->Draw("E1P");
+      zeroLine->Draw("SAME");
+      canvas->SaveAs(jobID + "_vn_Tpc.png");
       canvas->Clear();
 
 

@@ -1,7 +1,9 @@
-void moveHists(TString fileName = "triangularResults.picoDst.result.combined.root")
+void moveHists(TString fileName = "42633A854769565B1841308ED4AA987C.picoDst.result.combined.root")
 {
   TFile *file = TFile::Open(fileName);
 
+  TProfile *p_vn_Tpc_pT_0p2to2 = (TProfile*)file->Get("p_vn_Tpc_pT_0p2to2");
+    
   TProfile *p_vn_pp = (TProfile*)file->Get("p_vn_pp");
   TProfile *p_vn_pm = (TProfile*)file->Get("p_vn_pm");
   TProfile *p_vn_kp = (TProfile*)file->Get("p_vn_kp");
@@ -28,10 +30,12 @@ void moveHists(TString fileName = "triangularResults.picoDst.result.combined.roo
   TProfile *p_vn_yCM_10to40_pr = (TProfile*)file->Get("p_vn_yCM_10to40_pr");
   TProfile *p_vn_yCM_40to60_pr = (TProfile*)file->Get("p_vn_yCM_40to60_pr");
   */
-  //TFile *newFile = new TFile("v3_vs_yCM.root", "RECREATE");
-  TFile *newFile = new TFile("v3_vs_cent.root", "RECREATE");
-  newFile->cd();
   
+  //TFile *newFile = new TFile("v3_vs_yCM.root", "RECREATE");
+  TFile *newFile = new TFile("v2_vs_cent.root", "RECREATE");
+  newFile->cd();
+
+  p_vn_Tpc_pT_0p2to2->Write();
   p_vn_pp->Write();
   p_vn_pm->Write();
   p_vn_kp->Write();
