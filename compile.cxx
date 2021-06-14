@@ -11,5 +11,6 @@ void compile()
 {
   gROOT->ProcessLine(".L StRoot/StPicoEvent/libStPicoDst.so");
   gROOT->ProcessLine(".L StRoot/StEpdUtil/libStEpdUtil.so");
+  gROOT->ProcessLine(".L ConfigReader_cxx.so");
   gROOT->ProcessLine(".L FlowAnalyzer.cxx++");
 }

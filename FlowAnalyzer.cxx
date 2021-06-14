@@ -43,11 +43,13 @@
 #include "StRoot/StEpdUtil/StEpdGeom.h"
 #include "StRoot/StEpdUtil/StBbcGeom.h"
 
-
+// Configuration file reader
+#include "ConfigReader.h"
 
 //=========================================================
 //          SOME CONTROLS
 //=========================================================
+/*
 const Double_t ORDER_N = 3.0;          // Order of anisotropic flow (v_n)
 TString ORDER_N_STR;                   // ORDER_N but as a TString for titles/labels
 
@@ -75,7 +77,7 @@ const Int_t MIN_TRACKS = 5;             // Min number of tracks/hits in each sub
 const Int_t SHIFT_TERMS = 10;           // Number of terms to use when shifting event plane angles
 
 const Double_t Y_MID = -1.05;       // Mid rapidity
-
+*/
 const Int_t CENT_BINS  = 16;             // Number of centrality bins to show (max 16)  LEAVE AT 16 FOR NOW, BEST FOR RESOLUTION STUFF
 const Int_t FIRST_CENT = 16 - CENT_BINS;            // Starting point for centrality dependent plots
 
@@ -235,15 +237,26 @@ void shiftPsi(Event &eventInfo, TFile *correctionInputFile, Double_t order_m, In
 
 
 
-void FlowAnalyzer(TString inFile, TString jobID)
+void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName)
 {
   std::cout << "Initializing..." << std::endl;
 
   if (gSystem->AccessPathName(inFile)) { std::cout << "Error reading input file!" << std::endl; return;}
 
-  ORDER_N_STR.Form("%d", (Int_t)ORDER_N);
-  ORDER_M_STR.Form("%d", (Int_t)ORDER_M);
 
+  ConfigReader configs;
+  configs.read(configFileName);
+
+  const Double_t ORDER_N = configs.order_n;   // Order of anisotropic flow (v_n)
+  const Double_t ORDER_M = configs.order_m;   // Order of event plane angle (psi_m)
+  const Double_t Y_MID   = configs.y_mid;     // Mid rapidity for the current energy
+  const TString ORDER_N_STR = configs.order_n_str;
+  const TString ORDER_M_STR = configs.order_m_str;
+  const Double_t PSI_BOUNDS = TMath::Pi()/ORDER_M + 1;  // Boundaries for many histograms
+  const Double_t Q_BOUNDS = 100;
+
+  //ORDER_N_STR.Form("%d", (Int_t)ORDER_N);
+  //ORDER_M_STR.Form("%d", (Int_t)ORDER_M);
 
   StPicoDstReader* picoReader = new StPicoDstReader(inFile);
   picoReader->Init();
@@ -273,8 +286,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
   /*
   StEpdEpFinder *epdEpFinder = new StEpdEpFinder(CENT_BINS, "StEpdEpFinderCorrectionHistograms_OUTPUT_"+jobID+".root", "StEpdEpFinderCorrectionHistograms_INPUT.root");
   epdEpFinder->SetEpdHitFormat(EPD_FORMAT);
-  epdEpFinder->SetnMipThreshold(EPD_THRESHOLD);
-  epdEpFinder->SetMaxTileWeight(EPD_MAX_WEIGHT);
+  epdEpFinder->SetnMipThreshold(configs.epd_threshold);
+  epdEpFinder->SetMaxTileWeight(configs.epd_max_weight);
   */
 
   // INPUT FILE FOR CORRECTION INFORMATION
@@ -595,18 +608,18 @@ void FlowAnalyzer(TString inFile, TString jobID)
   TH1D *h_YnEpdF = new TH1D("h_YnEpdF", "Y_n Distribution (EPD F);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
 
   // CORRECTION HISTOGRAMS
-  TProfile *p_sinAvgsTpc  = new TProfile("p_sinAvgsTpc", "Sin Averages (TPC);j (Correction term);<sin(jn#psi^{TPC}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsTpc  = new TProfile("p_cosAvgsTpc", "Cos Averages (TPC);j (Correction term);<sin(jn#psi^{TPC}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsTpcA = new TProfile("p_sinAvgsTpcA", "Sin Averages (TPC A);j (Correction term);<sin(jn#psi^{TPC,A}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsTpcA = new TProfile("p_cosAvgsTpcA", "Cos Averages (TPC A);j (Correction term);<sin(jn#psi^{TPC,A}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsTpcB = new TProfile("p_sinAvgsTpcB", "Sin Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC,B}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsTpcB = new TProfile("p_cosAvgsTpcB", "Cos Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC,B}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsEpd  = new TProfile("p_sinAvgsEpd", "Sin Averages (EPD);j (Correction term);<sin(jn#psi^{EPD}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsEpd  = new TProfile("p_cosAvgsEpd", "Cos Averages (EPD);j (Correction term);<sin(jn#psi^{EPD}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsEpdE = new TProfile("p_sinAvgsEpdE", "Sin Averages (EPD E);j (Correction term);<sin(jn#psi^{EPD,E}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsEpdE = new TProfile("p_cosAvgsEpdE", "Cos Averages (EPD E);j (Correction term);<sin(jn#psi^{EPD,E}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_sinAvgsEpdF = new TProfile("p_sinAvgsEpdF", "Sin Averages (EPD F);j (Correction term);<sin(jn#psi^{EPD,F}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
-  TProfile *p_cosAvgsEpdF = new TProfile("p_cosAvgsEpdF", "Cos Averages (EPD F);j (Correction term);<sin(jn#psi^{EPD,F}_{n})>", SHIFT_TERMS, 1, SHIFT_TERMS + 1);
+  TProfile *p_sinAvgsTpc  = new TProfile("p_sinAvgsTpc", "Sin Averages (TPC);j (Correction term);<sin(jn#psi^{TPC}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_cosAvgsTpc  = new TProfile("p_cosAvgsTpc", "Cos Averages (TPC);j (Correction term);<sin(jn#psi^{TPC}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_sinAvgsTpcA = new TProfile("p_sinAvgsTpcA", "Sin Averages (TPC A);j (Correction term);<sin(jn#psi^{TPC,A}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_cosAvgsTpcA = new TProfile("p_cosAvgsTpcA", "Cos Averages (TPC A);j (Correction term);<sin(jn#psi^{TPC,A}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_sinAvgsTpcB = new TProfile("p_sinAvgsTpcB", "Sin Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC,B}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_cosAvgsTpcB = new TProfile("p_cosAvgsTpcB", "Cos Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC,B}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_sinAvgsEpd  = new TProfile("p_sinAvgsEpd", "Sin Averages (EPD);j (Correction term);<sin(jn#psi^{EPD}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_cosAvgsEpd  = new TProfile("p_cosAvgsEpd", "Cos Averages (EPD);j (Correction term);<sin(jn#psi^{EPD}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_sinAvgsEpdE = new TProfile("p_sinAvgsEpdE", "Sin Averages (EPD E);j (Correction term);<sin(jn#psi^{EPD,E}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_cosAvgsEpdE = new TProfile("p_cosAvgsEpdE", "Cos Averages (EPD E);j (Correction term);<sin(jn#psi^{EPD,E}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_sinAvgsEpdF = new TProfile("p_sinAvgsEpdF", "Sin Averages (EPD F);j (Correction term);<sin(jn#psi^{EPD,F}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_cosAvgsEpdF = new TProfile("p_cosAvgsEpdF", "Cos Averages (EPD F);j (Correction term);<sin(jn#psi^{EPD,F}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
 
   // RECENTERED (RC) HISTOGRAMS
   TH1D *h_XnTpc_RC  = new TH1D("h_XnTpc_RC", "Re-centered X_n Distribution (TPC);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
@@ -732,8 +745,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
       h_zvtx->Fill(d_zvtx);
 
-      Bool_t b_bad_rvtx = ( d_rvtx >= R_VTX_CUT );
-      Bool_t b_bad_zvtx = ( (d_zvtx <= Z_VTX_CUT_LOW)  || (d_zvtx >= Z_VTX_CUT_HIGH));
+      Bool_t b_bad_rvtx = ( d_rvtx >= configs.r_vtx );
+      Bool_t b_bad_zvtx = ( (d_zvtx <= configs.z_vtx_low)  || (d_zvtx >= configs.z_vtx_high));
 
       if (b_bad_zvtx) continue;
 
@@ -750,7 +763,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 
       Int_t nTracks = dst->numberOfTracks();
-      if (nTracks < MIN_TRACKS) continue;                // Preliminary cut to hopefully speed things up a bit. This cut repeated below also.
+      if (nTracks < configs.min_tracks) continue;                // Preliminary cut to hopefully speed things up a bit. This cut repeated below also.
 
       // TRACK LOOP OVER PRIMARY TRACKS
       for(Int_t iTrk = 0; iTrk < nTracks; iTrk++)
@@ -774,10 +787,10 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
 	  unsigned short nHits = picoTrack->nHits();
 	  
-	  bool b_bad_hits     = ( nHits < 10 );
-	  bool b_bad_dEdx     = ( picoTrack->nHitsDedx() <= 5 );
-	  bool b_bad_tracking = ( ((double)picoTrack->nHitsFit() / (double)picoTrack->nHitsPoss()) <= 0.52 );
-	  bool b_bad_DCA      = ( picoTrack->gDCA(pVtx.X(),pVtx.Y(),pVtx.Z()) >= 3.0 );
+	  bool b_bad_hits     = ( nHits < configs.nHits );
+	  bool b_bad_dEdx     = ( picoTrack->nHitsDedx() <= configs.dEdx );
+	  bool b_bad_tracking = ( ((double)picoTrack->nHitsFit() / (double)picoTrack->nHitsPoss()) <= configs.tracking );
+	  bool b_bad_DCA      = ( picoTrack->gDCA(pVtx.X(),pVtx.Y(),pVtx.Z()) >= configs.dca );
 
 	  if (b_bad_hits || b_bad_dEdx || b_bad_tracking || b_bad_DCA) continue;
 	  //=========================================================
@@ -824,7 +837,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		}
 
 
-	      if (d_eta > MIN_TPC_ETA_CUT && d_eta < AGAP_TPC_ETA_CUT)          // TPC A  (psi sign change happens later)
+	      if (d_eta > configs.max_abs_tpc_eta && d_eta < configs.far_abs_tpc_eta)          // TPC A  (psi sign change happens later)
 		{
 		  eventInfo.nTracksTpcA++;
 		  eventInfo.XnTpcA += d_pT * TMath::Cos(ORDER_M * d_phi);
@@ -832,7 +845,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 		  particleInfo.isInTpcA = true;	  
 		  particleInfo.weight = d_pT;
 		}
-	      else if (d_eta > GAPB_TPC_ETA_CUT && d_eta < MAX_TPC_ETA_CUT)     // TPC B
+	      else if (d_eta > configs.near_abs_tpc_eta && d_eta < configs.min_abs_tpc_eta)     // TPC B
 		{
 		  eventInfo.nTracksTpcB++;
 		  eventInfo.XnTpcB += d_pT * TMath::Cos(ORDER_M * d_phi);
@@ -1115,8 +1128,8 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  tileRow = epdHit->row();
 	  tileEta = tileVector.Eta();
 	  tilePhi = tileVector.Phi();
-	  tileWeight = (epdHit->nMIP() > EPD_THRESHOLD) ? ( (epdHit->nMIP() > EPD_MAX_WEIGHT)?EPD_MAX_WEIGHT:epdHit->nMIP() ) : 0;
-	  //tileWeight = (epdHit->nMIP() > EPD_THRESHOLD) ? 1 : 0;
+	  tileWeight = (epdHit->nMIP() > configs.epd_threshold) ? ( (epdHit->nMIP() > configs.epd_max_weight)?configs.epd_max_weight:epdHit->nMIP() ) : 0;
+	  //tileWeight = (epdHit->nMIP() > configs.epd_threshold) ? 1 : 0;
 
 	  p2_pp_vs_eta->Fill(tileEta, tileSector, tileWeight);
 	  h_tileWeights->Fill(tileWeight);
@@ -1163,14 +1176,14 @@ void FlowAnalyzer(TString inFile, TString jobID)
       //=========================================================
 
 
-      //if (eventInfo.nTracksTpc  < MIN_TRACKS) continue;
-      //if (eventInfo.nTracksTpcA < MIN_TRACKS) continue;
-      if (eventInfo.nTracksTpcB < MIN_TRACKS) continue;
-      if (eventInfo.nHitsEpd    < MIN_TRACKS) continue;
-      if (eventInfo.nHitsEpdE   < MIN_TRACKS) continue;
-      if (eventInfo.nHitsEpdF   >= MIN_TRACKS) h_eventCheck_EpdF->Fill(eventSections_EpdF[0], 1);
-      if (eventInfo.nHitsEpdF   >= MIN_TRACKS+4) h_eventCheck_EpdF->Fill(eventSections_EpdF[1], 1);
-      if (eventInfo.nHitsEpdF   < MIN_TRACKS+4) continue;
+      //if (eventInfo.nTracksTpc  < configs.min_tracks) continue;
+      //if (eventInfo.nTracksTpcA < configs.min_tracks) continue;
+      if (eventInfo.nTracksTpcB < configs.min_tracks) continue;
+      if (eventInfo.nHitsEpd    < configs.min_tracks) continue;
+      if (eventInfo.nHitsEpdE   < configs.min_tracks) continue;
+      if (eventInfo.nHitsEpdF   >= configs.min_tracks) h_eventCheck_EpdF->Fill(eventSections_EpdF[0], 1);
+      if (eventInfo.nHitsEpdF   >= configs.min_tracks+4) h_eventCheck_EpdF->Fill(eventSections_EpdF[1], 1);
+      if (eventInfo.nHitsEpdF   < configs.min_tracks+4) continue;
       
       checkZeroQ(eventInfo);
       if (eventInfo.badEvent) continue;
@@ -1263,7 +1276,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 	  h_psiEpdF_RC->Fill(eventInfo.psiEpdF);
 
 	  // Accumulate terms for averages over the re-centered angles for event plane angle shifting
-	  for (int j = 1; j <= SHIFT_TERMS; j++)
+	  for (int j = 1; j <= configs.shift_terms; j++)
 	    {
 	      p_sinAvgsTpc->Fill(j,  TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiTpc));
 	      p_cosAvgsTpc->Fill(j,  TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiTpc));
@@ -1291,7 +1304,7 @@ void FlowAnalyzer(TString inFile, TString jobID)
 
       if (RUN_ITERATION == 2)
 	{
-	  shiftPsi(eventInfo, correctionInputFile, ORDER_M, SHIFT_TERMS);
+	  shiftPsi(eventInfo, correctionInputFile, ORDER_M, configs.shift_terms);
 
 	  h_psiTpc_FLAT->Fill(eventInfo.psiTpc);
 	  h_psiTpcA_FLAT->Fill(eventInfo.psiTpcA);

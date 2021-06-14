@@ -1,0 +1,22 @@
+# Configuration file for setting cuts for a specific energy.
+# <- Lines starting with this will be ignored.
+# If you add a new variable, make sure to also add it to the parser.
+
+order_n=3.0
+order_m=1.0
+epd_max_weight=2
+epd_threshold=0.3
+nHits=10
+dEdx=5
+tracking=0.52
+dca=3.0
+min_abs_tpc_eta=0.0
+near_abs_tpc_eta=-1.0
+far_abs_tpc_eta=-1.1
+max_abs_tpc_eta=-2.0
+r_vtx=1.5
+z_vtx_low=198
+z_vtx_high=202
+min_tracks=5
+shift_terms=10
+y_mid=-1.05
