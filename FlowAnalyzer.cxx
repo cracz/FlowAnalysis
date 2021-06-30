@@ -23,6 +23,7 @@
 #include "TSystem.h"
 #include "TKey.h"
 #include "TMath.h"
+#include "TStopwatch.h"
 
 // PicoDst headers
 #include "StRoot/StPicoEvent/StPicoDstReader.h"
@@ -239,6 +240,9 @@ void shiftPsi(Event &eventInfo, TFile *correctionInputFile, Double_t order_m, In
 
 void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TString correctionFileName, TString resolutionFileName)
 {
+  TStopwatch* stopWatch = new TStopwatch();
+  stopWatch->Start();
+
   std::cout << "Initializing..." << std::endl;
 
   if (gSystem->AccessPathName(inFile)) { std::cout << "Error reading input file!" << std::endl; return;}
@@ -1592,6 +1596,10 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   picoReader->Finish();
 
   std::cout << "Done!" << std::endl;
+
+  stopWatch->Stop();
+  stopWatch->Print();
+  delete stopWatch;
 }//End FlowAnalyzer()
 
 
