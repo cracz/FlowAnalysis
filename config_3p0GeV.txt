@@ -4,6 +4,12 @@
 # To get a list of all available variables, check ConfigReader.h.
 
 
+sqrt_s_NN=3.0
+y_mid=-1.05
+order_n=3.0
+order_m=1.0
+shift_terms=10
+
 # Systematic cuts
 
 epd_max_weight=2
@@ -62,12 +68,3 @@ epdA_inner_row=1
 epdA_outer_row=8
 epdB_inner_row=9
 epdB_outer_row=16
-
-
-
-# Other important cuts
-
-y_mid=-1.05
-order_n=3.0
-order_m=1.0
-shift_terms=10

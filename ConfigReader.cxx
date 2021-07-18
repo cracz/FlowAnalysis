@@ -26,10 +26,13 @@ void ConfigReader::notifyError()
 
 void ConfigReader::read(std::string fileName)
 {
-  const TString intValKeys[9] = {"epd_max_weight", "nHits", "dEdx", "min_tracks", "shift_terms", "epdA_inner_row", "epdA_outer_row", "epdB_inner_row", "epdB_outer_row"};
-  const TString doubleValKeys[43] = {"order_n", "order_m", "epd_threshold", "tracking", 
-				     "dca", "min_abs_tpc_eta", "near_abs_tpc_eta", 
-				     "far_abs_tpc_eta", "max_abs_tpc_eta", "r_vtx", 
+  const TString intValKeys[9] = {"epd_max_weight", "nHits", "dEdx", "min_tracks", 
+				 "shift_terms", "epdA_inner_row", "epdA_outer_row", 
+				 "epdB_inner_row", "epdB_outer_row"};
+  const TString doubleValKeys[44] = {"sqrt_s_NN", "order_n", "order_m", "epd_threshold", 
+				     "tracking", "dca", "min_abs_tpc_eta", 
+				     "near_abs_tpc_eta", "far_abs_tpc_eta", 
+				     "max_abs_tpc_eta", "r_vtx", 
 				     "z_vtx_low", "z_vtx_high", "y_mid", "nSig_pi_low", 
 				     "nSig_pi_high", "nSig_ka_low", "nSig_ka_high", 
 				     "nSig_pr_low", "nSig_pr_high", "m2_pi_low", 
@@ -124,7 +127,8 @@ void ConfigReader::read(std::string fileName)
 
       if (keyFound) // Known parameter and it's a double value
 	{
-	  if (key == "order_n") { order_n = value_double; order_n_str.Form("%d", (Int_t)value_double); }
+	  if (key == "sqrt_s_NN") { sqrt_s_NN = value_double; }
+	  else if (key == "order_n") { order_n = value_double; order_n_str.Form("%d", (Int_t)value_double); }
 	  else if (key == "order_m") { order_m = value_double; order_m_str.Form("%d", (Int_t)value_double); }
 	  else if (key == "epd_threshold") { epd_threshold = value_double; }
 	  else if (key == "tracking") { tracking = value_double; }

@@ -19,6 +19,7 @@ class ConfigReader
   Int_t epdA_outer_row;
   Int_t epdB_inner_row;
   Int_t epdB_outer_row;
+  Double_t sqrt_s_NN;
   Double_t order_n;
   Double_t order_m;
   Double_t epd_threshold;
