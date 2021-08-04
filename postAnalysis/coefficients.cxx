@@ -1,22 +1,3 @@
-void applyResolution(TH1D *histogram, Double_t resolution, Double_t resolutionError)
-{
-  for (int i = 1; i < histogram->GetNbinsX(); i++)
-    {
-      Double_t rawBinContent = histogram->GetBinContent(i);
-      if (rawBinContent == 0.0) continue;
-      
-      Double_t rawBinError = histogram->GetBinError(i);
-
-      Double_t newBinContent = rawBinContent/resolution;
-      Double_t newBinError = newBinContent * TMath::Sqrt( pow(rawBinError/rawBinContent, 2) + pow(resolutionError/resolution, 2) );
-
-      histogram->SetBinContent(i, newBinContent);
-      histogram->SetBinError(i, newBinError);
-    }
-}
-
-
-
 void coefficients(TString jobID, TString order_n_str)
 {
   //TH1::SetDefaultSumw2();
@@ -181,120 +162,18 @@ void coefficients(TString jobID, TString order_n_str)
   p_vn_kp_ext->Rebin();
   p_vn_km_ext->Rebin();
 
+  TProfile *p_vn_pr_for = (TProfile*)file->Get("p_vn_pr_for");
+
   TProfile2D *p2_vn_yCM_cent_pp = (TProfile2D*)file->Get("p2_vn_yCM_cent_pp");
   TProfile2D *p2_vn_yCM_cent_pm = (TProfile2D*)file->Get("p2_vn_yCM_cent_pm");
   TProfile2D *p2_vn_yCM_cent_kp = (TProfile2D*)file->Get("p2_vn_yCM_cent_kp");
   TProfile2D *p2_vn_yCM_cent_km = (TProfile2D*)file->Get("p2_vn_yCM_cent_km");
   TProfile2D *p2_vn_yCM_cent_pr = (TProfile2D*)file->Get("p2_vn_yCM_cent_pr");
+  TProfile2D *p2_vn_yCM_cent_pr_symmetry = (TProfile2D*)file->Get("p2_vn_yCM_cent_pr_symmetry");
 
   p2_vn_yCM_cent_kp->RebinY();
   p2_vn_yCM_cent_km->RebinY();
   
-  /*
-  // RESOLUTION APPLICATION
-  TH1D *h_vn_EpdE = p_vn_EpdE->ProjectionX();
-  TH1D *h_vn_EpdF = p_vn_EpdF->ProjectionX();
-  TH1D *h_vn_TpcB = p_vn_TpcB->ProjectionX();
-  TH1D *h_vn_pp = p_vn_pp->ProjectionX();
-  TH1D *h_vn_pm = p_vn_pm->ProjectionX();
-  TH1D *h_vn_kp = p_vn_kp->ProjectionX();
-  TH1D *h_vn_km = p_vn_km->ProjectionX();
-  TH1D *h_vn_pr = p_vn_pr->ProjectionX();
-
-  TH1D *h_vn_pp_ext = p_vn_pp_ext->ProjectionX();
-  TH1D *h_vn_pm_ext = p_vn_pm_ext->ProjectionX();
-  TH1D *h_vn_kp_ext = p_vn_kp_ext->ProjectionX();
-  TH1D *h_vn_km_ext = p_vn_km_ext->ProjectionX();
-  TH1D *h_vn_pr_ext = p_vn_pr_ext->ProjectionX();
-
-  TH2D *h2_vn_yCM_cent_pp = p2_vn_yCM_cent_pp->ProjectionXY();
-  TH2D *h2_vn_yCM_cent_pm = p2_vn_yCM_cent_pm->ProjectionXY();
-  TH2D *h2_vn_yCM_cent_kp = p2_vn_yCM_cent_kp->ProjectionXY();
-  TH2D *h2_vn_yCM_cent_km = p2_vn_yCM_cent_km->ProjectionXY();
-  TH2D *h2_vn_yCM_cent_pr = p2_vn_yCM_cent_pr->ProjectionXY();
-
-  h_vn_EpdE->Divide(h_resolutions);
-  h_vn_EpdF->Divide(h_resolutions);
-  h_vn_TpcB->Divide(h_resolutions);
-  h_vn_pp->Divide(h_resolutions);
-  h_vn_pm->Divide(h_resolutions);
-  h_vn_kp->Divide(h_resolutions);
-  h_vn_km->Divide(h_resolutions);
-  h_vn_pr->Divide(h_resolutions);
-
-  h_vn_pp_ext->Divide(h_resolutions);
-  h_vn_pm_ext->Divide(h_resolutions);
-  h_vn_kp_ext->Divide(h_resolutions);
-  h_vn_km_ext->Divide(h_resolutions);
-  h_vn_pr_ext->Divide(h_resolutions);
-  
-  h2_vn_yCM_cent_pp->Divide(h2_resolutions);
-  h2_vn_yCM_cent_pm->Divide(h2_resolutions);
-  h2_vn_yCM_cent_kp->Divide(h2_resolutions);
-  h2_vn_yCM_cent_km->Divide(h2_resolutions);
-  h2_vn_yCM_cent_pr->Divide(h2_resolutions);
-  */
-  ////
-
-  
-  /*
-  TH1D *pp_cent15 = p2_vn_yCM_cent_pp->ProfileX("pp_cent15", 16, 16)->ProjectionX();
-  TH1D *pp_cent14 = p2_vn_yCM_cent_pp->ProfileX("pp_cent14", 15, 15)->ProjectionX();
-  TH1D *pp_cent13 = p2_vn_yCM_cent_pp->ProfileX("pp_cent13", 14, 14)->ProjectionX();
-  TH1D *pp_cent12 = p2_vn_yCM_cent_pp->ProfileX("pp_cent12", 13, 13)->ProjectionX();
-  TH1D *pp_cent11 = p2_vn_yCM_cent_pp->ProfileX("pp_cent11", 12, 12)->ProjectionX();
-  TH1D *pp_cent10 = p2_vn_yCM_cent_pp->ProfileX("pp_cent10", 11, 11)->ProjectionX();
-  TH1D *pp_cent9 = p2_vn_yCM_cent_pp->ProfileX("pp_cent9", 10, 10)->ProjectionX();
-  TH1D *pp_cent8 = p2_vn_yCM_cent_pp->ProfileX("pp_cent8", 9, 9)->ProjectionX();
-  TH1D *pp_cent7 = p2_vn_yCM_cent_pp->ProfileX("pp_cent7", 8, 8)->ProjectionX();
-  TH1D *pp_cent6 = p2_vn_yCM_cent_pp->ProfileX("pp_cent6", 7, 7)->ProjectionX();
-  TH1D *pp_cent5 = p2_vn_yCM_cent_pp->ProfileX("pp_cent5", 6, 6)->ProjectionX();
-  TH1D *pp_cent4 = p2_vn_yCM_cent_pp->ProfileX("pp_cent3", 5, 5)->ProjectionX();
-
-  std::cout << "pp_cent10 bin 18 content: " << pp_cent10->GetBinContent(18) << std::endl;
-
-  applyResolution(pp_cent15, resolutionIDs[15], resolutionIDsError[15]);
-  applyResolution(pp_cent14, resolutionIDs[14], resolutionIDsError[14]);
-  applyResolution(pp_cent13, resolutionIDs[13], resolutionIDsError[13]);
-  applyResolution(pp_cent12, resolutionIDs[12], resolutionIDsError[12]);
-  applyResolution(pp_cent11, resolutionIDs[11], resolutionIDsError[11]);
-  applyResolution(pp_cent10, resolutionIDs[10], resolutionIDsError[10]);
-  applyResolution(pp_cent9, resolutionIDs[9], resolutionIDsError[9]);
-  applyResolution(pp_cent8, resolutionIDs[8], resolutionIDsError[8]);
-  applyResolution(pp_cent7, resolutionIDs[7], resolutionIDsError[7]);
-  applyResolution(pp_cent6, resolutionIDs[6], resolutionIDsError[6]);
-  applyResolution(pp_cent5, resolutionIDs[5], resolutionIDsError[5]);
-  applyResolution(pp_cent4, resolutionIDs[4], resolutionIDsError[4]);
-  
-  std::cout << "pp_cent10 bin 18 content: " << pp_cent10->GetBinContent(18) << std::endl;
-  */
-
-  /*
-  TProfile *p_vn_yCM_00to10_pp = (TProfile*)file->Get("p_vn_yCM_00to10_pp");
-  TProfile *p_vn_yCM_10to40_pp = (TProfile*)file->Get("p_vn_yCM_10to40_pp");
-  TProfile *p_vn_yCM_40to60_pp = (TProfile*)file->Get("p_vn_yCM_40to60_pp");
-  TProfile *p_vn_yCM_00to60_pp = (TProfile*)file->Get("p_vn_yCM_00to60_pp");
-
-  TProfile *p_vn_yCM_00to10_pm = (TProfile*)file->Get("p_vn_yCM_00to10_pm");
-  TProfile *p_vn_yCM_10to40_pm = (TProfile*)file->Get("p_vn_yCM_10to40_pm");
-  TProfile *p_vn_yCM_40to60_pm = (TProfile*)file->Get("p_vn_yCM_40to60_pm");
-  TProfile *p_vn_yCM_00to60_pm = (TProfile*)file->Get("p_vn_yCM_00to60_pm");
-
-  TProfile *p_vn_yCM_00to10_kp = (TProfile*)file->Get("p_vn_yCM_00to10_kp");
-  TProfile *p_vn_yCM_10to40_kp = (TProfile*)file->Get("p_vn_yCM_10to40_kp");
-  TProfile *p_vn_yCM_40to60_kp = (TProfile*)file->Get("p_vn_yCM_40to60_kp");
-  TProfile *p_vn_yCM_00to60_kp = (TProfile*)file->Get("p_vn_yCM_00to60_kp");
-
-  TProfile *p_vn_yCM_00to10_km = (TProfile*)file->Get("p_vn_yCM_00to10_km");
-  TProfile *p_vn_yCM_10to40_km = (TProfile*)file->Get("p_vn_yCM_10to40_km");
-  TProfile *p_vn_yCM_40to60_km = (TProfile*)file->Get("p_vn_yCM_40to60_km");
-  TProfile *p_vn_yCM_00to60_km = (TProfile*)file->Get("p_vn_yCM_00to60_km");
-
-  TProfile *p_vn_yCM_00to10_pr = (TProfile*)file->Get("p_vn_yCM_00to10_pr");
-  TProfile *p_vn_yCM_10to40_pr = (TProfile*)file->Get("p_vn_yCM_10to40_pr");
-  TProfile *p_vn_yCM_40to60_pr = (TProfile*)file->Get("p_vn_yCM_40to60_pr");
-  TProfile *p_vn_yCM_00to60_pr = (TProfile*)file->Get("p_vn_yCM_00to60_pr");
-  */
   TProfile *p_vn_yCM_00to10_pp = p2_vn_yCM_cent_pp->ProfileY("p_vn_yCM_00to10_pp", 15, 16);
   TProfile *p_vn_yCM_10to40_pp = p2_vn_yCM_cent_pp->ProfileY("p_vn_yCM_10to40_pp", 9, 14);
   TProfile *p_vn_yCM_40to60_pp = p2_vn_yCM_cent_pp->ProfileY("p_vn_yCM_40to60_pp", 5, 8);
@@ -320,7 +199,11 @@ void coefficients(TString jobID, TString order_n_str)
   TProfile *p_vn_yCM_40to60_pr = p2_vn_yCM_cent_pr->ProfileY("p_vn_yCM_40to60_pr", 5, 8);
   //TProfile *p_vn_yCM_00to60_pr = (TProfile*)file->Get("p_vn_yCM_00to60_pr");
 
+  TProfile *p_vn_yCM_00to10_pr_symm = p2_vn_yCM_cent_pr_symmetry->ProfileY("p_vn_yCM_00to10_pr_symm", 15, 16);
+  TProfile *p_vn_yCM_10to40_pr_symm = p2_vn_yCM_cent_pr_symmetry->ProfileY("p_vn_yCM_10to40_pr_symm", 9, 14);
+  TProfile *p_vn_yCM_40to60_pr_symm = p2_vn_yCM_cent_pr_symmetry->ProfileY("p_vn_yCM_40to60_pr_symm", 5, 8);
 
+  
   TH1D *h_vn_yCM_00to10_pp = new TH1D("h_vn_yCM_00to10_pp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_10to40_pp = new TH1D("h_vn_yCM_10to40_pp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_40to60_pp = new TH1D("h_vn_yCM_40to60_pp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
@@ -345,160 +228,13 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_yCM_10to40_pr = new TH1D("h_vn_yCM_10to40_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_40to60_pr = new TH1D("h_vn_yCM_40to60_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_00to60_pr = new TH1D("h_vn_yCM_00to60_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
-  /*
-  for (int i = 11; i <= 20; i++)
-    {
-      // 0 to 10%
-      h_vn_yCM_00to10_pp->SetBinContent(i, (h2_vn_yCM_cent_pp->GetBinContent(15, i) + h2_vn_yCM_cent_pp->GetBinContent(16, i)) /2);
-      h_vn_yCM_00to10_pp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pp->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_pp->GetBinError(16, i) / 2, 2) ));
 
-      h_vn_yCM_00to10_pm->SetBinContent(i, (h2_vn_yCM_cent_pm->GetBinContent(15, i) + h2_vn_yCM_cent_pm->GetBinContent(16, i)) /2);
-      h_vn_yCM_00to10_pm->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pm->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_pm->GetBinError(16, i) / 2, 2) ));
+  TH1D *h_vn_yCM_00to10_pr_symm = new TH1D("h_vn_yCM_00to10_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_10to40_pr_symm = new TH1D("h_vn_yCM_10to40_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_40to60_pr_symm = new TH1D("h_vn_yCM_40to60_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_00to60_pr_symm = new TH1D("h_vn_yCM_00to60_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
 
-      h_vn_yCM_00to10_kp->SetBinContent(i, (h2_vn_yCM_cent_kp->GetBinContent(15, i) + h2_vn_yCM_cent_kp->GetBinContent(16, i)) /2);
-      h_vn_yCM_00to10_kp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_kp->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_kp->GetBinError(16, i) / 2, 2) ));
-
-      h_vn_yCM_00to10_km->SetBinContent(i, (h2_vn_yCM_cent_km->GetBinContent(15, i) + h2_vn_yCM_cent_km->GetBinContent(16, i)) /2);
-      h_vn_yCM_00to10_km->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_km->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_km->GetBinError(16, i) / 2, 2) ));
-
-      h_vn_yCM_00to10_pr->SetBinContent(i, (h2_vn_yCM_cent_pr->GetBinContent(15, i) + h2_vn_yCM_cent_pr->GetBinContent(16, i)) /2);
-      h_vn_yCM_00to10_pr->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pr->GetBinError(15, i) / 2, 2) + pow(h2_vn_yCM_cent_pr->GetBinError(16, i) / 2, 2) ));
-
-      // 10 to 40%
-      h_vn_yCM_10to40_pp->SetBinContent(i, (h2_vn_yCM_cent_pp->GetBinContent(9, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(10, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(11, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(12, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(13, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(14, i)) /6);
-      h_vn_yCM_10to40_pp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pp->GetBinError(9, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(10, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(11, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(12, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(13, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(14, i) / 6, 2) ));
-
-      h_vn_yCM_10to40_pm->SetBinContent(i, (h2_vn_yCM_cent_pm->GetBinContent(9, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(10, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(11, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(12, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(13, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(14, i)) /6);
-      h_vn_yCM_10to40_pm->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pm->GetBinError(9, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(10, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(11, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(12, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(13, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(14, i) / 6, 2) ));
-
-      h_vn_yCM_10to40_kp->SetBinContent(i, (h2_vn_yCM_cent_kp->GetBinContent(9, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(10, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(11, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(12, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(13, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(14, i)) /6);
-      h_vn_yCM_10to40_kp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_kp->GetBinError(9, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(10, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(11, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(12, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(13, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(14, i) / 6, 2) ));
-
-      h_vn_yCM_10to40_km->SetBinContent(i, (h2_vn_yCM_cent_km->GetBinContent(9, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(10, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(11, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(12, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(13, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(14, i)) /6);
-      h_vn_yCM_10to40_km->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_km->GetBinError(9, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(10, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(11, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(12, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(13, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(14, i) / 6, 2) ));
-
-      h_vn_yCM_10to40_pr->SetBinContent(i, (h2_vn_yCM_cent_pr->GetBinContent(9, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(10, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(11, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(12, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(13, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(14, i)) /6);
-      h_vn_yCM_10to40_pr->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pr->GetBinError(9, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(10, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(11, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(12, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(13, i) / 6, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(14, i) / 6, 2) ));
-
-      
-
-      // 40 to 60%
-      h_vn_yCM_40to60_pp->SetBinContent(i, (h2_vn_yCM_cent_pp->GetBinContent(4, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(5, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(6, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(7, i) +
-					    h2_vn_yCM_cent_pp->GetBinContent(8, i)) /5);
-      h_vn_yCM_40to60_pp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pp->GetBinError(4, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(5, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(6, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(7, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pp->GetBinError(8, i) / 5, 2) ));
-
-      h_vn_yCM_40to60_pm->SetBinContent(i, (h2_vn_yCM_cent_pm->GetBinContent(4, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(5, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(6, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(7, i) +
-					    h2_vn_yCM_cent_pm->GetBinContent(8, i)) /5);
-      h_vn_yCM_40to60_pm->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pm->GetBinError(4, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(5, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(6, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(7, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pm->GetBinError(8, i) / 5, 2) ));
-
-      h_vn_yCM_40to60_kp->SetBinContent(i, (h2_vn_yCM_cent_kp->GetBinContent(4, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(5, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(6, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(7, i) +
-					    h2_vn_yCM_cent_kp->GetBinContent(8, i)) /5);
-      h_vn_yCM_40to60_kp->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_kp->GetBinError(4, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(5, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(6, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(7, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_kp->GetBinError(8, i) / 5, 2) ));
-
-      h_vn_yCM_40to60_km->SetBinContent(i, (h2_vn_yCM_cent_km->GetBinContent(4, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(5, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(6, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(7, i) +
-					    h2_vn_yCM_cent_km->GetBinContent(8, i)) /5);
-      h_vn_yCM_40to60_km->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_km->GetBinError(4, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(5, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(6, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(7, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_km->GetBinError(8, i) / 5, 2) ));
-
-      h_vn_yCM_40to60_pr->SetBinContent(i, (h2_vn_yCM_cent_pr->GetBinContent(4, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(5, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(6, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(7, i) +
-					    h2_vn_yCM_cent_pr->GetBinContent(8, i)) /5);
-      h_vn_yCM_40to60_pr->SetBinError(i, TMath::Sqrt( pow(h2_vn_yCM_cent_pr->GetBinError(4, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(5, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(6, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(7, i) / 5, 2) +
-						      pow(h2_vn_yCM_cent_pr->GetBinError(8, i) / 5, 2) ));
-
-    }
-  */
-  /*
-  h_vn_yCM_00to10_pp->Draw();
-  h_vn_yCM_00to10_pp->SetMinimum(-0.05);
-  h_vn_yCM_00to10_pp->SetMaximum(0.03);
-  h_vn_yCM_00to10_pp->Draw("E1P");
-  return;
-  */
-
-
+  
   TH1D *h_vn_EpdE = new TH1D("h_vn_EpdE", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
   TH1D *h_vn_EpdF = new TH1D("h_vn_EpdF", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
   TH1D *h_vn_TpcB = new TH1D("h_vn_TpcB", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
@@ -518,23 +254,8 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_km_ext = new TH1D("h_vn_km_ext", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
   TH1D *h_vn_pr_ext = new TH1D("h_vn_pr_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
 
+  TH1D *h_vn_pr_for = new TH1D("h_vn_pr_for", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
 
-
-  /*
-  h_vn_yCM_00to10_pp->Add(pp_cent15, pp_cent14);
-  
-  h_vn_yCM_10to40_pp->Add(pp_cent13, pp_cent12);
-  h_vn_yCM_10to40_pp->Add(h_vn_yCM_10to40_pp, pp_cent11);
-  h_vn_yCM_10to40_pp->Add(h_vn_yCM_10to40_pp, pp_cent10);
-  h_vn_yCM_10to40_pp->Add(h_vn_yCM_10to40_pp, pp_cent9);
-  h_vn_yCM_10to40_pp->Add(h_vn_yCM_10to40_pp, pp_cent8);
-
-  
-  
-  h_vn_yCM_40to60_pp->Add(pp_cent7, pp_cent6);
-  h_vn_yCM_40to60_pp->Add(h_vn_yCM_40to60_pp, pp_cent5);
-  h_vn_yCM_40to60_pp->Add(h_vn_yCM_40to60_pp, pp_cent4);
-  */
 
   //mirrored plots
   TH1D *h_vn_yCM_00to10_pp_mirror = new TH1D("h_vn_yCM_00to10_pp_mirror", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
@@ -610,9 +331,12 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_pm_ext->SetBinContent(i, p_vn_pm_ext->GetBinContent(i));
       h_vn_pm_ext->SetBinError(i, p_vn_pm_ext->GetBinError(i));
 
-
       h_vn_pr_ext->SetBinContent(i, p_vn_pr_ext->GetBinContent(i));
       h_vn_pr_ext->SetBinError(i, p_vn_pr_ext->GetBinError(i));
+
+      
+      h_vn_pr_for->SetBinContent(i, p_vn_pr_for->GetBinContent(i));
+      h_vn_pr_for->SetBinError(i, p_vn_pr_for->GetBinError(i));
     }
 
   // Convert profiles to histograms and make mirrored plots
@@ -716,7 +440,14 @@ void coefficients(TString jobID, TString order_n_str)
       //h_vn_yCM_00to60_pr->SetBinContent(i, p_vn_yCM_00to60_pr->GetBinContent(i));
       //h_vn_yCM_00to60_pr->SetBinError(i, p_vn_yCM_00to60_pr->GetBinError(i));
 
+      h_vn_yCM_00to10_pr_symm->SetBinContent(i, p_vn_yCM_00to10_pr_symm->GetBinContent(i));
+      h_vn_yCM_00to10_pr_symm->SetBinError(i, p_vn_yCM_00to10_pr_symm->GetBinError(i));
+      h_vn_yCM_10to40_pr_symm->SetBinContent(i, p_vn_yCM_10to40_pr_symm->GetBinContent(i));
+      h_vn_yCM_10to40_pr_symm->SetBinError(i, p_vn_yCM_10to40_pr_symm->GetBinError(i));
+      h_vn_yCM_40to60_pr_symm->SetBinContent(i, p_vn_yCM_40to60_pr_symm->GetBinContent(i));
+      h_vn_yCM_40to60_pr_symm->SetBinError(i, p_vn_yCM_40to60_pr_symm->GetBinError(i));
 
+      
       if(j != 0)
 	{
 	  h_vn_yCM_00to10_pp_mirror->SetBinContent(j, h_vn_yCM_00to10_pp->GetBinContent(i));
@@ -750,16 +481,6 @@ void coefficients(TString jobID, TString order_n_str)
     }
 
 
-  /*
-  h_vn_EpdE->Divide(h_vn_EpdE, h_resolutions);
-  h_vn_EpdF->Divide(h_vn_EpdF, h_resolutions);
-  h_vn_TpcB->Divide(h_vn_TpcB, h_resolutions);
-  h_vn_pp->Divide(h_vn_pp, h_resolutions);
-  h_vn_pm->Divide(h_vn_pm, h_resolutions);
-  h_vn_kp->Divide(h_vn_kp, h_resolutions);
-  h_vn_km->Divide(h_vn_km, h_resolutions);
-  h_vn_pr->Divide(h_vn_pr, h_resolutions);
-  */
 
   Int_t centBins    = h_vn_TpcB->GetNbinsX();
   Int_t firstCentID = h_vn_TpcB->GetBinLowEdge(1);
@@ -822,6 +543,11 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_pr_ext_flip->GetXaxis()->SetTitle((TString)h_vn_pr_ext->GetXaxis()->GetTitle()+" (%)");
   h_vn_pr_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pr_ext->GetYaxis()->GetTitle());
 
+  // Forward rapidity plot
+  TH1D *h_vn_pr_for_flip = new TH1D("h_vn_pr_for_flip",h_vn_pr_for->GetTitle(),centBins,0,centBins);
+  h_vn_pr_for_flip->GetXaxis()->SetTitle((TString)h_vn_pr_for->GetXaxis()->GetTitle()+" (%)");
+  h_vn_pr_for_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pr_for->GetYaxis()->GetTitle());
+
 
   const char *centralityBins[16] = {"75-80", "70-75", "65-70", "60-65", "55-60", "50-55", "45-50", "40-45", "35-40", "30-35", "25-30", "20-25", "15-20", "10-15", "5-10", "0-5"};
 
@@ -831,7 +557,7 @@ void coefficients(TString jobID, TString order_n_str)
   // Get list of bin labels, but flipped
   for (int i = lastCentID; i >= firstCentID; i--) { newBinLabels.push_back(centralityBins[i]); }
 
-  // Flip the bin contents into the new histograms
+  // Flip the bin contents
   int j = 1;
   for (int i = centBins / 2; i >= 1; i--)     // KAONS
     {
@@ -886,26 +612,13 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_pr_ext_flip->SetBinContent(j, h_vn_pr_ext->GetBinContent(i));
       h_vn_pr_ext_flip->SetBinError(j, h_vn_pr_ext->GetBinError(i));
 
+
+      h_vn_pr_for_flip->SetBinContent(j, h_vn_pr_for->GetBinContent(i));
+      h_vn_pr_for_flip->SetBinError(j, h_vn_pr_for->GetBinError(i));
+
       
       j++;
     }
-
-
-  // Put the bin labels on the new histograms  MAYBE UNNECESSARY
-  /*
-  for (int i = 1; i <= centBins; i++)
-    {
-      h_vn_EpdE_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-      h_vn_EpdF_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-      h_vn_TpcB_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-      h_vn_pp_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-      h_vn_pm_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-      h_vn_kp_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-      h_vn_km_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-      h_vn_pr_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-    }
-  */
-
 
 
   canvas->SetLogy(0);
@@ -926,6 +639,7 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *vn_kp_ext = new TH1D("vn_kp_ext", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
   TH1D *vn_km_ext = new TH1D("vn_km_ext", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
   TH1D *vn_pr_ext = new TH1D("vn_pr_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
+  TH1D *vn_pr_for = new TH1D("vn_pr_for", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
 
   for (int i = 1; i <= 6; i++)     // KAONS
     {
@@ -973,10 +687,12 @@ void coefficients(TString jobID, TString order_n_str)
       vn_pm_ext->SetBinContent(i, h_vn_pm_ext_flip->GetBinContent(i));
       vn_pm_ext->SetBinError(i, h_vn_pm_ext_flip->GetBinError(i));
 
-      
-
       vn_pr_ext->SetBinContent(i, h_vn_pr_ext_flip->GetBinContent(i));
       vn_pr_ext->SetBinError(i, h_vn_pr_ext_flip->GetBinError(i));
+
+      
+      vn_pr_for->SetBinContent(i, h_vn_pr_for_flip->GetBinContent(i));
+      vn_pr_for->SetBinError(i, h_vn_pr_for_flip->GetBinError(i));
     }
   
 
@@ -997,6 +713,7 @@ void coefficients(TString jobID, TString order_n_str)
   THStack *kpRapidityStack   = new THStack("kpRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *kmRapidityStack   = new THStack("kmRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *prRapidityStack   = new THStack("prRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
+  THStack *prRapidityStack_symm = new THStack("prRapidityStack_symm", ";y-y_{mid};v_{"+order_n_str+"}");
 
 
   sh_cent_pp->SetMarkerStyle(25);
@@ -1091,6 +808,9 @@ void coefficients(TString jobID, TString order_n_str)
   vn_pr_ext->SetMarkerStyle(20);
   vn_pr_ext->SetMarkerSize(2);
 
+  vn_pr_for->SetMarkerStyle(20);
+  vn_pr_for->SetMarkerSize(2);
+  vn_pr_for->SetMarkerColor(4);
   
   vn_EpdE->SetMarkerStyle(20);
   vn_EpdE->SetMarkerSize(2);
@@ -1196,6 +916,19 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_yCM_10to40_pr->SetLineColor(4);
   h_vn_yCM_40to60_pr->SetLineColor(8);
   h_vn_yCM_00to60_pr->SetLineColor(4);
+
+  h_vn_yCM_00to10_pr_symm->SetMarkerStyle(20);
+  h_vn_yCM_10to40_pr_symm->SetMarkerStyle(20);
+  h_vn_yCM_40to60_pr_symm->SetMarkerStyle(20);
+  h_vn_yCM_00to10_pr_symm->SetMarkerColor(2);
+  h_vn_yCM_10to40_pr_symm->SetMarkerColor(4);
+  h_vn_yCM_40to60_pr_symm->SetMarkerColor(8);
+  h_vn_yCM_00to10_pr_symm->SetMarkerSize(2);
+  h_vn_yCM_10to40_pr_symm->SetMarkerSize(2);
+  h_vn_yCM_40to60_pr_symm->SetMarkerSize(2);
+  h_vn_yCM_00to10_pr_symm->SetLineColor(2);
+  h_vn_yCM_10to40_pr_symm->SetLineColor(4);
+  h_vn_yCM_40to60_pr_symm->SetLineColor(8);
 
   //mirrored plots
   h_vn_yCM_00to10_pp_mirror->SetMarkerStyle(24);
@@ -1303,6 +1036,7 @@ void coefficients(TString jobID, TString order_n_str)
   kmExtCentralityStack->Add(vn_km);
   kmExtCentralityStack->Add(vn_km_ext);
 
+  prExtCentralityStack->Add(vn_pr_for);
   prExtCentralityStack->Add(vn_pr);
   prExtCentralityStack->Add(vn_pr_ext);
 
@@ -1374,6 +1108,7 @@ void coefficients(TString jobID, TString order_n_str)
       kmExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *prExtLegend = new TLegend(0.25, 0.16, 0.55, 0.3);
+      prExtLegend->AddEntry(vn_pr_for,"Proton, -0.5 < y_{CM} < 0");
       prExtLegend->AddEntry(vn_pr,"Proton, 0 < y_{CM} < 0.5");
       prExtLegend->AddEntry(vn_pr_ext,"Proton, 0.5 < y_{CM} < 1.0");
       prExtLegend->SetFillColorAlpha(0,0);
@@ -1417,14 +1152,14 @@ void coefficients(TString jobID, TString order_n_str)
       TPaveText *piText = new TPaveText(15, -0.004, 45, 0.008, "NB");
       piText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       piText->AddText("0 < y_{CM} < 0.5 GeV");
-      piText->AddText("0.18 < p_{T} < 1.633 GeV");
+      piText->AddText("0.18 < p_{T} < 1.6 GeV");
       piText->SetFillColorAlpha(0,0);
       piText->SetLineColorAlpha(0,0);
 
       TPaveText *kaText = new TPaveText(20, -0.1, 50, -0.07, "NB");
       kaText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kaText->AddText("0 < y_{CM} < 0.5 GeV");
-      kaText->AddText("0.18 < p_{T} < 1.62 GeV");
+      kaText->AddText("0.18 < p_{T} < 1.6 GeV");
       kaText->SetFillColorAlpha(0,0);
       kaText->SetLineColorAlpha(0,0);
 
@@ -1432,7 +1167,7 @@ void coefficients(TString jobID, TString order_n_str)
       prText->AddText("Proton");
       prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       prText->AddText("0 < y_{CM} < 0.5 GeV");
-      prText->AddText("0.4 < p_{T} < 2.0314 GeV");
+      prText->AddText("0.4 < p_{T} < 2.0 GeV");
       prText->SetFillColorAlpha(0,0);
       prText->SetLineColorAlpha(0,0);
 
@@ -1440,35 +1175,35 @@ void coefficients(TString jobID, TString order_n_str)
       TPaveText *ppText = new TPaveText(-0.77, 0.008, 0.2, 0.028, "NB");
       ppText->AddText("#pi^{+}");
       ppText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      ppText->AddText("0.18 < p_{T} < 1.633 GeV");
+      ppText->AddText("0.18 < p_{T} < 1.6 GeV");
       ppText->SetFillColorAlpha(0,0);
       ppText->SetLineColorAlpha(0,0);
 
       TPaveText *pmText = new TPaveText(-0.77, 0.008, 0.2, 0.028, "NB");
       pmText->AddText("#pi^{-}");
       pmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      pmText->AddText("0.18 < p_{T} < 1.633 GeV");
+      pmText->AddText("0.18 < p_{T} < 1.6 GeV");
       pmText->SetFillColorAlpha(0,0);
       pmText->SetLineColorAlpha(0,0);
 
       TPaveText *kpText = new TPaveText(-0.4, 0.03, 0.6, 0.075, "NB");
       kpText->AddText("K^{+}");
       kpText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      kpText->AddText("0.18 < p_{T} < 1.62 GeV");
+      kpText->AddText("0.18 < p_{T} < 1.6 GeV");
       kpText->SetFillColorAlpha(0,0);
       kpText->SetLineColorAlpha(0,0);
 
       TPaveText *kmText = new TPaveText(-0.75, 0.0, 0.15, 0.018, "NB");
       kmText->AddText("K^{-}");
       kmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      kmText->AddText("0.18 < p_{T} < 1.62 GeV");
+      kmText->AddText("0.18 < p_{T} < 1.6 GeV");
       kmText->SetFillColorAlpha(0,0);
       kmText->SetLineColorAlpha(0,0);
 
       TPaveText *prText_y = new TPaveText(-0.75, 0.038, 0.15, 0.083, "NB");
       prText_y->AddText("Proton");
       prText_y->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      prText_y->AddText("0.4 < p_{T} < 2.0314 GeV");
+      prText_y->AddText("0.4 < p_{T} < 2.0 GeV");
       prText_y->SetFillColorAlpha(0,0);
       prText_y->SetLineColorAlpha(0,0);
 
@@ -1768,6 +1503,23 @@ void coefficients(TString jobID, TString order_n_str)
       prRapidityStack->Add(h_vn_yCM_40to60_pr);
       //prRapidityStack->Add(h_vn_yCM_40to60_pr_mirror);
 
+      prRapidityStack_symm->Add(h_vn_yCM_00to10_pr_symm);
+      prRapidityStack_symm->Add(h_vn_yCM_10to40_pr_symm);
+      prRapidityStack_symm->Add(h_vn_yCM_40to60_pr_symm);
+
+
+      TFile *newFile = new TFile("v3_vs_yCM.root", "RECREATE");
+      newFile->cd();
+
+      h_vn_yCM_00to10_pr->Write();
+      h_vn_yCM_10to40_pr->Write();
+      h_vn_yCM_40to60_pr->Write();
+      h_vn_yCM_00to10_pr_symm->Write();
+      h_vn_yCM_10to40_pr_symm->Write();
+      h_vn_yCM_40to60_pr_symm->Write();
+
+      newFile->Close();
+
       TLegend *piLegend = new TLegend(0.67, 0.71, 0.805, 0.87);
       piLegend->AddEntry(vn_pp,"#pi^{+}");
       piLegend->AddEntry(vn_pm,"#pi^{-}");
@@ -1806,6 +1558,7 @@ void coefficients(TString jobID, TString order_n_str)
       kmExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *prExtLegend = new TLegend(0.25, 0.16, 0.55, 0.3);
+      prExtLegend->AddEntry(vn_pr_for,"Proton, -0.5 < y_{CM} < 0");
       prExtLegend->AddEntry(vn_pr,"Proton, 0 < y_{CM} < 0.5");
       prExtLegend->AddEntry(vn_pr_ext,"Proton, 0.5 < y_{CM} < 1.0");
       prExtLegend->SetFillColorAlpha(0,0);
@@ -1848,14 +1601,14 @@ void coefficients(TString jobID, TString order_n_str)
       TPaveText *piText = new TPaveText(12, 0.012, 38, 0.0185, "NB");
       piText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       piText->AddText("0 < y_{CM} < 0.5 GeV");
-      piText->AddText("0.18 < p_{T} < 1.633 GeV");
+      piText->AddText("0.18 < p_{T} < 1.6 GeV");
       piText->SetFillColorAlpha(0,0);
       piText->SetLineColorAlpha(0,0);
 
       TPaveText *kaText = new TPaveText(1, 0.1, 32, 0.185, "NB");
       kaText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kaText->AddText("0 < y_{CM} < 0.5 GeV");
-      kaText->AddText("0.18 < p_{T} < 1.62 GeV");
+      kaText->AddText("0.18 < p_{T} < 1.6 GeV");
       kaText->SetFillColorAlpha(0,0);
       kaText->SetLineColorAlpha(0,0);
 
@@ -1863,44 +1616,51 @@ void coefficients(TString jobID, TString order_n_str)
       prText->AddText("Proton");
       prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       prText->AddText("0 < y_{CM} < 0.5 GeV");
-      prText->AddText("0.4 < p_{T} < 2.0314 GeV");
+      prText->AddText("0.4 < p_{T} < 2.0 GeV");
       prText->SetFillColorAlpha(0,0);
       prText->SetLineColorAlpha(0,0);
 
       TPaveText *ppText = new TPaveText(-0.4, 0.03, 0.6, 0.04, "NB");
       ppText->AddText("#pi^{+}");
       ppText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      ppText->AddText("0.18 < p_{T} < 1.633 GeV");
+      ppText->AddText("0.18 < p_{T} < 1.6 GeV");
       ppText->SetFillColorAlpha(0,0);
       ppText->SetLineColorAlpha(0,0);
 
       TPaveText *pmText = new TPaveText(-0.4, 0.022, 0.6, 0.035, "NB");
       pmText->AddText("#pi^{-}");
       pmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      pmText->AddText("0.18 < p_{T} < 1.633 GeV");
+      pmText->AddText("0.18 < p_{T} < 1.6 GeV");
       pmText->SetFillColorAlpha(0,0);
       pmText->SetLineColorAlpha(0,0);
 
       TPaveText *kpText = new TPaveText(-0.4, 0.13, 0.6, 0.19, "NB");
       kpText->AddText("K^{+}");
       kpText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      kpText->AddText("0.18 < p_{T} < 1.62 GeV");
+      kpText->AddText("0.18 < p_{T} < 1.6 GeV");
       kpText->SetFillColorAlpha(0,0);
       kpText->SetLineColorAlpha(0,0);
 
       TPaveText *kmText = new TPaveText(-0.4, 0.12, 0.6, 0.18, "NB");
       kmText->AddText("K^{-}");
       kmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      kmText->AddText("0.18 < p_{T} < 1.62 GeV");
+      kmText->AddText("0.18 < p_{T} < 1.6 GeV");
       kmText->SetFillColorAlpha(0,0);
       kmText->SetLineColorAlpha(0,0);
 
       TPaveText *prText_y = new TPaveText(-0.4, 0.005, 0.6, 0.02, "NB");
       prText_y->AddText("Proton");
       prText_y->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      prText_y->AddText("0.4 < p_{T} < 2.0314 GeV");
+      prText_y->AddText("0.4 < p_{T} < 2.0 GeV");
       prText_y->SetFillColorAlpha(0,0);
       prText_y->SetLineColorAlpha(0,0);
+
+      TPaveText *prText_y_symm = new TPaveText(-0.4, 0.03, 0.6, 0.045, "NB");
+      prText_y_symm->AddText("Proton");
+      prText_y_symm->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      prText_y_symm->AddText("0.7 < p_{T} < 2.5 GeV");
+      prText_y_symm->SetFillColorAlpha(0,0);
+      prText_y_symm->SetLineColorAlpha(0,0);
 
       canvas->SetLeftMargin(0.13);
       canvas->SetGridx();
@@ -2045,7 +1805,7 @@ void coefficients(TString jobID, TString order_n_str)
       prExtCentralityStack->Draw();
       prExtCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       prExtCentralityStack->GetXaxis()->SetNdivisions(210);
-      prExtCentralityStack->SetMaximum(0.01);
+      prExtCentralityStack->SetMaximum(0.04);
       prExtCentralityStack->SetMinimum(-0.08);
       prExtCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
@@ -2133,8 +1893,45 @@ void coefficients(TString jobID, TString order_n_str)
       prText_y->Draw();
       canvas->SaveAs(jobID + "_prRapidityStack.png");
       canvas->Clear();
-    }
+
+
+      prRapidityStack_symm->Draw();
+      prRapidityStack_symm->GetYaxis()->SetTitleOffset(1.7);
+      prRapidityStack_symm->GetXaxis()->SetNdivisions(210);
+      prRapidityStack_symm->Draw();
+      prRapidityStack_symm->SetMaximum(0.05);
+      prRapidityStack_symm->SetMinimum(-0.05);
+      prRapidityStack_symm->Draw("NOSTACK E1P");
+      zeroLine_y->Draw("SAME");
+      prLegend->Draw();
+      prText_y_symm->Draw();
+      canvas->SaveAs(jobID + "_prRapidityStack_symm.png");
+      canvas->Clear();
+}
 
   //resolutionInfo_INPUT->Close();
   file->Close();
 }
+
+
+
+
+
+/*
+void applyResolution(TH1D *histogram, Double_t resolution, Double_t resolutionError)
+{
+  for (int i = 1; i < histogram->GetNbinsX(); i++)
+    {
+      Double_t rawBinContent = histogram->GetBinContent(i);
+      if (rawBinContent == 0.0) continue;
+      
+      Double_t rawBinError = histogram->GetBinError(i);
+
+      Double_t newBinContent = rawBinContent/resolution;
+      Double_t newBinError = newBinContent * TMath::Sqrt( pow(rawBinError/rawBinContent, 2) + pow(resolutionError/resolution, 2) );
+
+      histogram->SetBinContent(i, newBinContent);
+      histogram->SetBinError(i, newBinError);
+    }
+}
+*/
