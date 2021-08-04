@@ -230,8 +230,6 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   const Double_t PSI_BOUNDS = TMath::Pi()/ORDER_M + 1;  // Boundaries for many histograms
   const Double_t Q_BOUNDS = 100;
 
-  //ORDER_N_STR.Form("%d", (Int_t)ORDER_N);
-  //ORDER_M_STR.Form("%d", (Int_t)ORDER_M);
 
   StPicoDstReader* picoReader = new StPicoDstReader(inFile);
   picoReader->Init();
@@ -373,6 +371,9 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   const char *eventSections_EpdF[2] = {"5 Hit Min", "9 Hit Min"};
   h_eventCheck_EpdF->SetStats(0);
 
+  TH1D *h_simulationCheck = new TH1D ("h_simulationCheck", "N_{trk} with no TPC efficiency", 3, 0, 3);
+  TH1D *h_simulationCheck_total = new TH1D ("h_simulationCheck_total", "Total N_{trk}", 3, 0, 3);
+
   TH1D *h_nhits      = new TH1D("h_nhits", "nHits;Number of hits;Tracks", 50, 0, 50);
   TH1D *h_nhits_fit  = new TH1D("h_nhits_fit","nHitsFit;Number of hits;Tracks", 50, 0, 50);
   TH1D *h_nhits_dEdx = new TH1D("h_nhits_dEdx","nHitsdEdx;Number of hits;Tracks", 50, 0, 50);
@@ -450,6 +451,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   TProfile *p_vn_pr = new TProfile("p_vn_pr", "Proton v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
 
+  // vn profiles at "extended" rapidity range 0.5 < y_CM < 1.0
   TProfile *p_vn_pp_ext = new TProfile("p_vn_pp_ext", "#pi^{+} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
   TProfile *p_vn_pm_ext = new TProfile("p_vn_pm_ext", "#pi^{-} v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
@@ -460,6 +462,11 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
   TProfile *p_vn_pr_ext = new TProfile("p_vn_pr_ext", "Proton v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+
+  // vn profiles at the "forward" raidity range y_CM < 0
+  TProfile *p_vn_pr_for = new TProfile("p_vn_pr_for", "Proton v_{"+ORDER_N_STR+"} by Centrality;Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+
 
   TH1D *h_phiRelative = new TH1D("h_phiRelative", ";#phi - #psi_{"+ORDER_M_STR+"};", 100, -PSI_BOUNDS, PSI_BOUNDS);
 
@@ -938,7 +945,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 
 		      h2_pT_vs_yCM_pp->Fill(d_rapidity - Y_MID, d_pT);
 			  
-		      if (d_rapidity - Y_MID > configs.y_mid_pi_low && d_rapidity - Y_MID < configs.y_mid_pi_high_wide && d_pT >= configs.pt_pi_low && d_pT <= configs.pt_pi_high)
+		      if (d_rapidity - Y_MID > configs.yCM_pid_pi_low && d_rapidity - Y_MID < configs.yCM_pid_pi_high && 
+			  d_pT >= configs.pt_pid_pi_low && d_pT <= configs.pt_pid_pi_high)
 			{
 			  particleInfo.ppTag = true;
 			  particleInfo.rapidity = d_rapidity;
@@ -956,7 +964,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 
 		      h2_pT_vs_yCM_pm->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > configs.y_mid_pi_low && d_rapidity - Y_MID < configs.y_mid_pi_high_wide && d_pT >= configs.pt_pi_low && d_pT <= configs.pt_pi_high)
+		      if (d_rapidity - Y_MID > configs.yCM_pid_pi_low && d_rapidity - Y_MID < configs.yCM_pid_pi_high && 
+			  d_pT >= configs.pt_pid_pi_low && d_pT <= configs.pt_pid_pi_high)
 			{
 			  particleInfo.pmTag = true;
 			  particleInfo.rapidity = d_rapidity;
@@ -977,7 +986,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 
 		      h2_pT_vs_yCM_kp->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > configs.y_mid_ka_low && d_rapidity - Y_MID < configs.y_mid_ka_high_wide && d_pT >= configs.pt_ka_low && d_pT <= configs.pt_ka_high)
+		      if (d_rapidity - Y_MID > configs.yCM_pid_ka_low && d_rapidity - Y_MID < configs.yCM_pid_ka_high && 
+			  d_pT >= configs.pt_pid_ka_low && d_pT <= configs.pt_pid_ka_high)
 			{
 			  particleInfo.kpTag = true;
 			  particleInfo.rapidity = d_rapidity;
@@ -995,7 +1005,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
-		      if (d_rapidity - Y_MID > configs.y_mid_ka_low && d_rapidity - Y_MID < configs.y_mid_ka_high_wide && d_pT >= configs.pt_ka_low && d_pT <= configs.pt_ka_high)
+		      if (d_rapidity - Y_MID > configs.yCM_pid_ka_low && d_rapidity - Y_MID < configs.yCM_pid_ka_high && 
+			  d_pT >= configs.pt_pid_ka_low && d_pT <= configs.pt_pid_ka_high)
 			{
 			  particleInfo.kmTag = true;
 			  particleInfo.rapidity = d_rapidity;
@@ -1016,15 +1027,15 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
-		      //if (d_rapidity - Y_MID > 0.0 && d_rapidity - Y_MID < 1.0 && d_pT >= 0.4 && d_pT <= 2.0/*2.0314*/)
-		      if (d_rapidity - Y_MID > configs.y_mid_pr_low_wide && d_rapidity - Y_MID < configs.y_mid_pr_high_wide && 
-			  d_pT >= configs.pt_pr_low_wide && d_pT <= configs.pt_pr_high_wide)  // Wide acceptance, trim during fills
+		      if (d_rapidity - Y_MID > configs.yCM_pid_pr_low && d_rapidity - Y_MID < configs.yCM_pid_pr_high && 
+			  d_pT >= configs.pt_pid_pr_low && d_pT <= configs.pt_pid_pr_high)  // Wide acceptance, trim during fills
 			{
 			  particleInfo.prTag = true;
 			  particleInfo.rapidity = d_rapidity;
 
-			  if (d_rapidity - Y_MID > configs.y_mid_pr_low && d_rapidity - Y_MID < configs.y_mid_pr_high_wide && 
-			      d_pT >= configs.pt_pr_low_wide && d_pT <= configs.pt_pr_high)
+			  // y cuts mixed here, systematics won't be right for these plots but it probably won't matter.
+			  if (d_rapidity - Y_MID > configs.yCM_flow_pr_low && d_rapidity - Y_MID < configs.yCM_pid_pr_high && 
+			      d_pT >= configs.pt_flow_pr_low && d_pT <= configs.pt_flow_pr_high)
 			    {
 			      fillRawSpect(d_px, d_py, d_pz, d_m0_pr, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
 			      h2_y_vs_eta->Fill(d_eta, d_rapidity);
@@ -1068,7 +1079,6 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 	}
 
       // 7.2 GeV FXT
-      /*
       else if (configs.sqrt_s_NN == 7.2)
 	{
 	  if     ( eventInfo.primTracks >=   2 && eventInfo.primTracks <=   3 ) eventInfo.centID =  0;  // 75% - 80% (Peripheral)
@@ -1088,9 +1098,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 	  else if( eventInfo.primTracks >= 154 && eventInfo.primTracks <= 190 ) eventInfo.centID = 14;
 	  else if( eventInfo.primTracks >= 191 && eventInfo.primTracks <= 240 ) eventInfo.centID = 15;  // 0% - 5% (Central)
 	}
-      */
-      if (eventInfo.centID == I_BAD_VALUE) continue;
-      
+
+      if (eventInfo.centID == I_BAD_VALUE) continue;      
       if (eventInfo.centID < FIRST_CENT) continue;
       //=========================================================
       //          END Centrality Assignment
@@ -1431,6 +1440,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		  jthPhi = eventInfo.tpcParticles.at(j).phi;
 		  jthpT  = eventInfo.tpcParticles.at(j).pT;
 		  jthRapidity = eventInfo.tpcParticles.at(j).rapidity;
+
+		  h_simulationCheck->Fill(1);
 		  
 		  Double_t tpcEfficiency = 1;  // Default
 		  if (efficienciesFound)
@@ -1441,6 +1452,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		      else if (eventInfo.tpcParticles.at(j).kmTag) tpcEfficiency = getTpcEff(jthRapidity - Y_MID, jthpT, h2_ratio_km);
 		      else if (eventInfo.tpcParticles.at(j).prTag) tpcEfficiency = getTpcEff(jthRapidity - Y_MID, jthpT, h2_ratio_pr);
 		    }
+
+		  if (tpcEfficiency == -1) { h_simulationCheck->Fill(1); continue; }
 
 		  // ALL CHARGED TRACKS
 		  if (jthpT > 0.2 && jthpT < 2.0)
@@ -1459,9 +1472,9 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		      p2_vn_yCM_cent_pp->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 		      p3_vn_pT_yCM_cent_pp->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
-		      if (jthRapidity - Y_MID < configs.y_mid_pi_high)  // only 0 < y_cm < 0.5
+		      if (jthRapidity - Y_MID > configs.yCM_flow_pi_low && jthRapidity - Y_MID < configs.yCM_flow_pi_high)  // only 0 < y_cm < 0.5
 			{ p_vn_pp->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
-		      else if (jthRapidity - Y_MID >= configs.y_mid_pi_high)  // only 0.5 <= y_cm < 1.0
+		      else if (jthRapidity - Y_MID >= configs.yCM_ext_flow_pi_low && jthRapidity - Y_MID < configs.yCM_ext_flow_pi_high)  // only 0.5 <= y_cm < 1.0
 			{ p_vn_pp_ext->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		    }
 		  // PI-
@@ -1470,9 +1483,9 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		      p2_vn_yCM_cent_pm->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 		      p3_vn_pT_yCM_cent_pm->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
-		      if (jthRapidity - Y_MID < configs.y_mid_pi_high)  // only 0 < y_cm < 0.5
+		      if (jthRapidity - Y_MID > configs.yCM_flow_pi_low && jthRapidity - Y_MID < configs.yCM_flow_pi_high)  // only 0 < y_cm < 0.5
 			{ p_vn_pm->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
-		      else if (jthRapidity - Y_MID >= configs.y_mid_pi_high)  // only 0.5 <= y_cm < 1.0
+		      else if (jthRapidity - Y_MID >= configs.yCM_ext_flow_pi_low && jthRapidity - Y_MID < configs.yCM_ext_flow_pi_high)  // only 0.5 <= y_cm < 1.0
 			{ p_vn_pm_ext->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		    }
 		  // K+
@@ -1481,9 +1494,9 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		      p2_vn_yCM_cent_kp->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 		      p3_vn_pT_yCM_cent_kp->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
-		      if (jthRapidity - Y_MID < configs.y_mid_ka_high)  // only 0 < y_cm < 0.5
+		      if (jthRapidity - Y_MID > configs.yCM_flow_ka_low && jthRapidity - Y_MID < configs.yCM_flow_ka_high)  // only 0 < y_cm < 0.5
 			{ p_vn_kp->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
-		      else if (jthRapidity - Y_MID >= configs.y_mid_ka_high)  // only 0.5 <= y_cm < 1.0
+		      else if (jthRapidity - Y_MID >= configs.yCM_ext_flow_ka_low && jthRapidity - Y_MID < configs.yCM_ext_flow_ka_high)  // only 0.5 <= y_cm < 1.0
 			{ p_vn_kp_ext->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		    }
 		  // K-
@@ -1492,27 +1505,34 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		      p2_vn_yCM_cent_km->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 		      p3_vn_pT_yCM_cent_km->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
-		      if (jthRapidity - Y_MID < configs.y_mid_ka_high)  // only 0 < y_cm < 0.5
+		      if (jthRapidity - Y_MID > configs.yCM_flow_ka_low && jthRapidity - Y_MID < configs.yCM_flow_ka_high)  // only 0 < y_cm < 0.5
 			{ p_vn_km->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
-		      else if (jthRapidity - Y_MID >= configs.y_mid_ka_high)  // only 0.5 <= y_cm < 1.0
+		      else if (jthRapidity - Y_MID >= configs.yCM_ext_flow_ka_low && jthRapidity - Y_MID < configs.yCM_ext_flow_ka_high)  // only 0.5 <= y_cm < 1.0
 			{ p_vn_km_ext->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		    }
 		  // PROTON
 		  else if (eventInfo.tpcParticles.at(j).prTag)
 		    {
-		      if (jthRapidity - Y_MID > configs.y_mid_pr_low && jthRapidity - Y_MID < configs.y_mid_pr_high_wide && 
-			  jthpT > configs.pt_pr_low_wide && jthpT < configs.pt_pr_high)   // NORMAL ACCEPTANCE REGION
+		      // RAPIDITY DEPENDENT STUFF
+		      if (jthRapidity - Y_MID > configs.yCM_dep_flow_pr_low && jthRapidity - Y_MID < configs.yCM_dep_flow_pr_high && 
+			  jthpT > configs.pt_ydep_flow_pr_low && jthpT < configs.pt_ydep_flow_pr_high)
 			{
 			  p2_vn_yCM_cent_pr->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			  p3_vn_pT_yCM_cent_pr->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-
-			  if (jthRapidity - Y_MID < configs.y_mid_pr_high)  // only 0 < y_cm < 0.5
-			    { p_vn_pr->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
-			  else if (jthRapidity - Y_MID >= configs.y_mid_pr_high)  // only 0.5 <= y_cm < 1.0
-			    { p_vn_pr_ext->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 			}
-		      if (jthRapidity - Y_MID > configs.y_mid_pr_low_wide && jthRapidity - Y_MID < configs.y_mid_pr_high && 
-			  jthpT > configs.pt_pr_low && jthpT < configs.pt_pr_high_wide)   // RAPIDITY SYMMETRIC ACCEPTANCE REGION
+
+		      // NORMAL ACCEPTANCE 0 < y_cm < 0.5
+		      if (jthRapidity - Y_MID > configs.yCM_flow_pr_low && jthRapidity - Y_MID < configs.yCM_flow_pr_high &&
+			  jthpT > configs.pt_flow_pr_low && jthpT < configs.pt_flow_pr_high)
+			{ p_vn_pr->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      // EXTENDED RAPIDITY 0.5 <= y_cm < 1.0
+		      else if (jthRapidity - Y_MID >= configs.yCM_ext_flow_pr_low && jthRapidity - Y_MID < configs.yCM_ext_flow_pr_high &&
+			       jthpT > configs.pt_ext_flow_pr_low && jthpT < configs.pt_ext_flow_pr_high)
+			{ p_vn_pr_ext->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+
+		      // RAPIDITY SYMMETRIC ACCEPTANCE REGION
+		      if (jthRapidity - Y_MID > configs.yCM_sym_flow_pr_low && jthRapidity - Y_MID < configs.yCM_sym_flow_pr_high && 
+			  jthpT > configs.pt_sym_flow_pr_low && jthpT < configs.pt_sym_flow_pr_high)
 			{
 			  p2_vn_yCM_cent_pr_symmetry->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			  p3_vn_pT_yCM_cent_pr_symmetry->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
@@ -1523,6 +1543,11 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 			      h2_triCorr_vs_yCM_midCent_pr->Fill(jthRapidity - Y_MID, TMath::Cos(3.0 * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
 			}
+
+		      // ONLY FORWARD ACCEPTANCE REGION
+		      if (jthRapidity - Y_MID > configs.yCM_for_flow_pr_low && jthRapidity - Y_MID < configs.yCM_for_flow_pr_high && 
+			  jthpT > configs.pt_for_flow_pr_low && jthpT < configs.pt_for_flow_pr_high)
+			{ p_vn_pr_for->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		    }
 		}// End tpc particles loop
 	    }// End if(resolutionsFound)
@@ -1533,10 +1558,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
     }//END EVENT LOOP
 
 
-
-
   // Switch y-axis labels to centrality percentages
-
   Int_t labelIndex;
   for (int i = 1; i <= CENT_BINS; i++) 
     {
@@ -1546,7 +1568,6 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
       h2_v2ScanEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
     }
-
 
 
   outputFile->cd();
@@ -1696,7 +1717,7 @@ Double_t getTpcEff(Double_t yCM, Double_t pT, TH2D *h2_ratio)
   Int_t xBin = h2_ratio->GetXaxis()->FindBin(yCM);
   Int_t yBin = h2_ratio->GetYaxis()->FindBin(pT);
   Double_t efficiency = h2_ratio->GetBinContent(xBin, yBin);
-  return (efficiency == 0) ? 1 : efficiency;
+  return (efficiency == 0) ? -1 : efficiency;
 }
 
 

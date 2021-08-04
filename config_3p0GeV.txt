@@ -37,34 +37,59 @@ m2_pi_high=0.1
 m2_ka_low=0.15
 m2_ka_high=0.34
 
-y_mid_pi_low_wide=0.0
-y_mid_pi_low=0.0
-y_mid_pi_high=0.5
-y_mid_pi_high_wide=1.0
+yCM_pid_pi_low=0.0
+yCM_pid_pi_high=1.0
+yCM_flow_pi_low=0.0
+yCM_flow_pi_high=0.5
+yCM_ext_flow_pi_low=0.5
+yCM_ext_flow_pi_high=1.0
 
-y_mid_ka_low_wide=0.0
-y_mid_ka_low=0.0
-y_mid_ka_high=0.5
-y_mid_ka_high_wide=1.0
+yCM_pid_ka_low=0.0
+yCM_pid_ka_high=1.0
+yCM_flow_ka_low=0.0
+yCM_flow_ka_high=0.5
+yCM_ext_flow_ka_low=0.5
+yCM_ext_flow_ka_high=1.0
 
-y_mid_pr_low_wide=-0.5
-y_mid_pr_low=0.0
-y_mid_pr_high=0.5
-y_mid_pr_high_wide=1.0
+yCM_pid_pr_low=-0.5
+yCM_pid_pr_high=1.0
+yCM_flow_pr_low=0.0
+yCM_flow_pr_high=0.5
+yCM_ext_flow_pr_low=0.5
+yCM_ext_flow_pr_high=1.0
+yCM_sym_flow_pr_low=-0.5
+yCM_sym_flow_pr_high=0.5
+yCM_for_flow_pr_low=-0.5
+yCM_for_flow_pr_high=0.0
 
-pt_pi_low=0.18
-pt_pi_high=1.6
 
-pt_ka_low=0.4
-pt_ka_high=1.6
+pt_pid_pi_low=0.18
+pt_pid_pi_high=1.6
 
-pt_pr_low_wide=0.4
-pt_pr_low=0.7
-pt_pr_high=2.0
-pt_pr_high_wide=2.5
+pt_pid_ka_low=0.4
+pt_pid_ka_high=1.6
+
+pt_pid_pr_low=0.4
+pt_pid_pr_high=2.5
+pt_flow_pr_low=0.4
+pt_flow_pr_high=2.0
+pt_ext_flow_pr_low=0.4
+pt_ext_flow_pr_high=2.0
+pt_sym_flow_pr_low=1.0
+pt_sym_flow_pr_high=2.5
+pt_for_flow_pr_low=1.0
+pt_for_flow_pr_high=2.5
 
 # innermost/ourtermost rows in EPD subevents (inclusive)
+# EPD A IS THE MAIN SUBEVENT FOR FLOW CALCULATIONS
 epdA_inner_row=1
 epdA_outer_row=8
 epdB_inner_row=9
 epdB_outer_row=16
+
+
+# Don't vary these for systematics
+yCM_dep_flow_pr_low=0.0
+yCM_dep_flow_pr_high=1.0
+pt_ydep_flow_pr_low=0.4
+pt_ydep_flow_pr_high=2.0

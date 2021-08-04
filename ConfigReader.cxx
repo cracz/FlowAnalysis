@@ -26,27 +26,80 @@ void ConfigReader::notifyError()
 
 void ConfigReader::read(std::string fileName)
 {
-  const TString intValKeys[9] = {"epd_max_weight", "nHits", "dEdx", "min_tracks", 
-				 "shift_terms", "epdA_inner_row", "epdA_outer_row", 
-				 "epdB_inner_row", "epdB_outer_row"};
-  const TString doubleValKeys[44] = {"sqrt_s_NN", "order_n", "order_m", "epd_threshold", 
-				     "tracking", "dca", "min_abs_tpc_eta", 
-				     "near_abs_tpc_eta", "far_abs_tpc_eta", 
-				     "max_abs_tpc_eta", "r_vtx", 
-				     "z_vtx_low", "z_vtx_high", "y_mid", "nSig_pi_low", 
-				     "nSig_pi_high", "nSig_ka_low", "nSig_ka_high", 
-				     "nSig_pr_low", "nSig_pr_high", "m2_pi_low", 
-				     "m2_pi_high", "m2_ka_low", "m2_ka_high", 
-				     "y_mid_pi_low_wide", "y_mid_pi_low", 
-				     "y_mid_pi_high", "y_mid_pi_high_wide", 
-				     "y_mid_ka_low_wide", "y_mid_ka_low", 
-				     "y_mid_ka_high", "y_mid_ka_high_wide", 
-				     "y_mid_pr_low_wide", "y_mid_pr_low", 
-				     "y_mid_pr_high", "y_mid_pr_high_wide", 
-				     "pt_pi_low", "pt_pi_high", 
-				     "pt_ka_low", "pt_ka_high", 
-				     "pt_pr_low_wide", "pt_pr_low", 
-				     "pt_pr_high","pt_pr_high_wide"};
+  const TString intValKeys[9] = {"epd_max_weight", 
+				 "nHits", 
+				 "dEdx", 
+				 "min_tracks", 
+				 "shift_terms", 
+				 "epdA_inner_row", 
+				 "epdA_outer_row", 
+				 "epdB_inner_row", 
+				 "epdB_outer_row"};
+
+  const TString doubleValKeys[64] = {"sqrt_s_NN", 
+				     "order_n", 
+				     "order_m", 
+				     "epd_threshold", 
+				     "tracking", 
+				     "dca", 
+				     "min_abs_tpc_eta", 
+				     "near_abs_tpc_eta", 
+				     "far_abs_tpc_eta", 
+				     "max_abs_tpc_eta", 
+				     "r_vtx", 
+				     "z_vtx_low", 
+				     "z_vtx_high", 
+				     "y_mid", 
+				     "nSig_pi_low", 
+				     "nSig_pi_high", 
+				     "nSig_ka_low", 
+				     "nSig_ka_high", 
+				     "nSig_pr_low", 
+				     "nSig_pr_high", 
+				     "m2_pi_low", 
+				     "m2_pi_high", 
+				     "m2_ka_low", 
+				     "m2_ka_high", 
+				     "yCM_pid_pi_low",
+				     "yCM_pid_pi_high",
+				     "yCM_flow_pi_low",
+				     "yCM_flow_pi_high",
+				     "yCM_ext_flow_pi_low",
+				     "yCM_ext_flow_pi_high",
+				     "yCM_pid_ka_low",
+				     "yCM_pid_ka_high",
+				     "yCM_flow_ka_low",
+				     "yCM_flow_ka_high",
+				     "yCM_ext_flow_ka_low",
+				     "yCM_ext_flow_ka_high",
+				     "yCM_pid_pr_low",
+				     "yCM_pid_pr_high",
+				     "yCM_flow_pr_low",
+				     "yCM_flow_pr_high",
+				     "yCM_dep_flow_pr_low",
+				     "yCM_dep_flow_pr_high",
+				     "yCM_ext_flow_pr_low",
+				     "yCM_ext_flow_pr_high",
+				     "yCM_sym_flow_pr_low",
+				     "yCM_sym_flow_pr_high",
+				     "yCM_for_flow_pr_low",
+				     "yCM_for_flow_pr_high",
+				     "pt_pid_pi_low", 
+				     "pt_pid_pi_high", 
+				     "pt_pid_ka_low", 
+				     "pt_pid_ka_high", 
+				     "pt_pid_pr_low", 
+				     "pt_pid_pr_high", 
+				     "pt_flow_pr_low", 
+				     "pt_flow_pr_high", 
+				     "pt_ydep_flow_pr_low",
+				     "pt_ydep_flow_pr_high",
+				     "pt_ext_flow_pr_low",
+				     "pt_ext_flow_pr_high",
+				     "pt_sym_flow_pr_low",
+				     "pt_sym_flow_pr_high",
+				     "pt_for_flow_pr_low",
+				     "pt_for_flow_pr_high"};
 
   int intValKeysLength = sizeof(intValKeys)/sizeof(intValKeys[0]);
   int doubleValKeysLength = sizeof(doubleValKeys)/sizeof(doubleValKeys[0]);
@@ -151,26 +204,46 @@ void ConfigReader::read(std::string fileName)
 	  else if (key == "m2_pi_high") { m2_pi_high = value_double; }
 	  else if (key == "m2_ka_low") { m2_ka_low = value_double; }
 	  else if (key == "m2_ka_high") { m2_ka_high = value_double; }
-	  else if (key == "y_mid_pi_low_wide") { y_mid_pi_low_wide = value_double; }
-	  else if (key == "y_mid_pi_low") { y_mid_pi_low = value_double; }
-	  else if (key == "y_mid_pi_high") { y_mid_pi_high = value_double; }
-	  else if (key == "y_mid_pi_high_wide") { y_mid_pi_high_wide = value_double; }
-	  else if (key == "y_mid_ka_low_wide") { y_mid_ka_low_wide = value_double; }
-	  else if (key == "y_mid_ka_low") { y_mid_ka_low = value_double; }
-	  else if (key == "y_mid_ka_high") { y_mid_ka_high = value_double; }
-	  else if (key == "y_mid_ka_high_wide") { y_mid_ka_high_wide = value_double; }
-	  else if (key == "y_mid_pr_low_wide") { y_mid_pr_low_wide = value_double; }
-	  else if (key == "y_mid_pr_low") { y_mid_pr_low = value_double; }
-	  else if (key == "y_mid_pr_high") { y_mid_pr_high = value_double; }
-	  else if (key == "y_mid_pr_high_wide") { y_mid_pr_high_wide = value_double; }
-	  else if (key == "pt_pi_low") { pt_pi_low = value_double; }
-	  else if (key == "pt_pi_high") { pt_pi_high = value_double; }
-	  else if (key == "pt_ka_low") { pt_ka_low = value_double; }
-	  else if (key == "pt_ka_high") { pt_ka_high = value_double; }
-	  else if (key == "pt_pr_low_wide") { pt_pr_low_wide = value_double; }
-	  else if (key == "pt_pr_low") { pt_pr_low = value_double; }
-	  else if (key == "pt_pr_high") { pt_pr_high = value_double; }
-	  else if (key == "pt_pr_high_wide") { pt_pr_high_wide = value_double; }
+	  else if (key == "yCM_pid_pi_low") { yCM_pid_pi_low = value_double; }
+	  else if (key == "yCM_pid_pi_high") { yCM_pid_pi_high = value_double; }
+	  else if (key == "yCM_flow_pi_low") { yCM_flow_pi_low = value_double; }
+	  else if (key == "yCM_flow_pi_high") { yCM_flow_pi_high = value_double; }
+	  else if (key == "yCM_ext_flow_pi_low") { yCM_ext_flow_pi_low = value_double; }
+	  else if (key == "yCM_ext_flow_pi_high") { yCM_ext_flow_pi_high = value_double; }
+	  else if (key == "yCM_pid_ka_low") { yCM_pid_ka_low = value_double; }
+	  else if (key == "yCM_pid_ka_high") { yCM_pid_ka_high = value_double; }
+	  else if (key == "yCM_flow_ka_low") { yCM_flow_ka_low = value_double; }
+	  else if (key == "yCM_flow_ka_high") { yCM_flow_ka_high = value_double; }
+	  else if (key == "yCM_ext_flow_ka_low") { yCM_ext_flow_ka_low = value_double; }
+	  else if (key == "yCM_ext_flow_ka_high") { yCM_ext_flow_ka_high = value_double; }
+	  else if (key == "yCM_pid_pr_low") { yCM_pid_pr_low = value_double; }
+	  else if (key == "yCM_pid_pr_high") { yCM_pid_pr_high = value_double; }
+	  else if (key == "yCM_flow_pr_low") { yCM_flow_pr_low = value_double; }
+	  else if (key == "yCM_flow_pr_high") { yCM_flow_pr_high = value_double; }
+	  else if (key == "yCM_dep_flow_pr_low") { yCM_dep_flow_pr_low = value_double; }
+	  else if (key == "yCM_dep_flow_pr_high") { yCM_dep_flow_pr_high = value_double; }
+	  else if (key == "yCM_ext_flow_pr_low") { yCM_ext_flow_pr_low = value_double; }
+	  else if (key == "yCM_ext_flow_pr_high") { yCM_ext_flow_pr_high = value_double; }
+	  else if (key == "yCM_sym_flow_pr_low") { yCM_sym_flow_pr_low = value_double; }
+	  else if (key == "yCM_sym_flow_pr_high") { yCM_sym_flow_pr_high = value_double; }
+	  else if (key == "yCM_for_flow_pr_low") { yCM_for_flow_pr_low = value_double; }
+	  else if (key == "yCM_for_flow_pr_high") { yCM_for_flow_pr_high = value_double; }
+	  else if (key == "pt_pid_pi_low") { pt_pid_pi_low = value_double; }
+	  else if (key == "pt_pid_pi_high") { pt_pid_pi_high = value_double; }
+	  else if (key == "pt_pid_ka_low") { pt_pid_ka_low = value_double; }
+	  else if (key == "pt_pid_ka_high") { pt_pid_ka_high = value_double; }
+	  else if (key == "pt_pid_pr_low") { pt_pid_pr_low = value_double; }
+	  else if (key == "pt_pid_pr_high") { pt_pid_pr_high = value_double; }
+	  else if (key == "pt_flow_pr_low") { pt_flow_pr_low = value_double; }
+	  else if (key == "pt_flow_pr_high") { pt_flow_pr_high = value_double; }
+	  else if (key == "pt_ydep_flow_pr_low") { pt_ydep_flow_pr_low = value_double; }
+	  else if (key == "pt_ydep_flow_pr_high") { pt_ydep_flow_pr_high = value_double; }
+	  else if (key == "pt_ext_flow_pr_low") { pt_ext_flow_pr_low = value_double; }
+	  else if (key == "pt_ext_flow_pr_high") { pt_ext_flow_pr_high = value_double; }
+	  else if (key == "pt_sym_flow_pr_low") { pt_sym_flow_pr_low = value_double; }
+	  else if (key == "pt_sym_flow_pr_high") { pt_sym_flow_pr_high = value_double; }
+	  else if (key == "pt_for_flow_pr_low") { pt_for_flow_pr_low = value_double; }
+	  else if (key == "pt_for_flow_pr_high") { pt_for_flow_pr_high = value_double; }
 	}
       else
 	{ 
