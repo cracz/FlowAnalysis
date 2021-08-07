@@ -487,18 +487,35 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   TProfile2D *p2_vn_yCM_cent_pr_symmetry = 
     new TProfile2D("p2_vn_yCM_cent_pr_symmetry", "Proton v_{"+ORDER_N_STR+"};Centrality;y-y_{mid}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 20, -1, 1);
 
-  TProfile3D *p3_vn_pT_yCM_cent_pp = new TProfile3D("p3_vn_pT_yCM_cent_pp", "#pi^{+} v_{"+ORDER_N_STR+"};Centrality;y-y_{mid};p_{T}", 
-						 CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 20, -1, 1, 20, 0, 2);
-  TProfile3D *p3_vn_pT_yCM_cent_pm = new TProfile3D("p3_vn_pT_yCM_cent_pm", "#pi^{-} v_{"+ORDER_N_STR+"};Centrality;y-y_{mid};p_{T}", 
-						 CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 20, -1, 1, 20, 0, 2);
-  TProfile3D *p3_vn_pT_yCM_cent_kp = new TProfile3D("p3_vn_pT_yCM_cent_kp", "K^{+} v_{"+ORDER_N_STR+"};Centrality;y-y_{mid};p_{T}", 
-						 CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 20, -1, 1, 20, 0, 2);
-  TProfile3D *p3_vn_pT_yCM_cent_km = new TProfile3D("p3_vn_pT_yCM_cent_km", "K^{-} v_{"+ORDER_N_STR+"};Centrality;y-y_{mid};p_{T}", 
-						 CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 20, -1, 1, 20, 0, 2);
-  TProfile3D *p3_vn_pT_yCM_cent_pr = new TProfile3D("p3_vn_pT_yCM_cent_pr", "Proton v_{"+ORDER_N_STR+"};Centrality;y-y_{mid};p_{T}", 
-						 CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 20, -1, 1, 20, 0, 2);
-  TProfile3D *p3_vn_pT_yCM_cent_pr_symmetry = new TProfile3D("p3_vn_pT_yCM_cent_pr_symmetry", "Proton v_{"+ORDER_N_STR+"};Centrality;y-y_{mid};p_{T}", 
-							  CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 20, -1, 1, 25, 0, 2.5);
+  TProfile *p_vn_yCM_pT011p5_c0010_pr_symm = new TProfile("p_vn_yCM_pT011p5_c0010_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT1p502_c0010_pr_symm = new TProfile("p_vn_yCM_pT1p502_c0010_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT022p5_c0010_pr_symm = new TProfile("p_vn_yCM_pT022p5_c0010_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+
+  TProfile *p_vn_yCM_pT011p5_c1020_pr_symm = new TProfile("p_vn_yCM_pT011p5_c1020_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT1p502_c1020_pr_symm = new TProfile("p_vn_yCM_pT1p502_c1020_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT022p5_c1020_pr_symm = new TProfile("p_vn_yCM_pT022p5_c1020_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+
+  TProfile *p_vn_yCM_pT011p5_c2030_pr_symm = new TProfile("p_vn_yCM_pT011p5_c2030_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT1p502_c2030_pr_symm = new TProfile("p_vn_yCM_pT1p502_c2030_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT022p5_c2030_pr_symm = new TProfile("p_vn_yCM_pT022p5_c2030_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+
+  TProfile *p_vn_yCM_pT011p5_c3040_pr_symm = new TProfile("p_vn_yCM_pT011p5_c3040_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT1p502_c3040_pr_symm = new TProfile("p_vn_yCM_pT1p502_c3040_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT022p5_c3040_pr_symm = new TProfile("p_vn_yCM_pT022p5_c3040_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+
+  TProfile *p_vn_yCM_pT011p5_c4050_pr_symm = new TProfile("p_vn_yCM_pT011p5_c4050_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT1p502_c4050_pr_symm = new TProfile("p_vn_yCM_pT1p502_c4050_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT022p5_c4050_pr_symm = new TProfile("p_vn_yCM_pT022p5_c4050_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+
+  TProfile *p_vn_yCM_pT011p5_c5060_pr_symm = new TProfile("p_vn_yCM_pT011p5_c5060_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT1p502_c5060_pr_symm = new TProfile("p_vn_yCM_pT1p502_c5060_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+  TProfile *p_vn_yCM_pT022p5_c5060_pr_symm = new TProfile("p_vn_yCM_pT022p5_c5060_pr_symm", "Proton v_{"+ORDER_N_STR+"};y-y_{mid};v_{"+ORDER_N_STR+"}", 20, -1, 1);
+
+  TProfile2D *p2_vn_pT_cent_pp = new TProfile2D("p2_vn_pT_cent_pp", "#pi^{+} v_{"+ORDER_N_STR+"};Centrality;p_{T}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
+  TProfile2D *p2_vn_pT_cent_pm = new TProfile2D("p2_vn_pT_cent_pm", "#pi^{-} v_{"+ORDER_N_STR+"};Centrality;p_{T}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
+  TProfile2D *p2_vn_pT_cent_kp = new TProfile2D("p2_vn_pT_cent_kp", "K^{+} v_{"+ORDER_N_STR+"};Centrality;p_{T}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
+  TProfile2D *p2_vn_pT_cent_km = new TProfile2D("p2_vn_pT_cent_km", "K^{-} v_{"+ORDER_N_STR+"};Centrality;p_{T}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
+  TProfile2D *p2_vn_pT_cent_pr = new TProfile2D("p2_vn_pT_cent_pr", "Proton v_{"+ORDER_N_STR+"};Centrality;p_{T}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
 
 
   // Profiles for resolution terms
@@ -1470,7 +1487,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		  if (eventInfo.tpcParticles.at(j).ppTag)
 		    {
 		      p2_vn_yCM_cent_pp->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-		      p3_vn_pT_yCM_cent_pp->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+		      p2_vn_pT_cent_pp->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
 		      if (jthRapidity - Y_MID > configs.yCM_flow_pi_low && jthRapidity - Y_MID < configs.yCM_flow_pi_high)  // only 0 < y_cm < 0.5
 			{ p_vn_pp->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
@@ -1481,7 +1498,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		  else if (eventInfo.tpcParticles.at(j).pmTag)
 		    {
 		      p2_vn_yCM_cent_pm->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-		      p3_vn_pT_yCM_cent_pm->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+		      p2_vn_pT_cent_pm->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
 		      if (jthRapidity - Y_MID > configs.yCM_flow_pi_low && jthRapidity - Y_MID < configs.yCM_flow_pi_high)  // only 0 < y_cm < 0.5
 			{ p_vn_pm->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
@@ -1492,7 +1509,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		  else if (eventInfo.tpcParticles.at(j).kpTag)
 		    {
 		      p2_vn_yCM_cent_kp->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-		      p3_vn_pT_yCM_cent_kp->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+		      p2_vn_pT_cent_kp->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
 		      if (jthRapidity - Y_MID > configs.yCM_flow_ka_low && jthRapidity - Y_MID < configs.yCM_flow_ka_high)  // only 0 < y_cm < 0.5
 			{ p_vn_kp->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
@@ -1503,7 +1520,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		  else if (eventInfo.tpcParticles.at(j).kmTag)
 		    {
 		      p2_vn_yCM_cent_km->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-		      p3_vn_pT_yCM_cent_km->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+		      p2_vn_pT_cent_km->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
 		      if (jthRapidity - Y_MID > configs.yCM_flow_ka_low && jthRapidity - Y_MID < configs.yCM_flow_ka_high)  // only 0 < y_cm < 0.5
 			{ p_vn_km->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
@@ -1516,9 +1533,9 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		      // RAPIDITY DEPENDENT STUFF
 		      if (jthRapidity - Y_MID > configs.yCM_dep_flow_pr_low && jthRapidity - Y_MID < configs.yCM_dep_flow_pr_high && 
 			  jthpT > configs.pt_ydep_flow_pr_low && jthpT < configs.pt_ydep_flow_pr_high)
-			{
-			  p2_vn_yCM_cent_pr->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			  p3_vn_pT_yCM_cent_pr->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			{ 
+			  p2_vn_yCM_cent_pr->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); 
+			  p2_vn_pT_cent_pr->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			}
 
 		      // NORMAL ACCEPTANCE 0 < y_cm < 0.5
@@ -1535,20 +1552,79 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 			  jthpT > configs.pt_sym_flow_pr_low && jthpT < configs.pt_sym_flow_pr_high)
 			{
 			  p2_vn_yCM_cent_pr_symmetry->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			  p3_vn_pT_yCM_cent_pr_symmetry->Fill(centID, jthRapidity - Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
 			  if (centID >= 8 && centID <= 13)
 			    {
 			      h2_phiRelative_vs_yCM_midCent_pr->Fill(jthRapidity - Y_MID, jthPhi - psi);
 			      h2_triCorr_vs_yCM_midCent_pr->Fill(jthRapidity - Y_MID, TMath::Cos(3.0 * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
-			}
+
+			  if (centID == 14 || centID == 15)
+			    {
+			      if (jthpT > 1.0 && jthpT < 1.5) 
+				p_vn_yCM_pT011p5_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 1.5 && jthpT < 2.0) 
+				p_vn_yCM_pT1p502_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 2.0 && jthpT < 2.5) 
+				p_vn_yCM_pT022p5_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    }
+
+			  if (centID == 12 || centID == 13)
+			    {
+			      if (jthpT > 1.0 && jthpT < 1.5) 
+				p_vn_yCM_pT011p5_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 1.5 && jthpT < 2.0) 
+				p_vn_yCM_pT1p502_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 2.0 && jthpT < 2.5) 
+				p_vn_yCM_pT022p5_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    }
+
+			  if (centID == 10 || centID == 11)
+			    {
+			      if (jthpT > 1.0 && jthpT < 1.5) 
+				p_vn_yCM_pT011p5_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 1.5 && jthpT < 2.0) 
+				p_vn_yCM_pT1p502_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 2.0 && jthpT < 2.5) 
+				p_vn_yCM_pT022p5_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    }
+
+			  if (centID == 8 || centID == 9)
+			    {
+			      if (jthpT > 1.0 && jthpT < 1.5) 
+				p_vn_yCM_pT011p5_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 1.5 && jthpT < 2.0) 
+				p_vn_yCM_pT1p502_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 2.0 && jthpT < 2.5) 
+				p_vn_yCM_pT022p5_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    }
+
+			  if (centID == 6 || centID == 7)
+			    {
+			      if (jthpT > 1.0 && jthpT < 1.5) 
+				p_vn_yCM_pT011p5_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 1.5 && jthpT < 2.0) 
+				p_vn_yCM_pT1p502_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 2.0 && jthpT < 2.5) 
+				p_vn_yCM_pT022p5_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    }
+
+			  if (centID == 4 || centID == 5)
+			    {
+			      if (jthpT > 1.0 && jthpT < 1.5) 
+				p_vn_yCM_pT011p5_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 1.5 && jthpT < 2.0) 
+				p_vn_yCM_pT1p502_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			      if (jthpT > 2.0 && jthpT < 2.5) 
+				p_vn_yCM_pT022p5_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    }
+			}// End rapidity symmetric region
 
 		      // ONLY FORWARD ACCEPTANCE REGION
 		      if (jthRapidity - Y_MID > configs.yCM_for_flow_pr_low && jthRapidity - Y_MID < configs.yCM_for_flow_pr_high && 
 			  jthpT > configs.pt_for_flow_pr_low && jthpT < configs.pt_for_flow_pr_high)
 			{ p_vn_pr_for->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
-		    }
+		    }// End protons
 		}// End tpc particles loop
 	    }// End if(resolutionsFound)
 	  //=========================================================
