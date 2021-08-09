@@ -7,6 +7,7 @@
 // I have to initialize the maps like this because c++98 sucks (or maybe just the CINT does)
 void ConfigReader::initialize()
 {
+  intValCuts["minbias"] = -999;
   intValCuts["epd_max_weight"] = -999;
   intValCuts["nHits"] = -999;
   intValCuts["dEdx"] = -999;
@@ -16,7 +17,6 @@ void ConfigReader::initialize()
   intValCuts["epdA_outer_row"] = -999;
   intValCuts["epdB_inner_row"] = -999;
   intValCuts["epdB_outer_row"] = -999;
-
 
   dblValCuts["sqrt_s_NN"] = -999.0;
   dblValCuts["order_n"] = -999.0; 
@@ -86,6 +86,7 @@ void ConfigReader::initialize()
 
 void ConfigReader::setAllCuts()
 {
+  minbias = intValCuts["minbias"];
   epd_max_weight = intValCuts["epd_max_weight"];
   nHits = intValCuts["nHits"];
   dEdx = intValCuts["dEdx"];
