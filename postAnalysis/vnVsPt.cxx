@@ -276,6 +276,80 @@ void vnVsPt(TString jobID, TString order_n_str)
       prPtStack->Add(h_vn_pT_40to60_pr);
 
 
+      TLegend *ppLegend = new TLegend(0.18, 0.72, 0.38, 0.87);
+      ppLegend->AddEntry(h_vn_pT_00to10_pp, "0 - 10%");
+      ppLegend->AddEntry(h_vn_pT_10to40_pp, "10 - 40%");
+      ppLegend->AddEntry(h_vn_pT_40to60_pp, "40 - 60%");
+      ppLegend->SetBorderSize(0);
+      ppLegend->SetFillColorAlpha(0,0);
+
+      TLegend *pmLegend = new TLegend(0.18, 0.72, 0.38, 0.87);
+      pmLegend->AddEntry(h_vn_pT_00to10_pm, "0 - 10%");
+      pmLegend->AddEntry(h_vn_pT_10to40_pm, "10 - 40%");
+      pmLegend->AddEntry(h_vn_pT_40to60_pm, "40 - 60%");
+      pmLegend->SetBorderSize(0);
+      pmLegend->SetFillColorAlpha(0,0);
+
+      TLegend *kpLegend = new TLegend(0.18, 0.72, 0.38, 0.87);
+      kpLegend->AddEntry(h_vn_pT_00to10_kp, "0 - 10%");
+      kpLegend->AddEntry(h_vn_pT_10to40_kp, "10 - 40%");
+      kpLegend->AddEntry(h_vn_pT_40to60_kp, "40 - 60%");
+      kpLegend->SetBorderSize(0);
+      kpLegend->SetFillColorAlpha(0,0);
+
+      TLegend *kmLegend = new TLegend(0.19, 0.15, 0.39, 0.3);
+      //kmLegend->AddEntry(h_vn_pT_00to10_km, "0 - 10%");
+      kmLegend->AddEntry(h_vn_pT_10to40_km, "10 - 40%");
+      //kmLegend->AddEntry(h_vn_pT_40to60_km, "40 - 60%");
+      kmLegend->SetBorderSize(0);
+      kmLegend->SetFillColorAlpha(0,0);
+
+      TLegend *prLegend = new TLegend(0.19, 0.15, 0.39, 0.3);
+      prLegend->AddEntry(h_vn_pT_00to10_pr, "0 - 10%");
+      prLegend->AddEntry(h_vn_pT_10to40_pr, "10 - 40%");
+      prLegend->AddEntry(h_vn_pT_40to60_pr, "40 - 60%");
+      prLegend->SetBorderSize(0);
+      prLegend->SetFillColorAlpha(0,0);
+
+
+
+      TPaveText *ppText = new TPaveText(0.1, 0.06, 1, 0.13, "NB");
+      ppText->AddText("#pi^{+}");
+      ppText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      ppText->AddText("0 < y_{CM} < 0.5 GeV");
+      ppText->SetFillColorAlpha(0,0);
+      ppText->SetLineColorAlpha(0,0);
+
+      TPaveText *pmText = new TPaveText(0.1, -0.1, 1, -0.05, "NB");
+      pmText->AddText("#pi^{-}");
+      pmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      pmText->AddText("0 < y_{CM} < 0.5 GeV");
+      pmText->SetFillColorAlpha(0,0);
+      pmText->SetLineColorAlpha(0,0);
+
+      TPaveText *kpText = new TPaveText(0.1, 0.04, 1, 0.1, "NB");
+      kpText->AddText("K^{+}");
+      kpText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      kpText->AddText("0 < y_{CM} < 0.5 GeV");
+      kpText->SetFillColorAlpha(0,0);
+      kpText->SetLineColorAlpha(0,0);
+
+      TPaveText *kmText = new TPaveText(0.6, -0.06, 1.5, -0.045, "NB");
+      kmText->AddText("K^{-}");
+      kmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      kmText->AddText("0 < y_{CM} < 0.5 GeV");
+      kmText->SetFillColorAlpha(0,0);
+      kmText->SetLineColorAlpha(0,0);
+
+      TPaveText *prText = new TPaveText(0.6, -0.1, 1.5, -0.075, "NB");
+      prText->AddText("Proton");
+      prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      prText->AddText("0 < y_{CM} < 0.5 GeV");
+      prText->SetFillColorAlpha(0,0);
+      prText->SetLineColorAlpha(0,0);
+
+
+
       ppPtStack->Draw();
       ppPtStack->GetYaxis()->SetTitleOffset(1.7);
       ppPtStack->GetXaxis()->SetNdivisions(210);
@@ -284,8 +358,8 @@ void vnVsPt(TString jobID, TString order_n_str)
       ppPtStack->SetMinimum(-0.1);
       ppPtStack->Draw("NOSTACK E1P");
       zeroLine_pt->Draw("SAME");
-      //ppLegend->Draw();
-      //ppText->Draw();
+      ppLegend->Draw();
+      ppText->Draw();
       canvas->SaveAs(jobID + "_ppPtStack.png");
       canvas->Clear();
 
@@ -297,8 +371,8 @@ void vnVsPt(TString jobID, TString order_n_str)
       //pmPtStack->SetMinimum(-0.04);
       pmPtStack->Draw("NOSTACK E1P");
       zeroLine_pt->Draw("SAME");
-      //pmLegend->Draw();
-      //pmText->Draw();
+      pmLegend->Draw();
+      pmText->Draw();
       canvas->SaveAs(jobID + "_pmPtStack.png");
       canvas->Clear();
 
@@ -310,11 +384,12 @@ void vnVsPt(TString jobID, TString order_n_str)
       kpPtStack->SetMinimum(-0.1);
       kpPtStack->Draw("NOSTACK E1P");
       zeroLine_pt->Draw("SAME");
-      //kpLegend->Draw();
-      //kpText->Draw();
+      kpLegend->Draw();
+      kpText->Draw();
       canvas->SaveAs(jobID + "_kpPtStack.png");
       canvas->Clear();
 
+      gStyle->SetErrorX(1);
       kmPtStack->Draw();
       kmPtStack->GetYaxis()->SetTitleOffset(1.7);
       kmPtStack->GetXaxis()->SetNdivisions(210);
@@ -323,10 +398,11 @@ void vnVsPt(TString jobID, TString order_n_str)
       //kmPtStack->SetMinimum(-0.06);
       kmPtStack->Draw("NOSTACK E1P");
       zeroLine_pt->Draw("SAME");
-      //kmLegend->Draw();
-      //kmText->Draw();
+      kmLegend->Draw();
+      kmText->Draw();
       canvas->SaveAs(jobID + "_kmPtStack.png");
       canvas->Clear();
+      gStyle->SetErrorX(0);
 
       prPtStack->Draw();
       prPtStack->GetYaxis()->SetTitleOffset(1.7);
@@ -336,8 +412,8 @@ void vnVsPt(TString jobID, TString order_n_str)
       prPtStack->SetMinimum(-0.11);
       prPtStack->Draw("NOSTACK E1P");
       zeroLine_pt->Draw("SAME");
-      //prLegend->Draw();
-      //prText_y->Draw();
+      prLegend->Draw();
+      prText->Draw();
       canvas->SaveAs(jobID + "_prPtStack.png");
       canvas->Clear();
     }
