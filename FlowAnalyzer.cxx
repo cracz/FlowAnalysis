@@ -221,6 +221,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 
   ConfigReader configs;
   configs.read(configFileName);
+  if (configs.errorFound()) { std::cout << "There was an error reading the configurations! Aborting analysis!" << std::endl; return; }
 
   const Double_t ORDER_N = configs.order_n;   // Order of anisotropic flow (v_n)
   const Double_t ORDER_M = configs.order_m;   // Order of event plane angle (psi_m)
@@ -748,7 +749,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
       triggerIDs = event->triggerIds();
       Bool_t b_bad_trig = true;
 
-      for (UInt_t i = 0; i < triggerIDs.size(); i++) { if (triggerIDs[i] == 620052) {b_bad_trig = false;} } // minBias ID for 3 GeV: 620052
+      for (UInt_t i = 0; i < triggerIDs.size(); i++) { if (triggerIDs[i] == (UInt_t)configs.minbias) {b_bad_trig = false;} }
 
       if (b_bad_trig) continue;
       //=========================================================

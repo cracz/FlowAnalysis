@@ -2,6 +2,7 @@
 #define CONFIGREADER_H
 
 #include <string>
+#include <map>
 #include "TString.h"
 
 class ConfigReader
@@ -10,6 +11,13 @@ class ConfigReader
   ConfigReader();
   ~ConfigReader();
 
+  bool errorFound();
+  void notifyError();
+  void initialize();
+  void setAllCuts();
+  void read(std::string fileName);
+
+  Int_t minbias;
   Int_t epd_max_weight;
   Int_t nHits;
   Int_t dEdx;
@@ -91,14 +99,12 @@ class ConfigReader
   TString order_n_str;
   TString order_m_str;
 
-  bool errorFound();
-  void notifyError();
-  void read(std::string fileName);
-
  private:
   bool errorFlag;
-  TString lastGoodKey;
-  TString lastGoodValue;
+  TString lastKey;
+  TString lastValue;
+  std::map<std::string, int> intValCuts;
+  std::map<std::string, double> dblValCuts;
 };
 
 #endif
