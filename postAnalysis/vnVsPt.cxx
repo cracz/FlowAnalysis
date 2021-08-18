@@ -11,7 +11,7 @@ void vnVsPt(TString jobID, TString order_n_str)
   TCanvas *canvas = new TCanvas("canvas", "Canvas", 800, 800);
   //canvas->SetGrid();
   canvas->SetTicks();
-  canvas->SetLeftMargin(0.15);
+  canvas->SetLeftMargin(0.14);
   canvas->cd();
   gStyle->SetErrorX(0);
   gStyle->SetOptStat(0);
@@ -313,14 +313,14 @@ void vnVsPt(TString jobID, TString order_n_str)
 
 
 
-      TPaveText *ppText = new TPaveText(0.1, 0.06, 1, 0.13, "NB");
+      TPaveText *ppText = new TPaveText(0.1, 0.08, 1, 0.15, "NB");
       ppText->AddText("#pi^{+}");
       ppText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       ppText->AddText("0 < y_{CM} < 0.5 GeV");
       ppText->SetFillColorAlpha(0,0);
       ppText->SetLineColorAlpha(0,0);
 
-      TPaveText *pmText = new TPaveText(0.1, -0.1, 1, -0.05, "NB");
+      TPaveText *pmText = new TPaveText(0.1, -0.13, 1, -0.07, "NB");
       pmText->AddText("#pi^{-}");
       pmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       pmText->AddText("0 < y_{CM} < 0.5 GeV");
@@ -334,7 +334,7 @@ void vnVsPt(TString jobID, TString order_n_str)
       kpText->SetFillColorAlpha(0,0);
       kpText->SetLineColorAlpha(0,0);
 
-      TPaveText *kmText = new TPaveText(0.6, -0.06, 1.5, -0.045, "NB");
+      TPaveText *kmText = new TPaveText(0.1, -0.065, 1.0, -0.05, "NB");
       kmText->AddText("K^{-}");
       kmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kmText->AddText("0 < y_{CM} < 0.5 GeV");
