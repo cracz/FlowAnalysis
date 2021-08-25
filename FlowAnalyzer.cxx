@@ -226,8 +226,10 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   const Double_t ORDER_N = configs.order_n;   // Order of anisotropic flow (v_n)
   const Double_t ORDER_M = configs.order_m;   // Order of event plane angle (psi_m)
   const Double_t Y_MID   = configs.y_mid;     // Mid rapidity for the current energy
-  const TString ORDER_N_STR = configs.order_n_str;
-  const TString ORDER_M_STR = configs.order_m_str;
+  TString ORDER_N_STR;
+  TString ORDER_M_STR;
+  ORDER_N_STR.Form("%f", ORDER_N);
+  ORDER_M_STR.Form("%f", ORDER_M);
   const Double_t PSI_BOUNDS = TMath::Pi()/ORDER_M + 1;  // Boundaries for many histograms
   const Double_t Q_BOUNDS = 100;
 
