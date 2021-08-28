@@ -228,8 +228,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   const Double_t Y_MID   = configs.y_mid;     // Mid rapidity for the current energy
   TString ORDER_N_STR;
   TString ORDER_M_STR;
-  ORDER_N_STR.Form("%f", ORDER_N);
-  ORDER_M_STR.Form("%f", ORDER_M);
+  ORDER_N_STR.Form("%.0f", ORDER_N);
+  ORDER_M_STR.Form("%.0f", ORDER_M);
   const Double_t PSI_BOUNDS = TMath::Pi()/ORDER_M + 1;  // Boundaries for many histograms
   const Double_t Q_BOUNDS = 100;
 
