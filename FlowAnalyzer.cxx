@@ -1221,8 +1221,11 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
       // RAW SUB-EVENT PLANE ANGLES //
       if (ORDER_M == 1)           // Q vectors must change sign past mid-rapidity; I think this is for 1st order event-planes only. Full TPC already takes this into account.
 	{
-	  eventInfo.XnTpcA *= -1.0;
-	  eventInfo.YnTpcA *= -1.0;
+	  if (Y_MID > configs.far_abs_tpc_eta) // if TPC A is completely past mid-rapidity, flip psi.
+	    {
+	      eventInfo.XnTpcA *= -1.0;
+	      eventInfo.YnTpcA *= -1.0;
+	    }
 	  eventInfo.XnEpd  *= -1.0;
 	  eventInfo.YnEpd  *= -1.0;
 	  eventInfo.XnEpdE *= -1.0;
@@ -1461,7 +1464,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		  jthpT  = eventInfo.tpcParticles.at(j).pT;
 		  jthRapidity = eventInfo.tpcParticles.at(j).rapidity;
 
-		  h_simulationCheck->Fill(1);
+		  h_simulationCheck_total->Fill(1);
 		  
 		  Double_t tpcEfficiency = 1;  // Default
 		  if (efficienciesFound)
