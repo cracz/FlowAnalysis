@@ -567,31 +567,67 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   TH2D *h2_phi_vs_eta_TPC = new TH2D("h2_phi_vs_eta_TPC", "TPC;#eta;#phi", 300, -2.2, 0.2, 300, -4, 4);
   TH2D *h2_phi_vs_eta_EPD = new TH2D("h2_phi_vs_eta_EPD", "EPD;#eta;#phi", 300, -6, -2.5, 300, -4, 4);
 
-  TH2D *h2_y_vs_eta = new TH2D("h2_y_vs_eta", "TPC All Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
-  TH2D *h2_y_vs_eta_pp = new TH2D("h2_y_vs_eta_pp", "TPC #pi^{+} y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
-  TH2D *h2_y_vs_eta_pm = new TH2D("h2_y_vs_eta_pm", "TPC #pi^{-} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
-  TH2D *h2_y_vs_eta_kp = new TH2D("h2_y_vs_eta_kp", "TPC K^{+} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
-  TH2D *h2_y_vs_eta_km = new TH2D("h2_y_vs_eta_km", "TPC K^{-} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
-  TH2D *h2_y_vs_eta_pr = new TH2D("h2_y_vs_eta_pr", "TPC Proton Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+  TH2D *h2_y_vs_eta;
+  TH2D *h2_y_vs_eta_pp;
+  TH2D *h2_y_vs_eta_pm;
+  TH2D *h2_y_vs_eta_kp;
+  TH2D *h2_y_vs_eta_km;
+  TH2D *h2_y_vs_eta_pr;
 
-  TH2D *h2_pT_vs_yCM_pp = new TH2D("h2_pT_vs_yCM_pp", "#pi^{+};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
-  TH2D *h2_pT_vs_yCM_pm = new TH2D("h2_pT_vs_yCM_pm", "#pi^{-};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
-  TH2D *h2_pT_vs_yCM_kp = new TH2D("h2_pT_vs_yCM_kp", "K^{+};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
-  TH2D *h2_pT_vs_yCM_km = new TH2D("h2_pT_vs_yCM_km", "K^{-};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
-  TH2D *h2_pT_vs_yCM_pr = new TH2D("h2_pT_vs_yCM_pr", "Proton;y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 3.0);
-  
+  TH2D *h2_pT_vs_yCM_pp;
+  TH2D *h2_pT_vs_yCM_pm;
+  TH2D *h2_pT_vs_yCM_kp;
+  TH2D *h2_pT_vs_yCM_km;
+  TH2D *h2_pT_vs_yCM_pr;
+
+  if (configs.sqrt_s_NN == 3.0)
+    {
+      h2_y_vs_eta = new TH2D("h2_y_vs_eta", "TPC All Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+      h2_y_vs_eta_pp = new TH2D("h2_y_vs_eta_pp", "TPC #pi^{+} y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+      h2_y_vs_eta_pm = new TH2D("h2_y_vs_eta_pm", "TPC #pi^{-} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+      h2_y_vs_eta_kp = new TH2D("h2_y_vs_eta_kp", "TPC K^{+} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+      h2_y_vs_eta_km = new TH2D("h2_y_vs_eta_km", "TPC K^{-} Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+      h2_y_vs_eta_pr = new TH2D("h2_y_vs_eta_pr", "TPC Proton Charged y vs #eta;#eta;y", 40, -2, 0, 40, -2, 0);
+
+      h2_pT_vs_yCM_pp = new TH2D("h2_pT_vs_yCM_pp", "#pi^{+};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
+      h2_pT_vs_yCM_pm = new TH2D("h2_pT_vs_yCM_pm", "#pi^{-};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
+      h2_pT_vs_yCM_kp = new TH2D("h2_pT_vs_yCM_kp", "K^{+};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
+      h2_pT_vs_yCM_km = new TH2D("h2_pT_vs_yCM_km", "K^{-};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 2.5);
+      h2_pT_vs_yCM_pr = new TH2D("h2_pT_vs_yCM_pr", "Proton;y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 3.0);
+    }
+  else if (configs.sqrt_s_NN == 7.2)
+    {
+      h2_y_vs_eta = new TH2D("h2_y_vs_eta", "TPC All Charged y vs #eta;#eta;y", 40, -0.8, 4, 40, -0.8, 4);
+      h2_y_vs_eta_pp = new TH2D("h2_y_vs_eta_pp", "TPC #pi^{+} y vs #eta;#eta;y", 40, -0.8, 4, 40, -0.8, 4);
+      h2_y_vs_eta_pm = new TH2D("h2_y_vs_eta_pm", "TPC #pi^{-} Charged y vs #eta;#eta;y", 40, -0.8, 4, 40, -0.8, 4);
+      h2_y_vs_eta_kp = new TH2D("h2_y_vs_eta_kp", "TPC K^{+} Charged y vs #eta;#eta;y", 40, -0.8, 4, 40, -0.8, 4);
+      h2_y_vs_eta_km = new TH2D("h2_y_vs_eta_km", "TPC K^{-} Charged y vs #eta;#eta;y", 40, -0.8, 4, 40, -0.8, 4);
+      h2_y_vs_eta_pr = new TH2D("h2_y_vs_eta_pr", "TPC Proton Charged y vs #eta;#eta;y", 40, -0.8, 4, 40, -0.8, 4);
+
+      h2_pT_vs_yCM_pp = new TH2D("h2_pT_vs_yCM_pp", "#pi^{+};y-y_{mid};p_{T} (GeV/c)", 300, -0.2, 2.2, 300, 0, 2.5);
+      h2_pT_vs_yCM_pm = new TH2D("h2_pT_vs_yCM_pm", "#pi^{-};y-y_{mid};p_{T} (GeV/c)", 300, -0.2, 2.2, 300, 0, 2.5);
+      h2_pT_vs_yCM_kp = new TH2D("h2_pT_vs_yCM_kp", "K^{+};y-y_{mid};p_{T} (GeV/c)", 300, -0.2, 2.2, 300, 0, 2.5);
+      h2_pT_vs_yCM_km = new TH2D("h2_pT_vs_yCM_km", "K^{-};y-y_{mid};p_{T} (GeV/c)", 300, -0.2, 2.2, 300, 0, 2.5);
+      h2_pT_vs_yCM_pr = new TH2D("h2_pT_vs_yCM_pr", "Proton;y-y_{mid};p_{T} (GeV/c)", 300, -0.2, 2.2, 300, 0, 3.0);
+    }
 
   // Here the name refers to the eta region that will be displayed/searched using the event plane angle from the opposite region
 
   TProfile2D *h2_v2ScanTpc = new TProfile2D("h2_v2ScanTpc", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
-					      12, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+					      50, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+  TProfile2D *h2_v2ScanTpcEpdE = new TProfile2D("h2_v2ScanTpcEpdE", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD,E}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
+					      50, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+  TProfile2D *h2_v2ScanTpcEpdF = new TProfile2D("h2_v2ScanTpcEpdF", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD,F}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
+					      50, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2ScanEpd = new TProfile2D("h2_v2ScanEpd", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
-					      12, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+					      50, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2ScanEpdTpcA = new TProfile2D("h2_v2ScanEpdTpcA", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,A}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
-						  12, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+						  50, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2ScanEpdTpcB = new TProfile2D("h2_v2ScanEpdTpcB", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,B}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
-						  12, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+						  50, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   h2_v2ScanTpc->SetStats(0);
+  h2_v2ScanTpcEpdE->SetStats(0);
+  h2_v2ScanTpcEpdF->SetStats(0);
   h2_v2ScanEpd->SetStats(0);
   h2_v2ScanEpdTpcA->SetStats(0);
   h2_v2ScanEpdTpcB->SetStats(0);
@@ -1206,7 +1242,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 
 
       //if (eventInfo.nTracksTpc  < configs.min_tracks) continue;
-      //if (eventInfo.nTracksTpcA < configs.min_tracks) continue;
+      if (eventInfo.nTracksTpcA < configs.min_tracks) continue;
       if (eventInfo.nTracksTpcB < configs.min_tracks) continue;
       if (eventInfo.nHitsEpd    < configs.min_tracks) continue;
       if (eventInfo.nHitsEpdE   < configs.min_tracks) continue;
@@ -1387,6 +1423,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 	  Double_t etaEpd;
 	  Double_t psiTpc  = eventInfo.psiTpc;
 	  Double_t psiEpd  = eventInfo.psiEpd;
+	  Double_t psiEpdE  = eventInfo.psiEpdE;
+	  Double_t psiEpdF  = eventInfo.psiEpdF;
 	  Double_t psiTpcA = eventInfo.psiTpcA;
 	  Double_t psiTpcB = eventInfo.psiTpcB;
 	  Int_t centralityID = eventInfo.centID;
@@ -1407,6 +1445,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 	      etaTpc = eventInfo.tpcParticles.at(j).eta;
 
 	      h2_v2ScanTpc->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpd)));
+	      h2_v2ScanTpcEpdE->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpdE)));
+	      h2_v2ScanTpcEpdF->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpdF)));
 	      //h2_phiSearchTpc->Fill(phiTpc, centralityID);
 	    }
 	  //=========================================================
@@ -1531,13 +1571,12 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 		  // K-
 		  else if (eventInfo.tpcParticles.at(j).kmTag)
 		    {
-		      p2_vn_yCM_cent_km->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-		      
+		      p2_vn_yCM_cent_km->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));		      
 
 		      if (jthRapidity - Y_MID > configs.yCM_flow_ka_low && jthRapidity - Y_MID < configs.yCM_flow_ka_high)  // only 0 < y_cm < 0.5
 			{ 
-			  p2_vn_pT_cent_km->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			  p_vn_km->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); 
+			  p2_vn_pT_cent_km->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			}
 		      else if (jthRapidity - Y_MID >= configs.yCM_ext_flow_ka_low && jthRapidity - Y_MID < configs.yCM_ext_flow_ka_high)  // only 0.5 <= y_cm < 1.0
 			{ p_vn_km_ext->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
@@ -1655,6 +1694,8 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
     {
       labelIndex = FIRST_CENT + i - 1;
       h2_v2ScanTpc->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
+      h2_v2ScanTpcEpdE->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
+      h2_v2ScanTpcEpdF->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
       h2_v2ScanEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
