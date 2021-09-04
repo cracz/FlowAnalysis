@@ -1,4 +1,4 @@
-void moveHists(TString fileName = "A30730E2E9613CAA96F5A362F308DB06.picoDst.result.combined.root")
+void moveHists(TString fileName = "Normal.picoDst.result.combined.root")
 {
   TFile *file = TFile::Open(fileName);
 

@@ -254,7 +254,7 @@ void vnVsY(TString jobID, TString order_n_str)
   THStack *prRapidityStack_symm = new THStack("prRapidityStack_symm", ";y-y_{mid};v_{"+order_n_str+"}");
 
 
-    sh_y_pp->SetMarkerStyle(25);
+  sh_y_pp->SetMarkerStyle(25);
   sh_y_pp->SetMarkerSize(2);
   sh_y_pp->SetMarkerColor(4);
   sh_y_pp->SetLineColor(4);

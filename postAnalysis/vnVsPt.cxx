@@ -91,17 +91,16 @@ void vnVsPt(TString jobID, TString order_n_str)
   h_vn_pT_40to60_pr = p_vn_pT_40to60_pr->ProjectionX();
 
 
-  THStack *ppPtStack   = new THStack("ppPtStack", ";p_{T};v_{"+order_n_str+"}");
-  THStack *pmPtStack   = new THStack("pmPtStack", ";p_{T};v_{"+order_n_str+"}");
-  THStack *kpPtStack   = new THStack("kpPtStack", ";p_{T};v_{"+order_n_str+"}");
-  THStack *kmPtStack   = new THStack("kmPtStack", ";p_{T};v_{"+order_n_str+"}");
-  THStack *prPtStack   = new THStack("prPtStack", ";p_{T};v_{"+order_n_str+"}");
+  THStack *ppPtStack   = new THStack("ppPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
+  THStack *pmPtStack   = new THStack("pmPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
+  THStack *kpPtStack   = new THStack("kpPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
+  THStack *kmPtStack   = new THStack("kmPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
+  THStack *prPtStack   = new THStack("prPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
 
 
   h_vn_pT_00to10_pp->SetMarkerStyle(20);
   h_vn_pT_10to40_pp->SetMarkerStyle(20);
   h_vn_pT_40to60_pp->SetMarkerStyle(20);
-
   h_vn_pT_00to10_pp->SetMarkerColor(2);
   h_vn_pT_10to40_pp->SetMarkerColor(4);
   h_vn_pT_40to60_pp->SetMarkerColor(8);
