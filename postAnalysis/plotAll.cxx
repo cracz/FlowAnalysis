@@ -21,6 +21,7 @@ void plotAll(TString jobID)
   while ((key = (TKey*)next()))
     {
       canvas->SetCanvasSize(875, 675);   // reset canvas size
+      canvas->SetBottomMargin(0.1);
       
       hist = (TH1F*)key->ReadObj();
       name = hist->GetName();
@@ -97,6 +98,8 @@ void plotAll(TString jobID)
 	  else if (name.Contains("Check"))
 	    {
 	      hist->SetFillColorAlpha(4,0.6);
+	      hist->GetXaxis()->SetLabelSize(0.07);
+	      if (name.Contains("trackCheck")) canvas->SetBottomMargin(0.15);
 	    }
 	  else if (name.Contains("dndm")) 
 	    { 

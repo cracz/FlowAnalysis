@@ -176,7 +176,7 @@ void acceptanceCuts(TString jobID)
   top_pp->Draw("SAME");
   bottom_pp->Draw("SAME");
   text_pp->Draw("SAME");
-  text_Target->Draw("SAME");
+  //text_Target->Draw("SAME");
   canvas->SaveAs("Acceptance_pp.png");
   canvas->Clear();
 
@@ -188,7 +188,7 @@ void acceptanceCuts(TString jobID)
   top_pm->Draw("SAME");
   bottom_pm->Draw("SAME");
   text_pm->Draw("SAME");
-  text_Target->Draw("SAME");
+  //text_Target->Draw("SAME");
   canvas->SaveAs("Acceptance_pm.png");
   canvas->Clear();
 
@@ -200,7 +200,7 @@ void acceptanceCuts(TString jobID)
   top_kp->Draw("SAME");
   bottom_kp->Draw("SAME");
   text_kp->Draw("SAME");
-  text_Target->Draw("SAME");
+  //text_Target->Draw("SAME");
   canvas->SaveAs("Acceptance_kp.png");
   canvas->Clear();
 
@@ -212,7 +212,7 @@ void acceptanceCuts(TString jobID)
   top_km->Draw("SAME");
   bottom_km->Draw("SAME");
   text_km->Draw("SAME");
-  text_Target->Draw("SAME");
+  //text_Target->Draw("SAME");
   canvas->SaveAs("Acceptance_km.png");
   canvas->Clear();
 
@@ -224,7 +224,7 @@ void acceptanceCuts(TString jobID)
   top_pr->Draw("SAME");
   bottom_pr->Draw("SAME");
   text_pr->Draw("SAME");
-  text_Target_pr->Draw("SAME");
+  //text_Target_pr->Draw("SAME");
   canvas->SaveAs("Acceptance_pr.png");
   canvas->Clear();
 
