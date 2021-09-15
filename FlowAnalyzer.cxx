@@ -366,7 +366,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   const char *eventSections[3] = {"No cuts", "Trigger cut", "Vertex cut"};
   h_eventCheck->SetStats(0);
 
-  TH1D *h_trackCheck = new TH1D("h_trackCheck","Track number after each cut;;Tracks", 4, 0, 4);
+  TH1D *h_trackCheck = new TH1D("h_trackCheck","Track number after each cut;;Tracks", 3, 0, 3);
   const char *trackSections[3] = {"Event cuts only", "QA Cuts", "PID cuts"};  
   h_trackCheck->SetStats(0);
 
