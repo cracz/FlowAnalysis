@@ -84,21 +84,21 @@ Int_t RUN_ITERATION = 0;
 using namespace FlowUtils;
 
 
-void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TString correctionFileName, TString resolutionFileName)
-//int main(int argc, char *argv[])
+//void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TString correctionFileName, TString resolutionFileName)
+int main(int argc, char *argv[])
 {
   TStopwatch* stopWatch = new TStopwatch();
   stopWatch->Start();
 
   std::cout << "Initializing..." << std::endl;
-  /*
+
   TString inFile = argv[1];
   TString jobID  = argv[2];
   std::string configFileName = argv[3];
   TString correctionFileName = argv[4];
   TString resolutionFileName = argv[5];
-  */
-  if (gSystem->AccessPathName(inFile)) { std::cout << "Error reading input file!" << std::endl; return;}
+
+  if (gSystem->AccessPathName(inFile)) { std::cout << "Error reading input file!" << std::endl; return 1;}
 
 
   //=========================================================
@@ -106,7 +106,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   //=========================================================
   ConfigReader configs;
   configs.read(configFileName);
-  if (configs.errorFound()) { std::cout << "There was an error reading the configurations! Aborting analysis!" << std::endl; return; }
+  if (configs.errorFound()) { std::cout << "There was an error reading the configurations! Aborting analysis!" << std::endl; return 1; }
 
   const Double_t ORDER_N = configs.order_n;   // Order of anisotropic flow (v_n)
   const Double_t ORDER_M = configs.order_m;   // Order of event plane angle (psi_m)
@@ -128,9 +128,9 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
   picoReader->SetStatus("EpdHit",1);
   picoReader->SetStatus("BTofHit",1);
   picoReader->SetStatus("BTofPidTraits",1);
-  if (!picoReader->chain()) { std::cout << "No chain found." << std::endl; return; }
+  if (!picoReader->chain()) { std::cout << "No chain found." << std::endl; return 1; }
   
-  Long64_t eventsInTree = picoReader->tree()->GetEntries();
+  //Long64_t eventsInTree = picoReader->tree()->GetEntries();
   Long64_t events2read  = picoReader->chain()->GetEntries();
     
   std::cout << "Number of events to read: " << events2read << std::endl;
@@ -194,7 +194,6 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 
 
   // INPUT FILE FOR EVENT PLANE RESOLUTION INFORMATION
-  TH1D *h_resolutions;
   Bool_t resolutionsFound = false;
   //TString resolutionInputName = "resolutionInfo_INPUT.root";
   TFile *resolutionInputFile;
@@ -1095,7 +1094,7 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 	      eventInfo.epdParticles.push_back(particleInfo);
 	    }
 	}// End EPD hit loop
-      delete epdGeom;
+      //delete epdGeom;
       //=========================================================
       //            END EPD STUFF
       //=========================================================
@@ -1319,7 +1318,6 @@ void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TSt
 	  //=========================================================
 	  if (resolutionsFound)
 	    {
-	      Double_t cosTerm;
 	      Double_t jthWeight;
 	      Double_t jthPhi;
 	      Double_t jthpT;
