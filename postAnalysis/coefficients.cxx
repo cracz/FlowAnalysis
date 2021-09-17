@@ -1,3 +1,16 @@
+#include <iostream>
+#include "TFile.h"
+#include "TString.h"
+#include "TCanvas.h"
+#include "TH1.h"
+#include "TProfile.h"
+#include "THStack.h"
+#include "TLegend.h"
+#include "TPaveText.h"
+#include "TLine.h"
+#include "TStyle.h"
+#include "PlotUtils.h"
+
 void coefficients(TString jobID, TString order_n_str)
 {
   //TH1::SetDefaultSumw2();
@@ -6,7 +19,7 @@ void coefficients(TString jobID, TString order_n_str)
   TString fileName = jobID + ".picoDst.result.combined.root";
 
   TFile *file = TFile::Open(fileName);
-  if(!file) {cout << "Wrong file!" << endl; return;}
+  if(!file) {std::cout << "Wrong file!" << std::endl; return;}
   /*
   TFile *resolutionInfo_INPUT = TFile::Open("resolutionInfo_INPUT.root", "READ");
   if(!resolutionInfo_INPUT) { cout << "No resolution file found!" << endl; return; }
@@ -24,9 +37,11 @@ void coefficients(TString jobID, TString order_n_str)
       resolutionIDsError[i-1] = h_resolutions->GetBinError(i);
     }
   */
-  TCanvas *canvas = new TCanvas("canvas", "Canvas", 800, 800);
+  TCanvas *canvas = new TCanvas("canvas", "Canvas", 1200, 1200);
   canvas->SetGridx();
   canvas->SetGridy();
+  canvas->SetLogy(0);
+  canvas->SetTicks();
   //canvas->SetLeftMargin(0.15);
   canvas->cd();
 
@@ -75,12 +90,12 @@ void coefficients(TString jobID, TString order_n_str)
   TProfile *p_vn_EpdE = (TProfile*)file->Get("p_vn_EpdE");
   TProfile *p_vn_EpdF = (TProfile*)file->Get("p_vn_EpdF");
   TProfile *p_vn_TpcB = (TProfile*)file->Get("p_vn_TpcB");
-  TProfile *p_vn_Tpc = (TProfile*)file->Get("p_vn_Tpc_pT_0p2to2");
-  TProfile *p_vn_pp = (TProfile*)file->Get("p_vn_pp");
-  TProfile *p_vn_pm = (TProfile*)file->Get("p_vn_pm");
-  TProfile *p_vn_kp = (TProfile*)file->Get("p_vn_kp");
-  TProfile *p_vn_km = (TProfile*)file->Get("p_vn_km");
-  TProfile *p_vn_pr = (TProfile*)file->Get("p_vn_pr");
+  TProfile *p_vn_Tpc  = (TProfile*)file->Get("p_vn_Tpc_pT_0p2to2");
+  TProfile *p_vn_pp   = (TProfile*)file->Get("p_vn_pp");
+  TProfile *p_vn_pm   = (TProfile*)file->Get("p_vn_pm");
+  TProfile *p_vn_kp   = (TProfile*)file->Get("p_vn_kp");
+  TProfile *p_vn_km   = (TProfile*)file->Get("p_vn_km");
+  TProfile *p_vn_pr   = (TProfile*)file->Get("p_vn_pr");
 
   p_vn_kp->Rebin();
   p_vn_km->Rebin();
@@ -97,266 +112,65 @@ void coefficients(TString jobID, TString order_n_str)
   TProfile *p_vn_pr_for = (TProfile*)file->Get("p_vn_pr_for");
 
 
-  
-
-  
-  TH1D *h_vn_EpdE = new TH1D("h_vn_EpdE", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_EpdF = new TH1D("h_vn_EpdF", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_TpcB = new TH1D("h_vn_TpcB", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_Tpc = new TH1D("h_vn_Tpc", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pp = new TH1D("h_vn_pp", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pm = new TH1D("h_vn_pm", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_kp = new TH1D("h_vn_kp", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
-  TH1D *h_vn_km = new TH1D("h_vn_km", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
-  TH1D *h_vn_pr = new TH1D("h_vn_pr", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-
-  TH1D *h_vn_EpdE_ext = new TH1D("h_vn_EpdE_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_EpdF_ext = new TH1D("h_vn_EpdF_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_TpcB_ext = new TH1D("h_vn_TpcB_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pp_ext = new TH1D("h_vn_pp_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_pm_ext = new TH1D("h_vn_pm_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-  TH1D *h_vn_kp_ext = new TH1D("h_vn_kp_ext", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
-  TH1D *h_vn_km_ext = new TH1D("h_vn_km_ext", ";Centrality;v_{"+order_n_str+"}", 8, 0, 16);
-  TH1D *h_vn_pr_ext = new TH1D("h_vn_pr_ext", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-
-  TH1D *h_vn_pr_for = new TH1D("h_vn_pr_for", ";Centrality;v_{"+order_n_str+"}", 16, 0, 16);
-
-
-
   // Convert profiles to histograms
-  h_vn_kp = p_vn_kp->ProjectionX();
-  h_vn_km = p_vn_km->ProjectionX();
-  h_vn_kp_ext = p_vn_kp_ext->ProjectionX();
-  h_vn_km_ext = p_vn_km_ext->ProjectionX();
+  TH1D *h_vn_EpdE = p_vn_EpdE->ProjectionX();
+  TH1D *h_vn_EpdF = p_vn_EpdF->ProjectionX();
+  TH1D *h_vn_TpcB = p_vn_TpcB->ProjectionX();
+  TH1D *h_vn_Tpc = p_vn_Tpc->ProjectionX();
 
-  h_vn_EpdE = p_vn_EpdE->ProjectionX();
-  h_vn_EpdF = p_vn_EpdF->ProjectionX();
-  h_vn_TpcB = p_vn_TpcB->ProjectionX();
-  h_vn_Tpc = p_vn_Tpc->ProjectionX();
-  h_vn_pp = p_vn_pp->ProjectionX();
-  h_vn_pm = p_vn_pm->ProjectionX();
-  h_vn_pr = p_vn_pr->ProjectionX();
+  TH1D *h_vn_pp = p_vn_pp->ProjectionX();
+  TH1D *h_vn_pm = p_vn_pm->ProjectionX();
+  TH1D *h_vn_kp = p_vn_kp->ProjectionX();
+  TH1D *h_vn_km = p_vn_km->ProjectionX();
+  TH1D *h_vn_pr = p_vn_pr->ProjectionX();
 
-  h_vn_pp_ext = p_vn_pp_ext->ProjectionX();
-  h_vn_pm_ext = p_vn_pm_ext->ProjectionX();
-  h_vn_pr_ext = p_vn_pr_ext->ProjectionX();
-  h_vn_pr_for = p_vn_pr_for->ProjectionX();
-
-
+  TH1D *h_vn_pp_ext = p_vn_pp_ext->ProjectionX();
+  TH1D *h_vn_pm_ext = p_vn_pm_ext->ProjectionX();
+  TH1D *h_vn_kp_ext = p_vn_kp_ext->ProjectionX();
+  TH1D *h_vn_km_ext = p_vn_km_ext->ProjectionX();
+  TH1D *h_vn_pr_ext = p_vn_pr_ext->ProjectionX();
   
+  TH1D *h_vn_pr_for = p_vn_pr_for->ProjectionX();
 
+  // Flip centrality plots
+  h_vn_EpdE = PlotUtils::flipHisto(h_vn_EpdE);
+  h_vn_EpdF = PlotUtils::flipHisto(h_vn_EpdF);
+  h_vn_TpcB = PlotUtils::flipHisto(h_vn_TpcB);
+  h_vn_Tpc  = PlotUtils::flipHisto(h_vn_Tpc);
 
+  h_vn_pp = PlotUtils::flipHisto(h_vn_pp);
+  h_vn_pm = PlotUtils::flipHisto(h_vn_pm);
+  h_vn_kp = PlotUtils::flipHisto(h_vn_kp);
+  h_vn_km = PlotUtils::flipHisto(h_vn_km);
+  h_vn_pr = PlotUtils::flipHisto(h_vn_pr);
 
-  Int_t centBins    = h_vn_TpcB->GetNbinsX();
-  Int_t firstCentID = h_vn_TpcB->GetBinLowEdge(1);
-  Int_t lastCentID  = h_vn_TpcB->GetBinLowEdge(h_vn_TpcB->GetNbinsX());
-
-  TH1D *h_vn_EpdE_flip = new TH1D("h_vn_EpdE_flip",h_vn_EpdE->GetTitle(),centBins,0,centBins);
-  h_vn_EpdE_flip->GetXaxis()->SetTitle((TString)h_vn_EpdE->GetXaxis()->GetTitle()+" (%)");
-  h_vn_EpdE_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_EpdE->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_EpdF_flip = new TH1D("h_vn_EpdF_flip",h_vn_EpdF->GetTitle(),centBins,0,centBins);
-  h_vn_EpdF_flip->GetXaxis()->SetTitle((TString)h_vn_EpdF->GetXaxis()->GetTitle()+" (%)");
-  h_vn_EpdF_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_EpdF->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_TpcB_flip = new TH1D("h_vn_TpcB_flip",h_vn_TpcB->GetTitle(),centBins,0,centBins);
-  h_vn_TpcB_flip->GetXaxis()->SetTitle((TString)h_vn_TpcB->GetXaxis()->GetTitle()+" (%)");
-  h_vn_TpcB_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_TpcB->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_Tpc_flip = new TH1D("h_vn_Tpc_flip",h_vn_Tpc->GetTitle(),centBins,0,centBins);
-  h_vn_Tpc_flip->GetXaxis()->SetTitle((TString)h_vn_Tpc->GetXaxis()->GetTitle()+" (%)");
-  h_vn_Tpc_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_Tpc->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_pp_flip = new TH1D("h_vn_pp_flip",h_vn_pp->GetTitle(),centBins,0,centBins);
-  h_vn_pp_flip->GetXaxis()->SetTitle((TString)h_vn_pp->GetXaxis()->GetTitle()+" (%)");
-  h_vn_pp_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pp->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_pm_flip = new TH1D("h_vn_pm_flip",h_vn_pm->GetTitle(),centBins,0,centBins);
-  h_vn_pm_flip->GetXaxis()->SetTitle((TString)h_vn_pm->GetXaxis()->GetTitle()+" (%)");
-  h_vn_pm_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pm->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_kp_flip = new TH1D("h_vn_kp_flip",h_vn_kp->GetTitle(),centBins / 2,0,centBins);
-  h_vn_kp_flip->GetXaxis()->SetTitle((TString)h_vn_kp->GetXaxis()->GetTitle()+" (%)");
-  h_vn_kp_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_kp->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_km_flip = new TH1D("h_vn_km_flip",h_vn_km->GetTitle(),centBins / 2,0,centBins);
-  h_vn_km_flip->GetXaxis()->SetTitle((TString)h_vn_km->GetXaxis()->GetTitle()+" (%)");
-  h_vn_km_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_km->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_pr_flip = new TH1D("h_vn_pr_flip",h_vn_pr->GetTitle(),centBins,0,centBins);
-  h_vn_pr_flip->GetXaxis()->SetTitle((TString)h_vn_pr->GetXaxis()->GetTitle()+" (%)");
-  h_vn_pr_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pr->GetYaxis()->GetTitle());
-
-  // Extended rapidity plots
-  TH1D *h_vn_pp_ext_flip = new TH1D("h_vn_pp_ext_flip",h_vn_pp_ext->GetTitle(),centBins,0,centBins);
-  h_vn_pp_ext_flip->GetXaxis()->SetTitle((TString)h_vn_pp_ext->GetXaxis()->GetTitle()+" (%)");
-  h_vn_pp_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pp_ext->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_pm_ext_flip = new TH1D("h_vn_pm_ext_flip",h_vn_pm_ext->GetTitle(),centBins,0,centBins);
-  h_vn_pm_ext_flip->GetXaxis()->SetTitle((TString)h_vn_pm_ext->GetXaxis()->GetTitle()+" (%)");
-  h_vn_pm_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pm_ext->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_kp_ext_flip = new TH1D("h_vn_kp_ext_flip",h_vn_kp_ext->GetTitle(),centBins / 2,0,centBins);
-  h_vn_kp_ext_flip->GetXaxis()->SetTitle((TString)h_vn_kp_ext->GetXaxis()->GetTitle()+" (%)");
-  h_vn_kp_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_kp_ext->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_km_ext_flip = new TH1D("h_vn_km_ext_flip",h_vn_km_ext->GetTitle(),centBins / 2,0,centBins);
-  h_vn_km_ext_flip->GetXaxis()->SetTitle((TString)h_vn_km_ext->GetXaxis()->GetTitle()+" (%)");
-  h_vn_km_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_km_ext->GetYaxis()->GetTitle());
-
-  TH1D *h_vn_pr_ext_flip = new TH1D("h_vn_pr_ext_flip",h_vn_pr_ext->GetTitle(),centBins,0,centBins);
-  h_vn_pr_ext_flip->GetXaxis()->SetTitle((TString)h_vn_pr_ext->GetXaxis()->GetTitle()+" (%)");
-  h_vn_pr_ext_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pr_ext->GetYaxis()->GetTitle());
-
-  // Forward rapidity plot
-  TH1D *h_vn_pr_for_flip = new TH1D("h_vn_pr_for_flip",h_vn_pr_for->GetTitle(),centBins,0,centBins);
-  h_vn_pr_for_flip->GetXaxis()->SetTitle((TString)h_vn_pr_for->GetXaxis()->GetTitle()+" (%)");
-  h_vn_pr_for_flip->GetYaxis()->SetTitle("v_{"+order_n_str+"}");//h_vn_pr_for->GetYaxis()->GetTitle());
-
-
-  const char *centralityBins[16] = {"75-80", "70-75", "65-70", "60-65", "55-60", "50-55", "45-50", "40-45", "35-40", "30-35", "25-30", "20-25", "15-20", "10-15", "5-10", "0-5"};
-
-
-  std::vector<TString> newBinLabels;
-
-  // Get list of bin labels, but flipped
-  for (int i = lastCentID; i >= firstCentID; i--) { newBinLabels.push_back(centralityBins[i]); }
-
-  // Flip the bin contents for the centrality plots
-  int j = 1;
-  for (int i = centBins / 2; i >= 1; i--)     // KAONS
-    {
-      h_vn_kp_flip->SetBinContent(j, h_vn_kp->GetBinContent(i));
-      h_vn_kp_flip->SetBinError(j, h_vn_kp->GetBinError(i));
-
-      h_vn_km_flip->SetBinContent(j, h_vn_km->GetBinContent(i));
-      h_vn_km_flip->SetBinError(j, h_vn_km->GetBinError(i));
-
-      h_vn_kp_ext_flip->SetBinContent(j, h_vn_kp_ext->GetBinContent(i));
-      h_vn_kp_ext_flip->SetBinError(j, h_vn_kp_ext->GetBinError(i));
-
-      h_vn_km_ext_flip->SetBinContent(j, h_vn_km_ext->GetBinContent(i));
-      h_vn_km_ext_flip->SetBinError(j, h_vn_km_ext->GetBinError(i));
-
-      j++;
-    }
-
-  j = 1;
-  for (int i = centBins; i >= 1; i--)
-    {
-      h_vn_EpdE_flip->SetBinContent(j, h_vn_EpdE->GetBinContent(i));
-      h_vn_EpdE_flip->SetBinError(j, h_vn_EpdE->GetBinError(i));
-
-      h_vn_EpdF_flip->SetBinContent(j, h_vn_EpdF->GetBinContent(i));
-      h_vn_EpdF_flip->SetBinError(j, h_vn_EpdF->GetBinError(i));
-
-      h_vn_TpcB_flip->SetBinContent(j, h_vn_TpcB->GetBinContent(i));
-      h_vn_TpcB_flip->SetBinError(j, h_vn_TpcB->GetBinError(i));
-
-      h_vn_Tpc_flip->SetBinContent(j, h_vn_Tpc->GetBinContent(i));
-      h_vn_Tpc_flip->SetBinError(j, h_vn_Tpc->GetBinError(i));
-
-      h_vn_pp_flip->SetBinContent(j, h_vn_pp->GetBinContent(i));
-      h_vn_pp_flip->SetBinError(j, h_vn_pp->GetBinError(i));
-
-      h_vn_pm_flip->SetBinContent(j, h_vn_pm->GetBinContent(i));
-      h_vn_pm_flip->SetBinError(j, h_vn_pm->GetBinError(i));
-
-
-      h_vn_pr_flip->SetBinContent(j, h_vn_pr->GetBinContent(i));
-      h_vn_pr_flip->SetBinError(j, h_vn_pr->GetBinError(i));
-
-
-      h_vn_pp_ext_flip->SetBinContent(j, h_vn_pp_ext->GetBinContent(i));
-      h_vn_pp_ext_flip->SetBinError(j, h_vn_pp_ext->GetBinError(i));
-
-      h_vn_pm_ext_flip->SetBinContent(j, h_vn_pm_ext->GetBinContent(i));
-      h_vn_pm_ext_flip->SetBinError(j, h_vn_pm_ext->GetBinError(i));
-
-
-      h_vn_pr_ext_flip->SetBinContent(j, h_vn_pr_ext->GetBinContent(i));
-      h_vn_pr_ext_flip->SetBinError(j, h_vn_pr_ext->GetBinError(i));
-
-
-      h_vn_pr_for_flip->SetBinContent(j, h_vn_pr_for->GetBinContent(i));
-      h_vn_pr_for_flip->SetBinError(j, h_vn_pr_for->GetBinError(i));
-
-      
-      j++;
-    }
-
-
-  canvas->SetLogy(0);
-  canvas->SetTicks();
-
-  // Use these to change the x axis of centrality plots without fighting with TAxis.
-  TH1D *vn_EpdE = new TH1D("vn_EpdE", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_EpdF = new TH1D("vn_EpdF", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_TpcB = new TH1D("vn_TpcB", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_Tpc = new TH1D("vn_Tpc", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_pp = new TH1D("vn_pp", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_pm = new TH1D("vn_pm", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_kp = new TH1D("vn_kp", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
-  TH1D *vn_km = new TH1D("vn_km", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
-  TH1D *vn_pr = new TH1D("vn_pr", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_pp_ext = new TH1D("vn_pp_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_pm_ext = new TH1D("vn_pm_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_kp_ext = new TH1D("vn_kp_ext", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
-  TH1D *vn_km_ext = new TH1D("vn_km_ext", ";Centrality (%);v_{"+order_n_str+"}", 6, 0, 60);
-  TH1D *vn_pr_ext = new TH1D("vn_pr_ext", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-  TH1D *vn_pr_for = new TH1D("vn_pr_for", ";Centrality (%);v_{"+order_n_str+"}", 12, 0, 60);
-
-  for (int i = 1; i <= 6; i++)     // KAONS
-    {
-      vn_kp->SetBinContent(i, h_vn_kp_flip->GetBinContent(i));
-      vn_kp->SetBinError(i, h_vn_kp_flip->GetBinError(i));
-
-      vn_km->SetBinContent(i, h_vn_km_flip->GetBinContent(i));
-      vn_km->SetBinError(i, h_vn_km_flip->GetBinError(i));
-
-      vn_kp_ext->SetBinContent(i, h_vn_kp_ext_flip->GetBinContent(i));
-      vn_kp_ext->SetBinError(i, h_vn_kp_ext_flip->GetBinError(i));
-
-      vn_km_ext->SetBinContent(i, h_vn_km_ext_flip->GetBinContent(i));
-      vn_km_ext->SetBinError(i, h_vn_km_ext_flip->GetBinError(i));
-    }
-
-  for (int i = 1; i <= 12; i++)
-    {
-      vn_EpdE->SetBinContent(i, h_vn_EpdE_flip->GetBinContent(i));
-      vn_EpdE->SetBinError(i, h_vn_EpdE_flip->GetBinError(i));
-
-      vn_EpdF->SetBinContent(i, h_vn_EpdF_flip->GetBinContent(i));
-      vn_EpdF->SetBinError(i, h_vn_EpdF_flip->GetBinError(i));
-
-      vn_TpcB->SetBinContent(i, h_vn_TpcB_flip->GetBinContent(i));
-      vn_TpcB->SetBinError(i, h_vn_TpcB_flip->GetBinError(i));
-
-      vn_Tpc->SetBinContent(i, h_vn_Tpc_flip->GetBinContent(i));
-      vn_Tpc->SetBinError(i, h_vn_Tpc_flip->GetBinError(i));
-
-      vn_pp->SetBinContent(i, h_vn_pp_flip->GetBinContent(i));
-      vn_pp->SetBinError(i, h_vn_pp_flip->GetBinError(i));
-
-      vn_pm->SetBinContent(i, h_vn_pm_flip->GetBinContent(i));
-      vn_pm->SetBinError(i, h_vn_pm_flip->GetBinError(i));
-
-      vn_pr->SetBinContent(i, h_vn_pr_flip->GetBinContent(i));
-      vn_pr->SetBinError(i, h_vn_pr_flip->GetBinError(i));
-
-      vn_pp_ext->SetBinContent(i, h_vn_pp_ext_flip->GetBinContent(i));
-      vn_pp_ext->SetBinError(i, h_vn_pp_ext_flip->GetBinError(i));
-
-      vn_pm_ext->SetBinContent(i, h_vn_pm_ext_flip->GetBinContent(i));
-      vn_pm_ext->SetBinError(i, h_vn_pm_ext_flip->GetBinError(i));
-
-      vn_pr_ext->SetBinContent(i, h_vn_pr_ext_flip->GetBinContent(i));
-      vn_pr_ext->SetBinError(i, h_vn_pr_ext_flip->GetBinError(i));
-
-      vn_pr_for->SetBinContent(i, h_vn_pr_for_flip->GetBinContent(i));
-      vn_pr_for->SetBinError(i, h_vn_pr_for_flip->GetBinError(i));
-    }
+  h_vn_pp_ext = PlotUtils::flipHisto(h_vn_pp_ext);
+  h_vn_pm_ext = PlotUtils::flipHisto(h_vn_pm_ext);
+  h_vn_kp_ext = PlotUtils::flipHisto(h_vn_kp_ext);
+  h_vn_km_ext = PlotUtils::flipHisto(h_vn_km_ext);
+  h_vn_pr_ext = PlotUtils::flipHisto(h_vn_pr_ext);
   
+  h_vn_pr_for = PlotUtils::flipHisto(h_vn_pr_for);
+
+  // Trim and clean up x-axis
+  h_vn_EpdE = PlotUtils::trimCentralityPlot(h_vn_EpdE);
+  h_vn_EpdF = PlotUtils::trimCentralityPlot(h_vn_EpdF);
+  h_vn_TpcB = PlotUtils::trimCentralityPlot(h_vn_TpcB);
+  h_vn_Tpc  = PlotUtils::trimCentralityPlot(h_vn_Tpc);
+
+  h_vn_pp = PlotUtils::trimCentralityPlot(h_vn_pp);
+  h_vn_pm = PlotUtils::trimCentralityPlot(h_vn_pm);
+  h_vn_kp = PlotUtils::trimCentralityPlot(h_vn_kp);
+  h_vn_km = PlotUtils::trimCentralityPlot(h_vn_km);
+  h_vn_pr = PlotUtils::trimCentralityPlot(h_vn_pr);
+
+  h_vn_pp_ext = PlotUtils::trimCentralityPlot(h_vn_pp_ext);
+  h_vn_pm_ext = PlotUtils::trimCentralityPlot(h_vn_pm_ext);
+  h_vn_kp_ext = PlotUtils::trimCentralityPlot(h_vn_kp_ext);
+  h_vn_km_ext = PlotUtils::trimCentralityPlot(h_vn_km_ext);
+  h_vn_pr_ext = PlotUtils::trimCentralityPlot(h_vn_pr_ext);
+  
+  h_vn_pr_for = PlotUtils::trimCentralityPlot(h_vn_pr_for);
 
   
   THStack *piCentralityStack = new THStack("piCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
@@ -368,9 +182,7 @@ void coefficients(TString jobID, TString order_n_str)
   THStack *kmExtCentralityStack = new THStack("kmExtCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
   THStack *prExtCentralityStack = new THStack("prExtCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
 
-  THStack *etaRegionStack    = new THStack("etaRegionStack", ";Centrality (%);v_{"+order_n_str+"}");
-    
-
+  THStack *etaRegionStack = new THStack("etaRegionStack", ";Centrality (%);v_{"+order_n_str+"}");
 
 
   sh_cent_pp->SetMarkerStyle(25);
@@ -400,153 +212,182 @@ void coefficients(TString jobID, TString order_n_str)
 
 
   
-  vn_pp->SetMarkerStyle(20);
-  vn_pp->SetMarkerSize(2);
-  vn_pp->SetMarkerColor(2);
-  vn_pp->SetLineColor(2);
+  h_vn_pp->SetMarkerStyle(20);
+  h_vn_pp->SetMarkerSize(2.5);
+  h_vn_pp->SetMarkerColor(2);
+  h_vn_pp->SetLineColor(2);
+  h_vn_pp->SetLineWidth(3);
+  h_vn_pp->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_pm->SetMarkerStyle(20);
-  vn_pm->SetMarkerSize(2);
-  vn_pm->SetMarkerColor(4);
-  vn_pm->SetLineColor(4);
+  h_vn_pm->SetMarkerStyle(20);
+  h_vn_pm->SetMarkerSize(2.5);
+  h_vn_pm->SetMarkerColor(4);
+  h_vn_pm->SetLineColor(4);
+  h_vn_pm->SetLineWidth(3);
+  h_vn_pm->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_kp->SetMarkerStyle(20);
-  vn_kp->SetMarkerSize(2);
-  vn_kp->SetMarkerColor(2);
-  vn_kp->SetLineColor(2);
+  h_vn_kp->SetMarkerStyle(20);
+  h_vn_kp->SetMarkerSize(2.5);
+  h_vn_kp->SetMarkerColor(2);
+  h_vn_kp->SetLineColor(2);
+  h_vn_kp->SetLineWidth(3);
+  h_vn_kp->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_km->SetMarkerStyle(20);
-  vn_km->SetMarkerSize(2);
-  vn_km->SetMarkerColor(4);
-  vn_km->SetLineColor(4);
+  h_vn_km->SetMarkerStyle(20);
+  h_vn_km->SetMarkerSize(2.5);
+  h_vn_km->SetMarkerColor(4);
+  h_vn_km->SetLineColor(4);
+  h_vn_km->SetLineWidth(3);
+  h_vn_km->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_pr->SetMarkerStyle(20);
-  vn_pr->SetMarkerSize(2);
-  vn_pr->SetMarkerColor(2);
-  vn_pr->SetLineColor(2);
+  h_vn_pr->SetMarkerStyle(20);
+  h_vn_pr->SetMarkerSize(2.5);
+  h_vn_pr->SetMarkerColor(2);
+  h_vn_pr->SetLineColor(2);
+  h_vn_pr->SetLineWidth(3);
+  h_vn_pr->GetYaxis()->SetTitleOffset(1.7);
 
 
-  vn_pp_ext->SetMarkerStyle(20);
-  vn_pp_ext->SetMarkerSize(2);
+  h_vn_pp_ext->SetMarkerStyle(20);
+  h_vn_pp_ext->SetMarkerSize(2.5);
+  h_vn_pp_ext->SetLineWidth(3);
+  h_vn_pp->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_pm_ext->SetMarkerStyle(20);
-  vn_pm_ext->SetMarkerSize(2);
+  h_vn_pm_ext->SetMarkerStyle(20);
+  h_vn_pm_ext->SetMarkerSize(2.5);
+  h_vn_pm_ext->SetLineWidth(3);
+  h_vn_pm_ext->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_kp_ext->SetMarkerStyle(20);
-  vn_kp_ext->SetMarkerSize(2);
+  h_vn_kp_ext->SetMarkerStyle(20);
+  h_vn_kp_ext->SetMarkerSize(2.5);
+  h_vn_kp_ext->SetLineWidth(3);
+  h_vn_kp_ext->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_km_ext->SetMarkerStyle(20);
-  vn_km_ext->SetMarkerSize(2);
+  h_vn_km_ext->SetMarkerStyle(20);
+  h_vn_km_ext->SetMarkerSize(2.5);
+  h_vn_km_ext->SetLineWidth(3);
+  h_vn_km_ext->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_pr_ext->SetMarkerStyle(20);
-  vn_pr_ext->SetMarkerSize(2);
+  h_vn_pr_ext->SetMarkerStyle(20);
+  h_vn_pr_ext->SetMarkerSize(2.5);
+  h_vn_pr_ext->SetLineWidth(3);
+  h_vn_pr_ext->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_pr_for->SetMarkerStyle(20);
-  vn_pr_for->SetMarkerSize(2);
-  vn_pr_for->SetMarkerColor(4);
+  h_vn_pr_for->SetMarkerStyle(20);
+  h_vn_pr_for->SetMarkerSize(2.5);
+  h_vn_pr_for->SetMarkerColor(4);
+  h_vn_pr_for->SetLineWidth(3);
+  h_vn_pr_for->GetYaxis()->SetTitleOffset(1.7);
   
-  vn_EpdE->SetMarkerStyle(20);
-  vn_EpdE->SetMarkerSize(2);
-  vn_EpdE->SetMarkerColor(46);
-  vn_EpdE->SetLineColor(46);
+  h_vn_EpdE->SetMarkerStyle(20);
+  h_vn_EpdE->SetMarkerSize(2.5);
+  h_vn_EpdE->SetMarkerColor(46);
+  h_vn_EpdE->SetLineColor(46);
+  h_vn_EpdE->SetLineWidth(3);
+  h_vn_EpdE->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_EpdF->SetMarkerStyle(20);
-  vn_EpdF->SetMarkerSize(2);
-  vn_EpdF->SetMarkerColor(38);
-  vn_EpdF->SetLineColor(38);
+  h_vn_EpdF->SetMarkerStyle(20);
+  h_vn_EpdF->SetMarkerSize(2.5);
+  h_vn_EpdF->SetMarkerColor(38);
+  h_vn_EpdF->SetLineColor(38);
+  h_vn_EpdF->SetLineWidth(3);
+  h_vn_EpdF->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_TpcB->SetMarkerStyle(20);
-  vn_TpcB->SetMarkerSize(2);
-  vn_TpcB->SetMarkerColor(8);
-  vn_TpcB->SetLineColor(8);
+  h_vn_TpcB->SetMarkerStyle(20);
+  h_vn_TpcB->SetMarkerSize(2.5);
+  h_vn_TpcB->SetMarkerColor(8);
+  h_vn_TpcB->SetLineColor(8);
+  h_vn_TpcB->SetLineWidth(3);
+  h_vn_TpcB->GetYaxis()->SetTitleOffset(1.7);
 
-  vn_Tpc->SetMarkerStyle(20);
-  vn_Tpc->SetMarkerSize(2);
+  h_vn_Tpc->SetMarkerStyle(20);
+  h_vn_Tpc->SetMarkerSize(2.5);
+  h_vn_Tpc->SetLineWidth(3);
+  h_vn_Tpc->GetYaxis()->SetTitleOffset(1.7);
   //vn_Tpc->SetMarkerColor(8);
   //vn_Tpc->SetLineColor(8);
 
   
-  piCentralityStack->Add(vn_pp);
-  piCentralityStack->Add(vn_pm);
+  piCentralityStack->Add(h_vn_pp);
+  piCentralityStack->Add(h_vn_pm);
 
-  kaCentralityStack->Add(vn_kp);
-  kaCentralityStack->Add(vn_km);
-
-
-  ppExtCentralityStack->Add(vn_pp);
-  ppExtCentralityStack->Add(vn_pp_ext);
-
-  pmExtCentralityStack->Add(vn_pm);
-  pmExtCentralityStack->Add(vn_pm_ext);
-
-  kpExtCentralityStack->Add(vn_kp);
-  kpExtCentralityStack->Add(vn_kp_ext);
-
-  kmExtCentralityStack->Add(vn_km);
-  kmExtCentralityStack->Add(vn_km_ext);
-
-  prExtCentralityStack->Add(vn_pr_for);
-  prExtCentralityStack->Add(vn_pr);
-  prExtCentralityStack->Add(vn_pr_ext);
+  kaCentralityStack->Add(h_vn_kp);
+  kaCentralityStack->Add(h_vn_km);
 
 
-  etaRegionStack->Add(vn_EpdE);
-  etaRegionStack->Add(vn_EpdF);
-  etaRegionStack->Add(vn_TpcB);
+  ppExtCentralityStack->Add(h_vn_pp);
+  ppExtCentralityStack->Add(h_vn_pp_ext);
+
+  pmExtCentralityStack->Add(h_vn_pm);
+  pmExtCentralityStack->Add(h_vn_pm_ext);
+
+  kpExtCentralityStack->Add(h_vn_kp);
+  kpExtCentralityStack->Add(h_vn_kp_ext);
+
+  kmExtCentralityStack->Add(h_vn_km);
+  kmExtCentralityStack->Add(h_vn_km_ext);
+
+  prExtCentralityStack->Add(h_vn_pr_for);
+  prExtCentralityStack->Add(h_vn_pr);
+  prExtCentralityStack->Add(h_vn_pr_ext);
+
+  etaRegionStack->Add(h_vn_EpdE);
+  etaRegionStack->Add(h_vn_EpdF);
+  etaRegionStack->Add(h_vn_TpcB);
 
 
 
   if (order_n_str == "2")
     {
       TLegend *piLegend = new TLegend(0.775, 0.7, 0.9, 0.85);
-      piLegend->AddEntry(vn_pp,"#pi^{+}");
-      piLegend->AddEntry(vn_pm,"#pi^{-}");
+      piLegend->AddEntry(h_vn_pp,"#pi^{+}");
+      piLegend->AddEntry(h_vn_pm,"#pi^{-}");
       piLegend->SetFillColorAlpha(0,0);
       piLegend->SetLineColorAlpha(0,0);
 
       TLegend *kaLegend = new TLegend(0.275, 0.26, 0.425, 0.39);
-      kaLegend->AddEntry(vn_kp,"K^{+}");
-      kaLegend->AddEntry(vn_km,"K^{-}");
+      kaLegend->AddEntry(h_vn_kp,"K^{+}");
+      kaLegend->AddEntry(h_vn_km,"K^{-}");
       kaLegend->SetFillColorAlpha(0,0);
       kaLegend->SetLineColorAlpha(0,0);
 
 
       TLegend *ppExtLegend = new TLegend(0.55, 0.65, 0.85, 0.88);
-      ppExtLegend->AddEntry(vn_pp,"#pi^{+}, 0 < y_{CM} < 0.5");
-      ppExtLegend->AddEntry(vn_pp_ext,"#pi^{+}, 0.5 < y_{CM} < 1.0");
+      ppExtLegend->AddEntry(h_vn_pp,"#pi^{+}, 0 < y_{CM} < 0.5");
+      ppExtLegend->AddEntry(h_vn_pp_ext,"#pi^{+}, 0.5 < y_{CM} < 1.0");
       ppExtLegend->SetFillColorAlpha(0,0);
       ppExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *pmExtLegend = new TLegend(0.55, 0.65, 0.85, 0.88);
-      pmExtLegend->AddEntry(vn_pm,"#pi^{-}, 0 < y_{CM} < 0.5");
-      pmExtLegend->AddEntry(vn_pm_ext,"#pi^{-}, 0.5 < y_{CM} < 1.0");
+      pmExtLegend->AddEntry(h_vn_pm,"#pi^{-}, 0 < y_{CM} < 0.5");
+      pmExtLegend->AddEntry(h_vn_pm_ext,"#pi^{-}, 0.5 < y_{CM} < 1.0");
       pmExtLegend->SetFillColorAlpha(0,0);
       pmExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *kpExtLegend = new TLegend(0.55, 0.68, 0.85, 0.9);
-      kpExtLegend->AddEntry(vn_kp,"K^{+}, 0 < y_{CM} < 0.5");
-      kpExtLegend->AddEntry(vn_kp_ext,"K^{+}, 0.5 < y_{CM} < 1.0");
+      kpExtLegend->AddEntry(h_vn_kp,"K^{+}, 0 < y_{CM} < 0.5");
+      kpExtLegend->AddEntry(h_vn_kp_ext,"K^{+}, 0.5 < y_{CM} < 1.0");
       kpExtLegend->SetFillColorAlpha(0,0);
       kpExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *kmExtLegend = new TLegend(0.25, 0.13, 0.55, 0.28);
-      kmExtLegend->AddEntry(vn_km,"K^{-}, 0 < y_{CM} < 0.5");
-      kmExtLegend->AddEntry(vn_km_ext,"K^{-}, 0.5 < y_{CM} < 1.0");
+      kmExtLegend->AddEntry(h_vn_km,"K^{-}, 0 < y_{CM} < 0.5");
+      kmExtLegend->AddEntry(h_vn_km_ext,"K^{-}, 0.5 < y_{CM} < 1.0");
       kmExtLegend->SetFillColorAlpha(0,0);
       kmExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *prExtLegend = new TLegend(0.25, 0.16, 0.55, 0.3);
-      prExtLegend->AddEntry(vn_pr_for,"Proton, -0.5 < y_{CM} < 0");
-      prExtLegend->AddEntry(vn_pr,"Proton, 0 < y_{CM} < 0.5");
-      prExtLegend->AddEntry(vn_pr_ext,"Proton, 0.5 < y_{CM} < 1.0");
+      prExtLegend->AddEntry(h_vn_pr_for,"Proton, -0.5 < y_{CM} < 0");
+      prExtLegend->AddEntry(h_vn_pr,"Proton, 0 < y_{CM} < 0.5");
+      prExtLegend->AddEntry(h_vn_pr_ext,"Proton, 0.5 < y_{CM} < 1.0");
       prExtLegend->SetFillColorAlpha(0,0);
       prExtLegend->SetLineColorAlpha(0,0);
 
       
       TLegend *etaLegend = new TLegend(0.65, 0.7, 0.9, 0.9);
-      etaLegend->AddEntry(vn_EpdE, "EPD -5.6 < #eta < -3.3");
-      etaLegend->AddEntry(vn_EpdF, "EPD -3.3 < #eta < -2.4");
-      etaLegend->AddEntry(vn_TpcB, "TPC -1.0 < #eta < 0");
+      etaLegend->AddEntry(h_vn_EpdE, "EPD -5.6 < #eta < -3.3");
+      etaLegend->AddEntry(h_vn_EpdF, "EPD -3.3 < #eta < -2.4");
+      etaLegend->AddEntry(h_vn_TpcB, "TPC -1.0 < #eta < 0");
 
       
       TPaveText *piText = new TPaveText(15, -0.004, 45, 0.008, "NB");
@@ -617,12 +458,12 @@ void coefficients(TString jobID, TString order_n_str)
       canvas->SaveAs(jobID + "_kaCentralityStack.png");
       canvas->Clear();
 
-      vn_pr->SetTitle("");
-      vn_pr->GetYaxis()->SetTitleOffset(1.7);
-      vn_pr->GetXaxis()->SetNdivisions(210);
-      vn_pr->Draw("E1P");
-      vn_pr->SetMaximum(0.01);
-      vn_pr->SetMinimum(-0.09);
+      h_vn_pr->SetTitle("");
+      h_vn_pr->GetYaxis()->SetTitleOffset(1.7);
+      h_vn_pr->GetXaxis()->SetNdivisions(210);
+      h_vn_pr->Draw("E1P");
+      h_vn_pr->SetMaximum(0.01);
+      h_vn_pr->SetMinimum(-0.09);
       sh_cent_pr->SetMaximum(0.01);
       sh_cent_pr->SetMinimum(-0.09);
       sh_cent_pr->SetMaximum(0.01);
@@ -634,41 +475,41 @@ void coefficients(TString jobID, TString order_n_str)
       canvas->Clear();
      
 
-      vn_EpdE->SetMarkerStyle(20);
-      vn_EpdE->SetMarkerSize(2);
-      //vn_EpdE->SetMarkerColor(2);
-      //vn_EpdE->SetLineColor(2);
-      vn_EpdE->GetXaxis()->SetNdivisions(210);
-      vn_EpdE->Draw("E1P");
+      h_vn_EpdE->SetMarkerStyle(20);
+      h_vn_EpdE->SetMarkerSize(2);
+      //h_vn_EpdE->SetMarkerColor(2);
+      //h_vn_EpdE->SetLineColor(2);
+      h_vn_EpdE->GetXaxis()->SetNdivisions(210);
+      h_vn_EpdE->Draw("E1P");
       canvas->SaveAs(jobID + "_vn_EpdE.png");
       canvas->Clear();
 
-      vn_EpdF->SetMarkerStyle(20);
-      vn_EpdF->SetMarkerSize(2);
-      //vn_EpdF->SetMarkerColor(2);
-      //vn_EpdF->SetLineColor(2);
-      vn_EpdF->GetXaxis()->SetNdivisions(210);
-      vn_EpdF->Draw("E1P");
+      h_vn_EpdF->SetMarkerStyle(20);
+      h_vn_EpdF->SetMarkerSize(2);
+      //h_vn_EpdF->SetMarkerColor(2);
+      //h_vn_EpdF->SetLineColor(2);
+      h_vn_EpdF->GetXaxis()->SetNdivisions(210);
+      h_vn_EpdF->Draw("E1P");
       canvas->SaveAs(jobID + "_vn_EpdF.png");
       canvas->Clear();
 
-      vn_TpcB->SetMarkerStyle(20);
-      vn_TpcB->SetMarkerSize(2);
-      //vn_TpcB->SetMarkerColor(2);
-      //vn_TpcB->SetLineColor(2);
-      vn_TpcB->GetXaxis()->SetNdivisions(210);
-      vn_TpcB->GetYaxis()->SetTitleOffset(1.7);
-      vn_TpcB->Draw("E1P");
+      h_vn_TpcB->SetMarkerStyle(20);
+      h_vn_TpcB->SetMarkerSize(2);
+      //h_vn_TpcB->SetMarkerColor(2);
+      //h_vn_TpcB->SetLineColor(2);
+      h_vn_TpcB->GetXaxis()->SetNdivisions(210);
+      h_vn_TpcB->GetYaxis()->SetTitleOffset(1.7);
+      h_vn_TpcB->Draw("E1P");
       zeroLine->Draw("SAME");
       canvas->SaveAs(jobID + "_vn_TpcB.png");
       canvas->Clear();
 
-      vn_Tpc->SetMarkerStyle(20);
-      vn_Tpc->SetMarkerSize(2);
-      vn_Tpc->GetXaxis()->SetNdivisions(210);
-      vn_Tpc->GetYaxis()->SetTitleOffset(1.7);
-      //vn_Tpc->SetMaximum(0.002);
-      vn_Tpc->Draw("E1P");
+      h_vn_Tpc->SetMarkerStyle(20);
+      h_vn_Tpc->SetMarkerSize(2);
+      h_vn_Tpc->GetXaxis()->SetNdivisions(210);
+      h_vn_Tpc->GetYaxis()->SetTitleOffset(1.7);
+      //h_vn_Tpc->SetMaximum(0.002);
+      h_vn_Tpc->Draw("E1P");
       zeroLine->Draw("SAME");
       canvas->SaveAs(jobID + "_vn_Tpc.png");
       canvas->Clear();
@@ -758,71 +599,71 @@ void coefficients(TString jobID, TString order_n_str)
   else if (order_n_str == "3")
     {
       TLegend *piLegend = new TLegend(0.67, 0.71, 0.805, 0.87);
-      piLegend->AddEntry(vn_pp,"#pi^{+}");
-      piLegend->AddEntry(vn_pm,"#pi^{-}");
+      piLegend->AddEntry(h_vn_pp,"#pi^{+}");
+      piLegend->AddEntry(h_vn_pm,"#pi^{-}");
       piLegend->SetFillColorAlpha(0,0);
       piLegend->SetLineColorAlpha(0,0);
 
-      TLegend *kaLegend = new TLegend(0.55, 0.72, 0.65, 0.87);
-      kaLegend->AddEntry(vn_kp,"K^{+}");
-      kaLegend->AddEntry(vn_km,"K^{-}");
+      TLegend *kaLegend = new TLegend(0.7, 0.72, 0.8, 0.87);
+      kaLegend->AddEntry(h_vn_kp,"K^{+}");
+      kaLegend->AddEntry(h_vn_km,"K^{-}");
       kaLegend->SetFillColorAlpha(0,0);
       kaLegend->SetLineColorAlpha(0,0);
 
 
       TLegend *ppExtLegend = new TLegend(0.4, 0.62, 0.7, 0.82);
-      ppExtLegend->AddEntry(vn_pp,"#pi^{+}, 0 < y_{CM} < 0.5");
-      ppExtLegend->AddEntry(vn_pp_ext,"#pi^{+}, 0.5 < y_{CM} < 1.0");
+      ppExtLegend->AddEntry(h_vn_pp,"#pi^{+}, 0 < y_{CM} < 0.5");
+      ppExtLegend->AddEntry(h_vn_pp_ext,"#pi^{+}, 0.5 < y_{CM} < 1.0");
       ppExtLegend->SetFillColorAlpha(0,0);
       ppExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *pmExtLegend = new TLegend(0.15, 0.67, 0.45, 0.9);
-      pmExtLegend->AddEntry(vn_pm,"#pi^{-}, 0 < y_{CM} < 0.5");
-      pmExtLegend->AddEntry(vn_pm_ext,"#pi^{-}, 0.5 < y_{CM} < 1.0");
+      pmExtLegend->AddEntry(h_vn_pm,"#pi^{-}, 0 < y_{CM} < 0.5");
+      pmExtLegend->AddEntry(h_vn_pm_ext,"#pi^{-}, 0.5 < y_{CM} < 1.0");
       pmExtLegend->SetFillColorAlpha(0,0);
       pmExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *kpExtLegend = new TLegend(0.55, 0.7, 0.85, 0.9);
-      kpExtLegend->AddEntry(vn_kp,"K^{+}, 0 < y_{CM} < 0.5");
-      kpExtLegend->AddEntry(vn_kp_ext,"K^{+}, 0.5 < y_{CM} < 1.0");
+      kpExtLegend->AddEntry(h_vn_kp,"K^{+}, 0 < y_{CM} < 0.5");
+      kpExtLegend->AddEntry(h_vn_kp_ext,"K^{+}, 0.5 < y_{CM} < 1.0");
       kpExtLegend->SetFillColorAlpha(0,0);
       kpExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *kmExtLegend = new TLegend(0.28, 0.68, 0.55, 0.85);
-      kmExtLegend->AddEntry(vn_km,"K^{-}, 0 < y_{CM} < 0.5");
-      kmExtLegend->AddEntry(vn_km_ext,"K^{-}, 0.5 < y_{CM} < 1.0");
+      kmExtLegend->AddEntry(h_vn_km,"K^{-}, 0 < y_{CM} < 0.5");
+      kmExtLegend->AddEntry(h_vn_km_ext,"K^{-}, 0.5 < y_{CM} < 1.0");
       kmExtLegend->SetFillColorAlpha(0,0);
       kmExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *prExtLegend = new TLegend(0.25, 0.16, 0.55, 0.3);
-      prExtLegend->AddEntry(vn_pr_for,"Proton, -0.5 < y_{CM} < 0");
-      prExtLegend->AddEntry(vn_pr,"Proton, 0 < y_{CM} < 0.5");
-      prExtLegend->AddEntry(vn_pr_ext,"Proton, 0.5 < y_{CM} < 1.0");
+      prExtLegend->AddEntry(h_vn_pr_for,"Proton, -0.5 < y_{CM} < 0");
+      prExtLegend->AddEntry(h_vn_pr,"Proton, 0 < y_{CM} < 0.5");
+      prExtLegend->AddEntry(h_vn_pr_ext,"Proton, 0.5 < y_{CM} < 1.0");
       prExtLegend->SetFillColorAlpha(0,0);
       prExtLegend->SetLineColorAlpha(0,0);
 
       TLegend *etaLegend = new TLegend(0.65, 0.25, 0.9, 0.45);
-      etaLegend->AddEntry(vn_EpdE, "EPD -5.6 < #eta < -3.3");
-      etaLegend->AddEntry(vn_EpdF, "EPD -3.3 < #eta < -2.4");
-      etaLegend->AddEntry(vn_TpcB, "TPC -1.0 < #eta < 0");
+      etaLegend->AddEntry(h_vn_EpdE, "EPD -5.6 < #eta < -3.3");
+      etaLegend->AddEntry(h_vn_EpdF, "EPD -3.3 < #eta < -2.4");
+      etaLegend->AddEntry(h_vn_TpcB, "TPC -1.0 < #eta < 0");
 
       
 
-      TPaveText *piText = new TPaveText(12, 0.012, 38, 0.0185, "NB");
+      TPaveText *piText = new TPaveText(5, 0.025, 38, 0.07, "NB");
       piText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       piText->AddText("0 < y_{CM} < 0.5 GeV");
       piText->AddText("0.18 < p_{T} < 1.6 GeV");
       piText->SetFillColorAlpha(0,0);
       piText->SetLineColorAlpha(0,0);
 
-      TPaveText *kaText = new TPaveText(1, 0.1, 32, 0.185, "NB");
+      TPaveText *kaText = new TPaveText(5, 0.025, 38, 0.07, "NB");
       kaText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kaText->AddText("0 < y_{CM} < 0.5 GeV");
       kaText->AddText("0.18 < p_{T} < 1.6 GeV");
       kaText->SetFillColorAlpha(0,0);
       kaText->SetLineColorAlpha(0,0);
 
-      TPaveText *prText = new TPaveText(10, -0.015, 40, -0.025, "NB");
+      TPaveText *prText = new TPaveText(5, 0.025, 38, 0.07, "NB");
       prText->AddText("Proton");
       prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       prText->AddText("0 < y_{CM} < 0.5 GeV");
@@ -836,15 +677,20 @@ void coefficients(TString jobID, TString order_n_str)
       canvas->SetGridy();
       gStyle->SetErrorX(0);
       gStyle->SetOptStat(0);
+      gStyle->SetEndErrorSize(6);
+
 
       TLine *zeroLine = new TLine(0, 0, 60, 0);
       zeroLine->SetLineStyle(9);
+
+      Double_t centralityUpperBounds = 0.08;
+      Double_t centralityLowerBounds = -0.08;
       
       piCentralityStack->Draw();
       piCentralityStack->GetYaxis()->SetTitleOffset(1.8);
       piCentralityStack->GetXaxis()->SetNdivisions(210);
-      piCentralityStack->SetMaximum(0.02);
-      piCentralityStack->SetMinimum(-0.015);
+      piCentralityStack->SetMaximum(centralityUpperBounds);
+      piCentralityStack->SetMinimum(centralityLowerBounds);
       piCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
       piLegend->Draw();
@@ -855,8 +701,8 @@ void coefficients(TString jobID, TString order_n_str)
       kaCentralityStack->Draw();
       kaCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       kaCentralityStack->GetXaxis()->SetNdivisions(210);
-      kaCentralityStack->SetMaximum(0.2);
-      kaCentralityStack->SetMinimum(-0.15);
+      kaCentralityStack->SetMaximum(centralityUpperBounds);
+      kaCentralityStack->SetMinimum(centralityLowerBounds);
       kaCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
       kaLegend->Draw();
@@ -864,56 +710,56 @@ void coefficients(TString jobID, TString order_n_str)
       canvas->SaveAs(jobID + "_kaCentralityStack.png");
       canvas->Clear();
 
-      vn_pr->SetTitle("");
-      vn_pr->GetYaxis()->SetTitleOffset(1.7);
-      vn_pr->GetXaxis()->SetNdivisions(210);
-      vn_pr->Draw("E1P");
-      vn_pr->SetMaximum(0.01);
-      vn_pr->SetMinimum(-0.03);
+      h_vn_pr->SetTitle("");
+      h_vn_pr->GetYaxis()->SetTitleOffset(1.7);
+      h_vn_pr->GetXaxis()->SetNdivisions(210);
+      h_vn_pr->Draw("E1P");
+      h_vn_pr->SetMaximum(centralityUpperBounds);
+      h_vn_pr->SetMinimum(centralityLowerBounds);
       zeroLine->Draw("SAME");
       prText->Draw();
       canvas->SaveAs(jobID + "_vn_pr.png");
       canvas->Clear();
 
-      vn_EpdE->SetMarkerStyle(20);
-      vn_EpdE->SetMarkerSize(2);
-      //vn_EpdE->SetMarkerColor(2);
-      //vn_EpdE->SetLineColor(2);
-      vn_EpdE->GetYaxis()->SetTitleOffset(1.7);
-      vn_EpdE->GetXaxis()->SetNdivisions(210);
-      vn_EpdE->Draw("E1P");
+      h_vn_EpdE->SetMarkerStyle(20);
+      h_vn_EpdE->SetMarkerSize(2);
+      //h_vn_EpdE->SetMarkerColor(2);
+      //h_vn_EpdE->SetLineColor(2);
+      h_vn_EpdE->GetYaxis()->SetTitleOffset(1.7);
+      h_vn_EpdE->GetXaxis()->SetNdivisions(210);
+      h_vn_EpdE->Draw("E1P");
       canvas->SaveAs(jobID + "_vn_EpdE.png");
       canvas->Clear();
 
-      vn_EpdF->SetMarkerStyle(20);
-      vn_EpdF->SetMarkerSize(2);
-      //vn_EpdF->SetMarkerColor(2);
-      //vn_EpdF->SetLineColor(2);
-      vn_EpdF->GetYaxis()->SetTitleOffset(1.8);
-      vn_EpdF->GetXaxis()->SetNdivisions(210);
-      vn_EpdF->Draw("E1P");
+      h_vn_EpdF->SetMarkerStyle(20);
+      h_vn_EpdF->SetMarkerSize(2);
+      //h_vn_EpdF->SetMarkerColor(2);
+      //h_vn_EpdF->SetLineColor(2);
+      h_vn_EpdF->GetYaxis()->SetTitleOffset(1.8);
+      h_vn_EpdF->GetXaxis()->SetNdivisions(210);
+      h_vn_EpdF->Draw("E1P");
       canvas->SaveAs(jobID + "_vn_EpdF.png");
       canvas->Clear();
 
-      vn_TpcB->SetMarkerStyle(20);
-      vn_TpcB->SetMarkerSize(2);
-      //vn_TpcB->SetMarkerColor(2);
-      //vn_TpcB->SetLineColor(2);
-      vn_TpcB->GetXaxis()->SetNdivisions(210);
-      vn_TpcB->GetYaxis()->SetTitleOffset(1.7);
-      vn_TpcB->Draw("E1P");
-      vn_TpcB->SetMaximum(0.01);
-      vn_TpcB->SetMinimum(-0.03);
+      h_vn_TpcB->SetMarkerStyle(20);
+      h_vn_TpcB->SetMarkerSize(2);
+      //h_vn_TpcB->SetMarkerColor(2);
+      //h_vn_TpcB->SetLineColor(2);
+      h_vn_TpcB->GetXaxis()->SetNdivisions(210);
+      h_vn_TpcB->GetYaxis()->SetTitleOffset(1.7);
+      h_vn_TpcB->Draw("E1P");
+      h_vn_TpcB->SetMaximum(0.01);
+      h_vn_TpcB->SetMinimum(-0.03);
       zeroLine->Draw("SAME");
       canvas->SaveAs(jobID + "_vn_TpcB.png");
       canvas->Clear();
 
-      vn_Tpc->SetMarkerStyle(20);
-      vn_Tpc->SetMarkerSize(2);
-      vn_Tpc->GetXaxis()->SetNdivisions(210);
-      vn_Tpc->GetYaxis()->SetTitleOffset(1.7);
-      vn_Tpc->SetMaximum(0.002);
-      vn_Tpc->Draw("E1P");
+      h_vn_Tpc->SetMarkerStyle(20);
+      h_vn_Tpc->SetMarkerSize(2);
+      h_vn_Tpc->GetXaxis()->SetNdivisions(210);
+      h_vn_Tpc->GetYaxis()->SetTitleOffset(1.7);
+      h_vn_Tpc->SetMaximum(0.002);
+      h_vn_Tpc->Draw("E1P");
       zeroLine->Draw("SAME");
       canvas->SaveAs(jobID + "_vn_Tpc.png");
       canvas->Clear();
