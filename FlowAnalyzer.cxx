@@ -26,6 +26,7 @@
 // C++ headers
 #include <iostream>
 #include <vector>
+#include <sys/resource.h>
 
 // ROOT headers
 #include "TROOT.h"
@@ -33,11 +34,13 @@
 #include "TFile.h"
 #include "TChain.h"
 #include "TH1.h"
+#include "TF1.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TProfile3D.h"
 #include "TString.h"
 #include "TSystem.h"
+#include "TClassTable.h"
 #include "TKey.h"
 #include "TMath.h"
 #include "TStopwatch.h"
@@ -60,17 +63,43 @@
 #include "StRoot/StEpdUtil/StEpdGeom.h"
 #include "StRoot/StEpdUtil/StBbcGeom.h"
 
+// Bichsel header
+#include "StRoot/StBichsel/Bichsel.h"
+
 // Configuration file reader
 #include "ConfigReader.h"
 
 // My Util Header
 #include "FlowUtils.h"
 
+
+// Bichsel Function Functions
+Double_t bichselZ(Double_t *x,Double_t *par) 
+{
+  Double_t pove   = x[0];
+  Double_t poverm = pove/par[0];
+  return TMath::Exp(Bichsel::Instance()->GetMostProbableZ(TMath::Log10(poverm),par[1]));
+}
+
+Double_t bichsel70(Double_t *x,Double_t *par) 
+{
+  Double_t pove   = x[0];
+  Double_t poverm = pove/par[0];
+  return TMath::Exp(Bichsel::Instance()->GetI70(TMath::Log10(poverm),par[1]));
+}
+
+
 //=========================================================
 //          SOME CONTROLS
 //=========================================================
 const Int_t CENT_BINS  = 16;             // Number of centrality bins to show (max 16)  LEAVE AT 16 FOR NOW, BEST FOR RESOLUTION STUFF
 const Int_t FIRST_CENT = 16 - CENT_BINS;            // Starting point for centrality dependent plots
+
+const Double_t D_M0_PI = 0.139571;   //Rest masses
+const Double_t D_M0_KA = 0.493677;
+const Double_t D_M0_PR = 0.938272;
+const Double_t D_M0_DE = 1.875613;   // Deuteron
+const Double_t D_M0_TR = 2.808921;   // Triton
 
 Int_t RUN_ITERATION = 0;
 // 0 = No correction info yet; save raw (Xn,Yn) distributions
@@ -100,7 +129,6 @@ int main(int argc, char *argv[])
 
   if (gSystem->AccessPathName(inFile)) { std::cout << "Error reading input file!" << std::endl; return 1;}
 
-
   //=========================================================
   //          Set up various files
   //=========================================================
@@ -117,7 +145,6 @@ int main(int argc, char *argv[])
   ORDER_M_STR.Form("%.0f", ORDER_M);
   const Double_t PSI_BOUNDS = TMath::Pi()/ORDER_M + 1;  // Boundaries for many histograms
   const Double_t Q_BOUNDS = 100;
-
 
   //=== INITIALIZE PICOREADER
   StPicoDstReader* picoReader = new StPicoDstReader(inFile);
@@ -245,19 +272,63 @@ int main(int argc, char *argv[])
   //=========================================================
 
 
-  //TH1::SetDefaultSumw2(true);
+  //=========================================================
+  //          Bichsel Function Setup
+  //=========================================================
+  Double_t log2dx = 1.0;
+  Double_t xStart = 0.01;
+  Double_t xStop  = 3.0;
+  Int_t npx = 10000;
+  //                      Mass  log2(dx)
+  Double_t params[2] = {  1.0,   log2dx  };
+
+  params[0] = D_M0_PI;
+  TF1 *bichselZ_pi = new TF1(Form("BichselZ_pi_log2dx_%i",(int)log2dx),bichselZ,xStart,xStop,2);
+  if (!bichselZ_pi) { std::cout << "Pi function error" << std::endl; return 1; }
+  bichselZ_pi->SetParameters(params); 
+  bichselZ_pi->SetNpx(npx);
+
+  params[0] = D_M0_KA;
+  TF1 *bichselZ_ka = new TF1(Form("BichselZ_ka_log2dx_%i",(int)log2dx),bichselZ,xStart,xStop,2);
+  if (!bichselZ_ka) { std::cout << "Ka function error" << std::endl; return 1; }
+  bichselZ_ka->SetParameters(params); 
+  bichselZ_ka->SetNpx(npx);
+
+  params[0] = D_M0_PR;
+  TF1 *bichselZ_pr = new TF1(Form("BichselZ_pr_log2dx_%i",(int)log2dx),bichselZ,xStart,xStop,2);
+  if (!bichselZ_pr) { std::cout << "Pr function error" << std::endl; return 1; }
+  bichselZ_pr->SetParameters(params); 
+  bichselZ_pr->SetNpx(npx);
+
+  params[0] = D_M0_DE;
+  TF1 *bichselZ_de = new TF1(Form("BichselZ_de_log2dx_%i",(int)log2dx),bichselZ,xStart,xStop,2);
+  if (!bichselZ_de) { std::cout << "De function error" << std::endl; return 1; }
+  bichselZ_de->SetParameters(params); 
+  bichselZ_de->SetNpx(npx);
+
+  params[0] = D_M0_TR;
+  TF1 *bichselZ_tr = new TF1(Form("BichselZ_tr_log2dx_%i",(int)log2dx),bichselZ,xStart,xStop,2);
+  if (!bichselZ_tr) { std::cout << "Tr function error" << std::endl; return 1; }
+  bichselZ_tr->SetParameters(params); 
+  bichselZ_tr->SetNpx(npx);
+  //=========================================================
+  //          END Bichsel Function Setup
+  //=========================================================
+
 
   // HISTOGRAMS
+  //TH1::SetDefaultSumw2(true);
+
   TH1D *h_eventCheck = new TH1D("h_eventCheck","Event number after each cut;;Events", 3, 0, 3);
-  const char *eventSections[3] = {"No cuts", "Trigger cut", "Vertex cut"};
+  //const char *eventSections[3] = {"No cuts", "Trigger cut", "Vertex cut"};
   h_eventCheck->SetStats(0);
 
   TH1D *h_trackCheck = new TH1D("h_trackCheck","Track number after each cut;;Tracks", 3, 0, 3);
-  const char *trackSections[3] = {"Event cuts only", "QA Cuts", "PID cuts"};  
+  //const char *trackSections[3] = {"Event cuts only", "QA Cuts", "PID cuts"};  
   h_trackCheck->SetStats(0);
 
   TH1D *h_eventCheck_EpdF = new TH1D("h_eventCheck_EpdF","EPD F Event Number;;Events", 2, 0, 2);
-  const char *eventSections_EpdF[2] = {"5 Hit Min", "9 Hit Min"};
+  //const char *eventSections_EpdF[2] = {"5 Hit Min", "9 Hit Min"};
   h_eventCheck_EpdF->SetStats(0);
 
   TH1D *h_simulationCheck = new TH1D ("h_simulationCheck", "N_{trk} with no TPC efficiency", 3, 0, 3);
@@ -278,6 +349,7 @@ int main(int argc, char *argv[])
   TH1D *h_centralities = new TH1D("h_centralities", "Centralities;Centrality ID;Events", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
 
   TH1D *h_tofBeta = new TH1D("h_tofBeta", "TOF #beta;#beta;Tracks", 150, 0, 1.5);
+  TH1D *h_m2 = new TH1D("h_m2", "m^{2};m^{2} (GeV^{2}/c^{4});Tracks", 1000,0, 10);
 
   TH1D *h_pp_dndm = new TH1D("h_pp_dndm", "#pi^{+} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}", 60, 0, 3);//30, 0, 3);
   TH1D *h_pm_dndm = new TH1D("h_pm_dndm", "#pi^{-} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}", 60, 0, 3);//30, 0, 3);
@@ -321,8 +393,8 @@ int main(int argc, char *argv[])
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
   TProfile *p_vn_EpdF = new TProfile("p_vn_EpdF", "v_{"+ORDER_N_STR+"} by Centrality (EPD F);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
-  TProfile *p_vn_TpcA = new TProfile("p_vn_TpcA", "v_{"+ORDER_N_STR+"} by Centrality (TPC A);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
-				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
+  //TProfile *p_vn_TpcA = new TProfile("p_vn_TpcA", "v_{"+ORDER_N_STR+"} by Centrality (TPC A);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  //				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
   TProfile *p_vn_TpcB = new TProfile("p_vn_TpcB", "v_{"+ORDER_N_STR+"} by Centrality (TPC B);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
   TProfile *p_vn_Tpc_pT_0p2to2 = 
@@ -405,6 +477,19 @@ int main(int argc, char *argv[])
   TProfile2D *p2_vn_pT_cent_kp = new TProfile2D("p2_vn_pT_cent_kp", "K^{+} v_{"+ORDER_N_STR+"};Centrality;p_{T}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
   TProfile2D *p2_vn_pT_cent_km = new TProfile2D("p2_vn_pT_cent_km", "K^{-} v_{"+ORDER_N_STR+"};Centrality;p_{T}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
   TProfile2D *p2_vn_pT_cent_pr = new TProfile2D("p2_vn_pT_cent_pr", "Proton v_{"+ORDER_N_STR+"};Centrality;p_{T}", CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
+  TProfile2D *p2_vn_pT_cent_pr_yp25p50 = new TProfile2D("p2_vn_pT_cent_pr_yp25p50", "Proton v_{"+ORDER_N_STR+"};Centrality;p_{T}", 
+							CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
+  TProfile2D *p2_vn_pT_cent_pr_yp50p75 = new TProfile2D("p2_vn_pT_cent_pr_yp50p75", "Proton v_{"+ORDER_N_STR+"};Centrality;p_{T}", 
+							CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
+  TProfile2D *p2_vn_pT_cent_pr_yp751p0 = new TProfile2D("p2_vn_pT_cent_pr_yp751p0", "Proton v_{"+ORDER_N_STR+"};Centrality;p_{T}", 
+							CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 0, 2);
+  
+  TProfile2D *p2_vn_pT_cent_pr_symm = new TProfile2D("p2_vn_pT_cent_pr_symm", "Proton v_{"+ORDER_N_STR+"};Centrality;p_{T}", 
+						     CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 12, 0, 2.5);
+  TProfile2D *p2_vn_pT_cent_pr_symm_yp25p50 = new TProfile2D("p2_vn_pT_cent_pr_symm_yp25p50", "Proton v_{"+ORDER_N_STR+"};Centrality;p_{T}", 
+							     CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 10, 2, 2.5);
+  TProfile2D *p2_vn_pT_cent_pr_symm_yNp50Np25 = new TProfile2D("p2_vn_pT_cent_pr_symm_yNp50Np25", "Proton v_{"+ORDER_N_STR+"};Centrality;p_{T}", 
+							       CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS, 12, 0, 2.5);
 
 
   // Profiles for resolution terms
@@ -435,8 +520,10 @@ int main(int argc, char *argv[])
 
   TH2D *h2_betap  = new TH2D("h2_betap","1/#beta vs Momentum;q*|p| (GeV);1/#beta", 300, -3, 3, 300, 0.5, 3.5);
   TH2D *h2_m2_qp   = new TH2D("h2_m2_qp", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 400, -4, 4, 400, -0.1, 1.5);
+  TH2D *h2_m2_qp_ext  = new TH2D("h2_m2_qp_ext", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 400, -4, 4, 400, -0.1, 10);
   TH2D *h2_m2_vs_qpT  = new TH2D("h2_m2_vs_qpT", "m^{2} vs q*p_{T};q*p_{T} (GeV);m^{2} (GeV^{2})", 300, -3, 3, 300, -0.1, 1.2);
   TH2D *h2_dEdx_vs_qp = new TH2D("h2_dEdx_vs_qp", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, -2, 2, 500, 0, 10);
+  TH2D *h2_dEdx_vs_qp_half = new TH2D("h2_dEdx_vs_qp_half", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, 0, 4, 500, 0, 12);
 
   TH2D *h2_nSig_vs_qp_pi = new TH2D("h2_nSig_vs_qp_pi", "Pion n#sigma vs q|p|;q|p| (GeV); n#sigma_{#pi}", 500, -5, 5, 400, -8, 8);
   TH2D *h2_nSig_vs_qp_ka = new TH2D("h2_nSig_vs_qp_ka", "Kaon n#sigma vs q|p|;q|p| (GeV); n#sigma_{K}", 500, -5, 5, 400, -8, 8);
@@ -640,7 +727,8 @@ int main(int argc, char *argv[])
       //          END Bad Run Omission
       //=========================================================
 
-      h_eventCheck->Fill(eventSections[0], 1);
+      //h_eventCheck->Fill(eventSections[0], 1);
+      h_eventCheck->Fill(0);
 
       //=========================================================
       //          Trigger Selection
@@ -656,7 +744,8 @@ int main(int argc, char *argv[])
       //      END Trigger Selection
       //=========================================================
 
-      h_eventCheck->Fill(eventSections[1], 1);
+      //h_eventCheck->Fill(eventSections[1], 1);
+      h_eventCheck->Fill(1);
             
       //=========================================================
       //          VTX Selection
@@ -687,7 +776,8 @@ int main(int argc, char *argv[])
       //      END VTX Selection
       //=========================================================
 
-      h_eventCheck->Fill(eventSections[2], 1);
+      //h_eventCheck->Fill(eventSections[2], 1);
+      h_eventCheck->Fill(2);
 
 
       Int_t nTracks = dst->numberOfTracks();
@@ -695,14 +785,15 @@ int main(int argc, char *argv[])
 
       // TRACK LOOP OVER PRIMARY TRACKS
       for(Int_t iTrk = 0; iTrk < nTracks; iTrk++)
-	{            
+	{
 	  particleInfo.reset();
 
 	  StPicoTrack *picoTrack = dst->track(iTrk);            
 	  if(picoTrack == NULL) continue;
 	  if(!picoTrack->isPrimary()) continue;  // Require primary tracks
 
-	  h_trackCheck->Fill(trackSections[0], 1);
+	  //h_trackCheck->Fill(trackSections[0], 1);
+	  h_trackCheck->Fill(0);
 
 	  eventInfo.primTracks++;
 
@@ -725,7 +816,8 @@ int main(int argc, char *argv[])
 	  //          End Track QA Cuts
 	  //=========================================================
 
-	  h_trackCheck->Fill(trackSections[1], 1);
+	  //h_trackCheck->Fill(trackSections[1], 1);
+	  h_trackCheck->Fill(1);
 
 	  TVector3 mom_vec  = picoTrack->pMom();
 	  Double_t d_dEdx   = picoTrack->dEdx();
@@ -807,8 +899,11 @@ int main(int argc, char *argv[])
 
 	      if (tofTrack)
 		{
+		  h_m2->Fill(d_m2);
+
 		  h2_betap->Fill(d_charge * d_mom, 1/d_tofBeta);
 		  h2_m2_qp->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
+		  h2_m2_qp_ext->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
 		  h2_m2_vs_qpT->Fill(d_charge * d_pT, d_m2);
 
 		  h2_pi_m2_vs_TPC_nsig->Fill(d_TPCnSigmaPion, d_m2);
@@ -817,6 +912,7 @@ int main(int argc, char *argv[])
 		}
 
 	      h2_dEdx_vs_qp->Fill(d_charge * d_mom, d_dEdx);
+	      h2_dEdx_vs_qp_half->Fill(d_charge * d_mom, d_dEdx);
 
 	      h2_nSig_vs_qp_pi->Fill(d_charge * d_mom, d_TPCnSigmaPion);
 	      h2_nSig_vs_qp_ka->Fill(d_charge * d_mom, d_TPCnSigmaKaon);
@@ -847,18 +943,18 @@ int main(int argc, char *argv[])
 	      //          END PID Cuts
 	      //=========================================================
 
-	      if (pion || kaon || proton) h_trackCheck->Fill(trackSections[2], 1);
+	      if (pion || kaon || proton) h_trackCheck->Fill(2);//h_trackCheck->Fill(trackSections[2], 1);
 
-	      Double_t d_m0_pi = 0.1396;   //Rest masses
-	      Double_t d_m0_ka = 0.4937;
-	      Double_t d_m0_pr = 0.9383;
+	      Double_t D_M0_PI = 0.1396;   //Rest masses
+	      Double_t D_M0_KA = 0.4937;
+	      Double_t D_M0_PR = 0.9383;
 	      Double_t d_rapidity;
 
 	      if (pion)
 		{
 		  if (d_charge > 0) 
 		    {
-		      d_rapidity = rapidity(d_px, d_py, d_pz, d_m0_pi);
+		      d_rapidity = rapidity(d_px, d_py, d_pz, D_M0_PI);
 
 		      h2_pT_vs_yCM_pp->Fill(d_rapidity - Y_MID, d_pT);
 			  
@@ -868,7 +964,7 @@ int main(int argc, char *argv[])
 			  particleInfo.ppTag = true;
 			  particleInfo.rapidity = d_rapidity;
 			  
-			  fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pp_dndy, h_pp_dndm, h2_pp_MvsY);
+			  fillRawSpect(d_px, d_py, d_pz, D_M0_PI, h_pp_dndy, h_pp_dndm, h2_pp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
 			  h2_y_vs_eta_pp->Fill(d_eta, d_rapidity);
 			  h_pp_pT->Fill(d_pT);
@@ -877,7 +973,7 @@ int main(int argc, char *argv[])
 		    }
 		  else if (d_charge < 0) 
 		    {
-		      d_rapidity = rapidity(d_px, d_py, d_pz, d_m0_pi);
+		      d_rapidity = rapidity(d_px, d_py, d_pz, D_M0_PI);
 
 		      h2_pT_vs_yCM_pm->Fill(d_rapidity - Y_MID, d_pT);
 
@@ -887,7 +983,7 @@ int main(int argc, char *argv[])
 			  particleInfo.pmTag = true;
 			  particleInfo.rapidity = d_rapidity;
 
-			  fillRawSpect(d_px, d_py, d_pz, d_m0_pi, h_pm_dndy, h_pm_dndm, h2_pm_MvsY);
+			  fillRawSpect(d_px, d_py, d_pz, D_M0_PI, h_pm_dndy, h_pm_dndm, h2_pm_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
 			  h2_y_vs_eta_pm->Fill(d_eta, d_rapidity);
 			  h_pm_pT->Fill(d_pT);
@@ -899,7 +995,7 @@ int main(int argc, char *argv[])
 		{
 		  if (d_charge > 0) 
 		    {
-		      d_rapidity = rapidity(d_px, d_py, d_pz, d_m0_ka);
+		      d_rapidity = rapidity(d_px, d_py, d_pz, D_M0_KA);
 
 		      h2_pT_vs_yCM_kp->Fill(d_rapidity - Y_MID, d_pT);
 
@@ -909,7 +1005,7 @@ int main(int argc, char *argv[])
 			  particleInfo.kpTag = true;
 			  particleInfo.rapidity = d_rapidity;
 
-			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_kp_dndy, h_kp_dndm, h2_kp_MvsY);
+			  fillRawSpect(d_px, d_py, d_pz, D_M0_KA, h_kp_dndy, h_kp_dndm, h2_kp_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
 			  h2_y_vs_eta_kp->Fill(d_eta, d_rapidity);
 			  h_kp_pT->Fill(d_pT);
@@ -918,7 +1014,7 @@ int main(int argc, char *argv[])
 		    }
 		  else if (d_charge < 0)		 
 		    {
-		      d_rapidity = rapidity(d_px, d_py, d_pz, d_m0_ka);
+		      d_rapidity = rapidity(d_px, d_py, d_pz, D_M0_KA);
 
 		      h2_pT_vs_yCM_km->Fill(d_rapidity - Y_MID, d_pT);
 
@@ -928,7 +1024,7 @@ int main(int argc, char *argv[])
 			  particleInfo.kmTag = true;
 			  particleInfo.rapidity = d_rapidity;
 
-			  fillRawSpect(d_px, d_py, d_pz, d_m0_ka, h_km_dndy, h_km_dndm, h2_km_MvsY);
+			  fillRawSpect(d_px, d_py, d_pz, D_M0_KA, h_km_dndy, h_km_dndm, h2_km_MvsY);
 			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
 			  h2_y_vs_eta_km->Fill(d_eta, d_rapidity);
 			  h_km_pT->Fill(d_pT);
@@ -940,7 +1036,7 @@ int main(int argc, char *argv[])
 		{
 		  if (d_charge > 0) 
 		    {
-		      d_rapidity = rapidity(d_px, d_py, d_pz, d_m0_pr);
+		      d_rapidity = rapidity(d_px, d_py, d_pz, D_M0_PR);
 
 		      h2_pT_vs_yCM_pr->Fill(d_rapidity - Y_MID, d_pT);
 
@@ -954,7 +1050,7 @@ int main(int argc, char *argv[])
 			  if (d_rapidity - Y_MID > configs.yCM_flow_pr_low && d_rapidity - Y_MID < configs.yCM_pid_pr_high && 
 			      d_pT >= configs.pt_flow_pr_low && d_pT <= configs.pt_flow_pr_high)
 			    {
-			      fillRawSpect(d_px, d_py, d_pz, d_m0_pr, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
+			      fillRawSpect(d_px, d_py, d_pz, D_M0_PR, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
 			      h2_y_vs_eta->Fill(d_eta, d_rapidity);
 			      h2_y_vs_eta_pr->Fill(d_eta, d_rapidity);
 			      h_pr_pT->Fill(d_pT);
@@ -1094,7 +1190,6 @@ int main(int argc, char *argv[])
 	      eventInfo.epdParticles.push_back(particleInfo);
 	    }
 	}// End EPD hit loop
-      //delete epdGeom;
       //=========================================================
       //            END EPD STUFF
       //=========================================================
@@ -1105,8 +1200,8 @@ int main(int argc, char *argv[])
       if (eventInfo.nTracksTpcB < configs.min_tracks) continue;
       if (eventInfo.nHitsEpd    < configs.min_tracks) continue;
       if (eventInfo.nHitsEpdE   < configs.min_tracks) continue;
-      if (eventInfo.nHitsEpdF   >= configs.min_tracks) h_eventCheck_EpdF->Fill(eventSections_EpdF[0], 1);
-      if (eventInfo.nHitsEpdF   >= configs.min_tracks+4) h_eventCheck_EpdF->Fill(eventSections_EpdF[1], 1);
+      if (eventInfo.nHitsEpdF   >= configs.min_tracks) h_eventCheck_EpdF->Fill(0);//h_eventCheck_EpdF->Fill(eventSections_EpdF[0], 1);
+      if (eventInfo.nHitsEpdF   >= configs.min_tracks+4) h_eventCheck_EpdF->Fill(1);//h_eventCheck_EpdF->Fill(eventSections_EpdF[1], 1);
       if (eventInfo.nHitsEpdF   < configs.min_tracks+4) continue;
       
       checkZeroQ(eventInfo);
@@ -1447,6 +1542,23 @@ int main(int argc, char *argv[])
 			  jthpT > configs.pt_ydep_flow_pr_low && jthpT < configs.pt_ydep_flow_pr_high)
 			{ p2_vn_yCM_cent_pr->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 
+		      // pT DEPENDENT WITH CHANGING RAPIDITIES
+		      if (jthRapidity-Y_MID > 0.25 && jthRapidity-Y_MID < 0.5 && jthpT > 0.4 && jthpT < 2.0)
+			{ p2_vn_pT_cent_pr_yp25p50->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      else if (jthRapidity-Y_MID > 0.5 && jthRapidity-Y_MID < 0.75 && jthpT > 0.4 && jthpT < 2.0)
+			{ p2_vn_pT_cent_pr_yp50p75->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      else if (jthRapidity-Y_MID > 0.75 && jthRapidity-Y_MID < 1.0 && jthpT > 0.4 && jthpT < 2.0)
+			{ p2_vn_pT_cent_pr_yp751p0->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+
+		      // pT DEPENDENT WITH SYMMETRIC RAPIDITY
+		      if (jthRapidity-Y_MID > -0.5 && jthRapidity-Y_MID < 0.5 && jthpT > 1.0 && jthpT < 2.5)
+			{ p2_vn_pT_cent_pr_symm->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      if (jthRapidity-Y_MID > 0.25 && jthRapidity-Y_MID < 0.5 && jthpT > 1.0 && jthpT < 2.5)
+			{ p2_vn_pT_cent_pr_symm_yp25p50->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      if (jthRapidity-Y_MID > -0.5 && jthRapidity-Y_MID < -0.25 && jthpT > 1.0 && jthpT < 2.5)
+			{ p2_vn_pT_cent_pr_symm_yNp50Np25->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+
+
 		      // NORMAL ACCEPTANCE 0 < y_cm < 0.5
 		      if (jthRapidity - Y_MID > configs.yCM_flow_pr_low && jthRapidity - Y_MID < configs.yCM_flow_pr_high &&
 			  jthpT > configs.pt_flow_pr_low && jthpT < configs.pt_flow_pr_high)
@@ -1546,7 +1658,8 @@ int main(int argc, char *argv[])
     }//END EVENT LOOP
 
 
-  // Switch y-axis labels to centrality percentages
+  // Switch axis labels on some plots
+  // Put in centrality percentages
   Int_t labelIndex;
   for (int i = 1; i <= CENT_BINS; i++) 
     {
@@ -1558,6 +1671,16 @@ int main(int argc, char *argv[])
       h2_v2ScanEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
     }
+
+  // Put in event and track cut labels
+  const char *eventSections[3] = {"No cuts", "Trigger cut", "Vertex cut"};
+  for (int i = 1; i <= h_eventCheck->GetNbinsX(); i++) { h_eventCheck->GetXaxis()->SetBinLabel(i, eventSections[i-1]); }
+
+  const char *trackSections[3] = {"Event cuts only", "QA Cuts", "PID cuts"};  
+  for (int i = 1; i <= h_trackCheck->GetNbinsX(); i++) { h_trackCheck->GetXaxis()->SetBinLabel(i, trackSections[i-1]); }
+
+  const char *eventSections_EpdF[2] = {"5 Hit Min", "9 Hit Min"};
+  for (int i = 1; i <= h_eventCheck_EpdF->GetNbinsX(); i++) { h_eventCheck_EpdF->GetXaxis()->SetBinLabel(i, eventSections_EpdF[i-1]); }
 
 
   outputFile->cd();
@@ -1607,8 +1730,19 @@ int main(int argc, char *argv[])
 
   //epdEpFinder->Finish();
   picoReader->Finish();
+  delete picoReader;
 
   std::cout << "Done!" << std::endl;
+
+  // Display total allocated memory
+
+  int who = RUSAGE_SELF;
+  struct rusage usage;
+  int ret;  
+  ret = getrusage(who, &usage);
+
+  if (ret == 0) { std::cout << "Memory usage: " << usage.ru_maxrss / 1000 << " MB" << std::endl; }
+  else { std::cout << "Could not retrieve memory usage!" << std::endl; }
 
   stopWatch->Stop();
   stopWatch->Print();
