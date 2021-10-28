@@ -1,3 +1,5 @@
+#include "PlotUtils.h"
+
 void vnVsY(TString jobID, TString order_n_str)
 {
   //TH1::SetDefaultSumw2();
@@ -15,7 +17,7 @@ void vnVsY(TString jobID, TString order_n_str)
   canvas->cd();
   gStyle->SetErrorX(0);
   gStyle->SetOptStat(0);
-
+  gStyle->SetEndErrorSize(6);
 
   double y_prp_data[10]={0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95};
   double v2val_y_prp_data[10]={-0.0221447, -0.0208411, -0.0192977, -0.01755, -0.0142688, -0.00941107, -0.00228046, 0.00722679, 0.0196273, 0.0374998};
@@ -590,6 +592,23 @@ void vnVsY(TString jobID, TString order_n_str)
     }
   else if (order_n_str == "3")
     {
+      // Trim and clean up x-axis
+      h_vn_yCM_00to10_kp = PlotUtils::trimRapidityPlot(h_vn_yCM_00to10_kp);
+      h_vn_yCM_10to40_kp = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_kp);
+      h_vn_yCM_40to60_kp = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_kp);
+      h_vn_yCM_00to10_km = PlotUtils::trimRapidityPlot(h_vn_yCM_00to10_km);
+      h_vn_yCM_10to40_km = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_km);
+      h_vn_yCM_40to60_km = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_km);
+  
+      h_vn_yCM_00to10_pp = PlotUtils::trimRapidityPlot(h_vn_yCM_00to10_pp);
+      h_vn_yCM_10to40_pp = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_pp);
+      h_vn_yCM_40to60_pp = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_pp);
+
+      h_vn_yCM_00to10_pm = PlotUtils::trimRapidityPlot(h_vn_yCM_00to10_pm);
+      h_vn_yCM_10to40_pm = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_pm);
+      h_vn_yCM_40to60_pm = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_pm);
+
+      
       ppRapidityStack->Add(h_vn_yCM_00to10_pp);
       ppRapidityStack->Add(h_vn_yCM_10to40_pp);
       ppRapidityStack->Add(h_vn_yCM_40to60_pp);
@@ -670,61 +689,74 @@ void vnVsY(TString jobID, TString order_n_str)
 
       
       
-      TPaveText *ppText = new TPaveText(-0.3, 0.03, 0.7, 0.04, "NB");
+      TPaveText *ppText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
       ppText->AddText("#pi^{+}");
       ppText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       ppText->AddText("0.18 < p_{T} < 1.6 GeV");
       ppText->SetFillColorAlpha(0,0);
       ppText->SetLineColorAlpha(0,0);
+      ppText->SetTextSize(.04);
 
-      TPaveText *pmText = new TPaveText(-0.3, 0.022, 0.7, 0.035, "NB");
+      TPaveText *pmText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
       pmText->AddText("#pi^{-}");
       pmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       pmText->AddText("0.18 < p_{T} < 1.6 GeV");
       pmText->SetFillColorAlpha(0,0);
       pmText->SetLineColorAlpha(0,0);
-
-      TPaveText *kpText = new TPaveText(-0.3, 0.13, 0.7, 0.19, "NB");
+      pmText->SetTextSize(.04);
+ 
+      TPaveText *kpText = new TPaveText(0.5, 0.1, 0.8, 0.17, "NB");
       kpText->AddText("K^{+}");
       kpText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kpText->AddText("0.18 < p_{T} < 1.6 GeV");
       kpText->SetFillColorAlpha(0,0);
       kpText->SetLineColorAlpha(0,0);
-
-      TPaveText *kmText = new TPaveText(-0.3, 0.12, 0.7, 0.18, "NB");
+      kpText->SetTextSize(.04);
+ 
+      TPaveText *kmText = new TPaveText(0.3, 0.05, 0.7, 0.12, "NB");
       kmText->AddText("K^{-}");
       kmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kmText->AddText("0.18 < p_{T} < 1.6 GeV");
       kmText->SetFillColorAlpha(0,0);
       kmText->SetLineColorAlpha(0,0);
-
-      TPaveText *prText_y = new TPaveText(-0.92, -0.03, 0.0, -0.016, "NB");
+      kmText->SetTextSize(.04);
+      
+      TPaveText *prText_y = new TPaveText(-0.2, 0.02, 0.9, 0.05, "NB");
       prText_y->AddText("Proton");
       prText_y->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       prText_y->AddText("0.4 < p_{T} < 2.0 GeV");
       prText_y->SetFillColorAlpha(0,0);
       prText_y->SetLineColorAlpha(0,0);
-
-      TPaveText *prText_y_symm = new TPaveText(-0.12, 0.035, 0.98, 0.065, "NB");
+      prText_y->SetTextSize(.035);
+ 
+      TPaveText *prText_y_symm = new TPaveText(-0.2, 0.02, 0.9, 0.05, "NB");
       prText_y_symm->AddText("Proton");
       prText_y_symm->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       prText_y_symm->AddText("1.0 < p_{T} < 2.5 GeV");
       prText_y_symm->SetFillColorAlpha(0,0);
       prText_y_symm->SetLineColorAlpha(0,0);
+      prText_y_symm->SetTextSize(.035);
 
-
-      TLine *zeroLine_y = new TLine(-1, 0, 1, 0);
+      TLine *zeroLine_y = new TLine(0, 0, 1, 0);
       zeroLine_y->SetLineStyle(9);
 
+      TLine *zeroLine_y_pr = new TLine(-1, 0, 1, 0);
+      zeroLine_y_pr->SetLineStyle(9);
 
+      Double_t rapidityUpperBound = 0.18;
+      Double_t rapidityLowerBound = -0.15;
+      Double_t rapidityUpperBound_pr = 0.06;
+      Double_t rapidityLowerBound_pr = -0.1;
+      
       ppRapidityStack->Draw();
       ppRapidityStack->GetYaxis()->SetTitleOffset(1.9);
       ppRapidityStack->GetXaxis()->SetNdivisions(210);
       ppRapidityStack->Draw();
-      ppRapidityStack->SetMaximum(0.045);
-      ppRapidityStack->SetMinimum(-0.01);
+      ppRapidityStack->SetMaximum(rapidityUpperBound);
+      ppRapidityStack->SetMinimum(rapidityLowerBound);
       ppRapidityStack->Draw("NOSTACK E1P");
       zeroLine_y->Draw("SAME");
+      ppRapidityStack->Draw("NOSTACK E1P SAME");
       ppLegend->Draw();
       ppText->Draw();
       canvas->SaveAs(jobID + "_ppRapidityStack.png");
@@ -734,10 +766,11 @@ void vnVsY(TString jobID, TString order_n_str)
       pmRapidityStack->GetYaxis()->SetTitleOffset(1.9);
       pmRapidityStack->GetXaxis()->SetNdivisions(210);
       pmRapidityStack->Draw();
-      pmRapidityStack->SetMaximum(0.04);
-      pmRapidityStack->SetMinimum(-0.03);
+      pmRapidityStack->SetMaximum(rapidityUpperBound);
+      pmRapidityStack->SetMinimum(rapidityLowerBound);
       pmRapidityStack->Draw("NOSTACK E1P");
       zeroLine_y->Draw("SAME");
+      pmRapidityStack->Draw("NOSTACK E1P SAME");
       pmLegend->Draw();
       pmText->Draw();
       canvas->SaveAs(jobID + "_pmRapidityStack.png");
@@ -747,10 +780,11 @@ void vnVsY(TString jobID, TString order_n_str)
       kpRapidityStack->GetYaxis()->SetTitleOffset(1.7);
       kpRapidityStack->GetXaxis()->SetNdivisions(210);
       kpRapidityStack->Draw();
-      kpRapidityStack->SetMaximum(0.2);
-      kpRapidityStack->SetMinimum(-0.12);
+      kpRapidityStack->SetMaximum(rapidityUpperBound);
+      kpRapidityStack->SetMinimum(rapidityLowerBound);
       kpRapidityStack->Draw("NOSTACK E1P");
       zeroLine_y->Draw("SAME");
+      kpRapidityStack->Draw("NOSTACK E1P SAME");
       kpLegend->Draw();
       kpText->Draw();
       canvas->SaveAs(jobID + "_kpRapidityStack.png");
@@ -760,10 +794,11 @@ void vnVsY(TString jobID, TString order_n_str)
       kmRapidityStack->GetYaxis()->SetTitleOffset(1.7);
       kmRapidityStack->GetXaxis()->SetNdivisions(210);
       kmRapidityStack->Draw();
-      kmRapidityStack->SetMaximum(0.2);
-      kmRapidityStack->SetMinimum(-0.1);
+      kmRapidityStack->SetMaximum(rapidityUpperBound);
+      kmRapidityStack->SetMinimum(rapidityLowerBound);
       kmRapidityStack->Draw("NOSTACK E1P");
       zeroLine_y->Draw("SAME");
+      kmRapidityStack->Draw("NOSTACK E1P SAME");
       kmLegend->Draw();
       kmText->Draw();
       canvas->SaveAs(jobID + "_kmRapidityStack.png");
@@ -773,10 +808,11 @@ void vnVsY(TString jobID, TString order_n_str)
       prRapidityStack->GetYaxis()->SetTitleOffset(1.7);
       prRapidityStack->GetXaxis()->SetNdivisions(210);
       prRapidityStack->Draw();
-      prRapidityStack->SetMaximum(0.01);
-      prRapidityStack->SetMinimum(-0.055);
+      prRapidityStack->SetMaximum(rapidityUpperBound_pr);
+      prRapidityStack->SetMinimum(rapidityLowerBound_pr);
       prRapidityStack->Draw("NOSTACK E1P");
-      zeroLine_y->Draw("SAME");
+      zeroLine_y_pr->Draw("SAME");
+      prRapidityStack->Draw("NOSTACK E1P SAME");
       prLegend->Draw();
       prText_y->Draw();
       canvas->SaveAs(jobID + "_prRapidityStack.png");
@@ -787,10 +823,11 @@ void vnVsY(TString jobID, TString order_n_str)
       prRapidityStack_symm->GetYaxis()->SetTitleOffset(1.7);
       prRapidityStack_symm->GetXaxis()->SetNdivisions(210);
       prRapidityStack_symm->Draw();
-      prRapidityStack_symm->SetMaximum(0.08);
-      prRapidityStack_symm->SetMinimum(-0.08);
+      prRapidityStack_symm->SetMaximum(rapidityUpperBound_pr);
+      prRapidityStack_symm->SetMinimum(rapidityLowerBound_pr);
       prRapidityStack_symm->Draw("NOSTACK E1P");
-      zeroLine_y->Draw("SAME");
+      zeroLine_y_pr->Draw("SAME");
+      prRapidityStack_symm->Draw("NOSTACK E1P SAME");
       prLegend->Draw();
       prText_y_symm->Draw();
       canvas->SaveAs(jobID + "_prRapidityStack_symm.png");
