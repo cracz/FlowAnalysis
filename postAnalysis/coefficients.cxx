@@ -38,8 +38,8 @@ void coefficients(TString jobID, TString order_n_str)
     }
   */
   TCanvas *canvas = new TCanvas("canvas", "Canvas", 1200, 1200);
-  canvas->SetGridx();
-  canvas->SetGridy();
+  //canvas->SetGridx();
+  //canvas->SetGridy();
   canvas->SetLogy(0);
   canvas->SetTicks();
   //canvas->SetLeftMargin(0.15);
@@ -246,6 +246,7 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_pr->SetLineColor(2);
   h_vn_pr->SetLineWidth(3);
   h_vn_pr->GetYaxis()->SetTitleOffset(1.7);
+  h_vn_pr->GetYaxis()->SetTitle("v_{"+order_n_str+"}");
 
 
   h_vn_pp_ext->SetMarkerStyle(20);
@@ -414,8 +415,6 @@ void coefficients(TString jobID, TString order_n_str)
 
       
       canvas->SetLeftMargin(0.13);
-      canvas->SetGridx();
-      canvas->SetGridy();
       gStyle->SetErrorX(0);
       gStyle->SetOptStat(0);
 
@@ -610,6 +609,11 @@ void coefficients(TString jobID, TString order_n_str)
       kaLegend->SetFillColorAlpha(0,0);
       kaLegend->SetLineColorAlpha(0,0);
 
+      TLegend *prLegend = new TLegend(0.7, 0.7, 0.83, 0.78);
+      prLegend->AddEntry(h_vn_pr,"p");
+      prLegend->SetFillColorAlpha(0,0);
+      prLegend->SetLineColorAlpha(0,0);
+
 
       TLegend *ppExtLegend = new TLegend(0.4, 0.62, 0.7, 0.82);
       ppExtLegend->AddEntry(h_vn_pp,"#pi^{+}, 0 < y_{CM} < 0.5");
@@ -649,22 +653,22 @@ void coefficients(TString jobID, TString order_n_str)
 
       
 
-      TPaveText *piText = new TPaveText(5, 0.025, 38, 0.07, "NB");
+      TPaveText *piText = new TPaveText(5, 0.055, 38, 0.1, "NB");
       piText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       piText->AddText("0 < y_{CM} < 0.5 GeV");
       piText->AddText("0.18 < p_{T} < 1.6 GeV");
       piText->SetFillColorAlpha(0,0);
       piText->SetLineColorAlpha(0,0);
 
-      TPaveText *kaText = new TPaveText(5, 0.025, 38, 0.07, "NB");
+      TPaveText *kaText = new TPaveText(5, 0.055, 38, 0.1, "NB");
       kaText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kaText->AddText("0 < y_{CM} < 0.5 GeV");
       kaText->AddText("0.18 < p_{T} < 1.6 GeV");
       kaText->SetFillColorAlpha(0,0);
       kaText->SetLineColorAlpha(0,0);
 
-      TPaveText *prText = new TPaveText(5, 0.025, 38, 0.07, "NB");
-      prText->AddText("Proton");
+      TPaveText *prText = new TPaveText(5, 0.055, 38, 0.1, "NB");
+      //prText->AddText("Proton");
       prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       prText->AddText("0 < y_{CM} < 0.5 GeV");
       prText->AddText("0.4 < p_{T} < 2.0 GeV");
@@ -673,8 +677,6 @@ void coefficients(TString jobID, TString order_n_str)
 
 
       canvas->SetLeftMargin(0.13);
-      canvas->SetGridx();
-      canvas->SetGridy();
       gStyle->SetErrorX(0);
       gStyle->SetOptStat(0);
       gStyle->SetEndErrorSize(6);
@@ -683,8 +685,8 @@ void coefficients(TString jobID, TString order_n_str)
       TLine *zeroLine = new TLine(0, 0, 60, 0);
       zeroLine->SetLineStyle(9);
 
-      Double_t centralityUpperBounds = 0.08;
-      Double_t centralityLowerBounds = -0.08;
+      Double_t centralityUpperBounds = 0.12;
+      Double_t centralityLowerBounds = -0.07;
       
       piCentralityStack->Draw();
       piCentralityStack->GetYaxis()->SetTitleOffset(1.8);
@@ -693,6 +695,7 @@ void coefficients(TString jobID, TString order_n_str)
       piCentralityStack->SetMinimum(centralityLowerBounds);
       piCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
+      piCentralityStack->Draw("NOSTACK E1P SAME");
       piLegend->Draw();
       piText->Draw();
       canvas->SaveAs(jobID + "_piCentralityStack.png");
@@ -705,6 +708,7 @@ void coefficients(TString jobID, TString order_n_str)
       kaCentralityStack->SetMinimum(centralityLowerBounds);
       kaCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
+      kaCentralityStack->Draw("NOSTACK E1P SAME");
       kaLegend->Draw();
       kaText->Draw();
       canvas->SaveAs(jobID + "_kaCentralityStack.png");
@@ -717,6 +721,8 @@ void coefficients(TString jobID, TString order_n_str)
       h_vn_pr->SetMaximum(centralityUpperBounds);
       h_vn_pr->SetMinimum(centralityLowerBounds);
       zeroLine->Draw("SAME");
+      h_vn_pr->Draw("E1P SAME");
+      prLegend->Draw();
       prText->Draw();
       canvas->SaveAs(jobID + "_vn_pr.png");
       canvas->Clear();
@@ -772,6 +778,7 @@ void coefficients(TString jobID, TString order_n_str)
       ppExtCentralityStack->SetMinimum(-0.015);
       ppExtCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
+      ppExtCentralityStack->Draw("NOSTACK E1P SAME");
       ppExtLegend->Draw();
       //ppExtText->Draw();
       canvas->SaveAs(jobID + "_ppExtCentralityStack.png");
@@ -784,6 +791,7 @@ void coefficients(TString jobID, TString order_n_str)
       pmExtCentralityStack->SetMinimum(-0.015);
       pmExtCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
+      pmExtCentralityStack->Draw("NOSTACK E1P SAME");
       pmExtLegend->Draw();
       //pmExtText->Draw();
       canvas->SaveAs(jobID + "_pmExtCentralityStack.png");
@@ -796,6 +804,7 @@ void coefficients(TString jobID, TString order_n_str)
       kpExtCentralityStack->SetMinimum(-0.2);
       kpExtCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
+      kpExtCentralityStack->Draw("NOSTACK E1P SAME");
       kpExtLegend->Draw();
       //kpExtText->Draw();
       canvas->SaveAs(jobID + "_kpExtCentralityStack.png");
@@ -808,6 +817,7 @@ void coefficients(TString jobID, TString order_n_str)
       kmExtCentralityStack->SetMinimum(-0.2);
       kmExtCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
+      kmExtCentralityStack->Draw("NOSTACK E1P SAME");
       kmExtLegend->Draw();
       //kmExtText->Draw();
       canvas->SaveAs(jobID + "_kmExtCentralityStack.png");
@@ -820,6 +830,7 @@ void coefficients(TString jobID, TString order_n_str)
       prExtCentralityStack->SetMinimum(-0.08);
       prExtCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
+      prExtCentralityStack->Draw("NOSTACK E1P SAME");
       prExtLegend->Draw();
       //prExtText->Draw();
       canvas->SaveAs(jobID + "_prExtCentralityStack.png");
@@ -833,6 +844,7 @@ void coefficients(TString jobID, TString order_n_str)
       //etaRegionStack->SetMinimum(-0.1);
       etaRegionStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
+      etaRegionStack->Draw("NOSTACK E1P SAME");
       etaLegend->Draw();
       canvas->SaveAs(jobID + "_etaRegionStack.png");
       canvas->Clear();
