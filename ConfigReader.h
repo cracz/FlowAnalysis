@@ -47,10 +47,18 @@ class ConfigReader
   Double_t nSig_ka_high;
   Double_t nSig_pr_low;
   Double_t nSig_pr_high;
+  Double_t z_de_low;
+  Double_t z_de_high;
+  Double_t z_tr_low;
+  Double_t z_tr_high;
   Double_t m2_pi_low;
   Double_t m2_pi_high;
   Double_t m2_ka_low;
   Double_t m2_ka_high;
+  Double_t m2_de_low;
+  Double_t m2_de_high;
+  Double_t m2_tr_low;
+  Double_t m2_tr_high;
 
   Double_t yCM_pid_pi_low;
   Double_t yCM_pid_pi_high;
@@ -79,10 +87,26 @@ class ConfigReader
   Double_t yCM_for_flow_pr_low;
   Double_t yCM_for_flow_pr_high;
 
+  Double_t yCM_pid_de_low;
+  Double_t yCM_pid_de_high;
+  Double_t yCM_flow_de_low;
+  Double_t yCM_flow_de_high;
+  Double_t yCM_ext_flow_de_low;
+  Double_t yCM_ext_flow_de_high;
+
+  Double_t yCM_pid_tr_low;
+  Double_t yCM_pid_tr_high;
+  Double_t yCM_flow_tr_low;
+  Double_t yCM_flow_tr_high;
+  Double_t yCM_ext_flow_tr_low;
+  Double_t yCM_ext_flow_tr_high;
+
   Double_t pt_pid_pi_low;
   Double_t pt_pid_pi_high;
+
   Double_t pt_pid_ka_low;
   Double_t pt_pid_ka_high;
+
   Double_t pt_pid_pr_low;
   Double_t pt_pid_pr_high;
   Double_t pt_flow_pr_low;
@@ -95,6 +119,12 @@ class ConfigReader
   Double_t pt_sym_flow_pr_high;
   Double_t pt_for_flow_pr_low;
   Double_t pt_for_flow_pr_high;
+
+  Double_t pt_pid_de_low;
+  Double_t pt_pid_de_high;
+
+  Double_t pt_pid_tr_low;
+  Double_t pt_pid_tr_high;
 
   TString order_n_str;
   TString order_m_str;

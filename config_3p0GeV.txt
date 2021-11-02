@@ -33,10 +33,18 @@ nSig_ka_low=-3.0
 nSig_ka_high=3.0
 nSig_pr_low=-2.0
 nSig_pr_high=2.0
+z_de_low=-0.3
+z_de_high=0.3
+z_tr_low=-0.3
+z_tr_high=0.3
 m2_pi_low=-0.1
 m2_pi_high=0.1
 m2_ka_low=0.15
 m2_ka_high=0.34
+m2_de_low=3.1518
+m2_de_high=3.8842
+m2_tr_low=7.0142
+m2_tr_high=8.7578
 
 yCM_pid_pi_low=0.0
 yCM_pid_pi_high=1.0
@@ -63,6 +71,19 @@ yCM_sym_flow_pr_high=0.5
 yCM_for_flow_pr_low=-0.5
 yCM_for_flow_pr_high=0.0
 
+yCM_pid_de_low=0.0
+yCM_pid_de_high=1.0
+yCM_flow_de_low=0.0
+yCM_flow_de_high=0.5
+yCM_ext_flow_de_low=0.5
+yCM_ext_flow_de_high=1.0
+
+yCM_pid_tr_low=0.0
+yCM_pid_tr_high=1.0
+yCM_flow_tr_low=0.0
+yCM_flow_tr_high=0.5
+yCM_ext_flow_tr_low=0.5
+yCM_ext_flow_tr_high=1.0
 
 pt_pid_pi_low=0.18
 pt_pid_pi_high=1.6
@@ -80,6 +101,12 @@ pt_sym_flow_pr_low=1.0
 pt_sym_flow_pr_high=2.5
 pt_for_flow_pr_low=1.0
 pt_for_flow_pr_high=2.5
+
+pt_pid_de_low=0.4
+pt_pid_de_high=2.0
+
+pt_pid_tr_low=0.4
+pt_pid_tr_high=2.0
 
 # innermost/ourtermost rows in EPD subevents (inclusive)
 # EPD A IS THE MAIN SUBEVENT FOR FLOW CALCULATIONS

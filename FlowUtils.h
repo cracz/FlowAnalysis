@@ -29,6 +29,8 @@ namespace FlowUtils
     Bool_t kpTag;
     Bool_t kmTag;
     Bool_t prTag;
+    Bool_t deTag;
+    Bool_t trTag;
 
     Bool_t isInTpcA;
     Bool_t isInTpcB;
@@ -47,6 +49,8 @@ namespace FlowUtils
       kpTag = false;
       kmTag = false;
       prTag = false;
+      deTag = false;
+      trTag = false;
 
       isInTpcA = false;
       isInTpcB = false;
@@ -61,82 +65,73 @@ namespace FlowUtils
   // Custom type to hold important info for every good event
   struct Event
   {
-    bool badEvent;      // Flag for marking events to ignore
-    Int_t centID;
-    Int_t primTracks;   // Number of primary tracks before track cuts (used for centrality)
-
     std::vector<Particle> tpcParticles;
     std::vector<Particle> epdParticles;
 
-    Int_t nTracksTpc;
     Double_t XnTpc;
     Double_t YnTpc;
     Double_t psiTpc; 
-
-    Int_t nTracksTpcA;      // Number of GOOD tracks in the sub-event
     Double_t XnTpcA;
     Double_t YnTpcA;
     Double_t psiTpcA;       // Overall EP angle without removing autocorrelations
-
-    Int_t nTracksTpcB;
     Double_t XnTpcB;
     Double_t YnTpcB;
     Double_t psiTpcB;
-
-    Int_t nHitsEpd;
     Double_t XnEpd;
     Double_t YnEpd;
     Double_t psiEpd;
-
-    Int_t nHitsEpdE;
     Double_t XnEpdE;
     Double_t YnEpdE;
     Double_t psiEpdE;
-
-    Int_t nHitsEpdF;
     Double_t XnEpdF;
     Double_t YnEpdF;
     Double_t psiEpdF;
 
+    Int_t nTracksTpc;
+    Int_t nTracksTpcA;      // Number of GOOD tracks in the sub-event
+    Int_t nTracksTpcB;
+    Int_t nHitsEpd;
+    Int_t nHitsEpdE;
+    Int_t nHitsEpdF;
 
-    void reset()
+    bool badEvent;      // Flag for marking events to ignore
+    Int_t centID;
+    Int_t primTracks;   // Number of primary tracks before track cuts (used for centrality)
+
+    void reset()//Reset all values in the struct to reuse
     {
-      badEvent  = false;  //Reset all values in the struct to reuse
-      primTracks = 0;
-      centID = I_BAD_VALUE;
-
       std::vector<Particle>().swap(tpcParticles);
       std::vector<Particle>().swap(epdParticles);
 
-      nTracksTpc = 0;
       XnTpc = 0;
       YnTpc = 0;
       psiTpc = D_BAD_VALUE;        //Just some number to use that is out of bounds
-
-      nTracksTpcA = 0;
       XnTpcA = 0;
       YnTpcA = 0;
       psiTpcA = D_BAD_VALUE;
-
-      nTracksTpcB = 0;
       XnTpcB = 0;
       YnTpcB = 0;
       psiTpcB = D_BAD_VALUE;
-
-      nHitsEpd = 0;
       XnEpd = 0;
       YnEpd = 0;
       psiEpd = D_BAD_VALUE;
-
-      nHitsEpdE = 0;
       XnEpdE = 0;
       YnEpdE = 0;
       psiEpdE = D_BAD_VALUE;
-
-      nHitsEpdF = 0;
       XnEpdF = 0;
       YnEpdF = 0;
       psiEpdF = D_BAD_VALUE;
+
+      nTracksTpc = 0;
+      nTracksTpcA = 0;
+      nTracksTpcB = 0;
+      nHitsEpd = 0;
+      nHitsEpdE = 0;
+      nHitsEpdF = 0;
+
+      badEvent  = false;
+      primTracks = 0;
+      centID = I_BAD_VALUE;
     }
   };
 

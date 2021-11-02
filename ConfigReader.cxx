@@ -38,16 +38,36 @@ void ConfigReader::initialize()
   dblValCuts["nSig_ka_high"] = -999.0; 
   dblValCuts["nSig_pr_low"] = -999.0; 
   dblValCuts["nSig_pr_high"] = -999.0; 
+  dblValCuts["z_de_low"] = -999.0; 
+  dblValCuts["z_de_high"] = -999.0; 
+  dblValCuts["z_tr_low"] = -999.0; 
+  dblValCuts["z_tr_high"] = -999.0; 
   dblValCuts["m2_pi_low"] = -999.0; 
   dblValCuts["m2_pi_high"] = -999.0; 
   dblValCuts["m2_ka_low"] = -999.0; 
   dblValCuts["m2_ka_high"] = -999.0; 
+  dblValCuts["m2_de_low"] = -999.0; 
+  dblValCuts["m2_de_high"] = -999.0; 
+  dblValCuts["m2_tr_low"] = -999.0; 
+  dblValCuts["m2_tr_high"] = -999.0; 
   dblValCuts["yCM_pid_pi_low"] = -999.0;
   dblValCuts["yCM_pid_pi_high"] = -999.0;
   dblValCuts["yCM_flow_pi_low"] = -999.0;
   dblValCuts["yCM_flow_pi_high"] = -999.0;
   dblValCuts["yCM_ext_flow_pi_low"] = -999.0;
   dblValCuts["yCM_ext_flow_pi_high"] = -999.0;
+  dblValCuts["yCM_pid_de_low"] = -999.0;
+  dblValCuts["yCM_pid_de_high"] = -999.0;
+  dblValCuts["yCM_flow_de_low"] = -999.0;
+  dblValCuts["yCM_flow_de_high"] = -999.0;
+  dblValCuts["yCM_ext_flow_de_low"] = -999.0;
+  dblValCuts["yCM_ext_flow_de_high"] = -999.0;
+  dblValCuts["yCM_pid_tr_low"] = -999.0;
+  dblValCuts["yCM_pid_tr_high"] = -999.0;
+  dblValCuts["yCM_flow_tr_low"] = -999.0;
+  dblValCuts["yCM_flow_tr_high"] = -999.0;
+  dblValCuts["yCM_ext_flow_tr_low"] = -999.0;
+  dblValCuts["yCM_ext_flow_tr_high"] = -999.0;
   dblValCuts["yCM_pid_ka_low"] = -999.0;
   dblValCuts["yCM_pid_ka_high"] = -999.0;
   dblValCuts["yCM_flow_ka_low"] = -999.0;
@@ -82,6 +102,10 @@ void ConfigReader::initialize()
   dblValCuts["pt_sym_flow_pr_high"] = -999.0;
   dblValCuts["pt_for_flow_pr_low"] = -999.0;
   dblValCuts["pt_for_flow_pr_high"] = -999.0;
+  dblValCuts["pt_pid_de_low"] = -999.0; 
+  dblValCuts["pt_pid_de_high"] = -999.0; 
+  dblValCuts["pt_pid_tr_low"] = -999.0; 
+  dblValCuts["pt_pid_tr_high"] = -999.0; 
 }
 
 void ConfigReader::setAllCuts()
@@ -117,16 +141,36 @@ void ConfigReader::setAllCuts()
   nSig_ka_high = dblValCuts["nSig_ka_high"]; 
   nSig_pr_low = dblValCuts["nSig_pr_low"]; 
   nSig_pr_high = dblValCuts["nSig_pr_high"]; 
+  z_de_low = dblValCuts["z_de_low"]; 
+  z_de_high = dblValCuts["z_de_high"]; 
+  z_tr_low = dblValCuts["z_tr_low"]; 
+  z_tr_high = dblValCuts["z_tr_high"]; 
   m2_pi_low = dblValCuts["m2_pi_low"]; 
   m2_pi_high = dblValCuts["m2_pi_high"]; 
   m2_ka_low = dblValCuts["m2_ka_low"]; 
   m2_ka_high = dblValCuts["m2_ka_high"]; 
+  m2_de_low = dblValCuts["m2_de_low"]; 
+  m2_de_high = dblValCuts["m2_de_high"]; 
+  m2_tr_low = dblValCuts["m2_tr_low"]; 
+  m2_tr_high = dblValCuts["m2_tr_high"]; 
   yCM_pid_pi_low = dblValCuts["yCM_pid_pi_low"];
   yCM_pid_pi_high = dblValCuts["yCM_pid_pi_high"];
   yCM_flow_pi_low = dblValCuts["yCM_flow_pi_low"];
   yCM_flow_pi_high = dblValCuts["yCM_flow_pi_high"];
   yCM_ext_flow_pi_low = dblValCuts["yCM_ext_flow_pi_low"];
   yCM_ext_flow_pi_high = dblValCuts["yCM_ext_flow_pi_high"];
+  yCM_pid_de_low = dblValCuts["yCM_pid_de_low"];
+  yCM_pid_de_high = dblValCuts["yCM_pid_de_high"];
+  yCM_flow_de_low = dblValCuts["yCM_flow_de_low"];
+  yCM_flow_de_high = dblValCuts["yCM_flow_de_high"];
+  yCM_ext_flow_de_low = dblValCuts["yCM_ext_flow_de_low"];
+  yCM_ext_flow_de_high = dblValCuts["yCM_ext_flow_de_high"];
+  yCM_pid_tr_low = dblValCuts["yCM_pid_tr_low"];
+  yCM_pid_tr_high = dblValCuts["yCM_pid_tr_high"];
+  yCM_flow_tr_low = dblValCuts["yCM_flow_tr_low"];
+  yCM_flow_tr_high = dblValCuts["yCM_flow_tr_high"];
+  yCM_ext_flow_tr_low = dblValCuts["yCM_ext_flow_tr_low"];
+  yCM_ext_flow_tr_high = dblValCuts["yCM_ext_flow_tr_high"];
   yCM_pid_ka_low = dblValCuts["yCM_pid_ka_low"];
   yCM_pid_ka_high = dblValCuts["yCM_pid_ka_high"];
   yCM_flow_ka_low = dblValCuts["yCM_flow_ka_low"];
@@ -161,6 +205,10 @@ void ConfigReader::setAllCuts()
   pt_sym_flow_pr_high = dblValCuts["pt_sym_flow_pr_high"];
   pt_for_flow_pr_low = dblValCuts["pt_for_flow_pr_low"];
   pt_for_flow_pr_high = dblValCuts["pt_for_flow_pr_high"];
+  pt_pid_de_low = dblValCuts["pt_pid_de_low"]; 
+  pt_pid_de_high = dblValCuts["pt_pid_de_high"]; 
+  pt_pid_tr_low = dblValCuts["pt_pid_tr_low"]; 
+  pt_pid_tr_high = dblValCuts["pt_pid_tr_high"]; 
 }
 
 ConfigReader::ConfigReader() 
