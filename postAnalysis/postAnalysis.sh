@@ -17,7 +17,7 @@ order_n="3"
 
 # EP Resolution and Flow Calculations
 #root -l -b -q resolutions.cxx\(\"${jobID}\",\"${order_n}\"\)
-root -l -b -q coefficients.cxx\(\"${jobID}\",\"${order_n}\"\)
+#root -l -b -q coefficients.cxx\(\"${jobID}\",\"${order_n}\"\)
 root -l -b -q vnVsY.cxx\(\"${jobID}\",\"${order_n}\"\)
 root -l -b -q vnVsPt.cxx\(\"${jobID}\",\"${order_n}\"\)
 #root -l -b -q finalWithSystematics.cxx\(\"${order_n}\"\)

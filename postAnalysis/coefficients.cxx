@@ -727,6 +727,16 @@ void coefficients(TString jobID, TString order_n_str)
       canvas->SaveAs(jobID + "_vn_pr.png");
       canvas->Clear();
 
+      //Zoomed in proton
+      h_vn_pr->SetMaximum(0.01);
+      h_vn_pr->SetMinimum(-0.03);
+      h_vn_pr->Draw("E1P");
+      zeroLine->Draw("SAME");
+      h_vn_pr->Draw("E1P SAME");
+      canvas->SaveAs(jobID + "_vn_pr_ZOOM.png");
+      canvas->Clear();
+      //////
+
       h_vn_EpdE->SetMarkerStyle(20);
       h_vn_EpdE->SetMarkerSize(2);
       //h_vn_EpdE->SetMarkerColor(2);
