@@ -200,12 +200,58 @@ namespace FlowUtils
     return rapidity;
   }
 
+  Double_t pseudorapidity(Double_t px, Double_t py, Double_t pz)
+  {
+    Double_t momentum = TMath::Sqrt(px*px + py*py + pz*pz);
+    return 0.5 * TMath::Log( (momentum + pz)/(momentum - pz) );
+  }
+
   ////////
   //   Using px, py, pz, and rest mass, return transverse mass
   ////////
   Double_t transMass(Double_t px, Double_t py, Double_t mass) 
-  {return TMath::Sqrt(mass*mass + px*px + py*py);}
+  { return TMath::Sqrt(mass*mass + px*px + py*py); }
 
+
+  Double_t transMomentum(Double_t px, Double_t py)
+  { return TMath::Sqrt(px*px + py*py); }
+
+ 
+  Double_t totalMomentum(Double_t px, Double_t py, Double_t pz)
+  {
+    return TMath::Sqrt(px*px + py*py + pz*pz);
+  }
+
+
+  Int_t epdSector(Short_t tileID)
+  { return TMath::Abs( tileID/100 ); }
+
+
+  Int_t epdRow(Short_t tileID)
+  {
+    Short_t absID = TMath::Abs(tileID);
+    Short_t tileNum = absID % 100;
+    Int_t rowNum = 0;
+    
+    if (tileNum == 1) rowNum = 1;
+    else if (tileNum == 2 || tileNum == 3) rowNum = 2;
+    else if (tileNum == 4 || tileNum == 5) rowNum = 3;
+    else if (tileNum == 6 || tileNum == 7) rowNum = 4;
+    else if (tileNum == 8 || tileNum == 9) rowNum = 5;
+    else if (tileNum == 10 || tileNum == 11) rowNum = 6;
+    else if (tileNum == 12 || tileNum == 13) rowNum = 7;
+    else if (tileNum == 14 || tileNum == 15) rowNum = 8;
+    else if (tileNum == 16 || tileNum == 17) rowNum = 9;
+    else if (tileNum == 18 || tileNum == 19) rowNum = 10;
+    else if (tileNum == 20 || tileNum == 21) rowNum = 11;
+    else if (tileNum == 22 || tileNum == 23) rowNum = 12;
+    else if (tileNum == 24 || tileNum == 25) rowNum = 13;
+    else if (tileNum == 26 || tileNum == 27) rowNum = 14;
+    else if (tileNum == 28 || tileNum == 29) rowNum = 15;
+    else if (tileNum == 30 || tileNum == 31) rowNum = 16;
+
+    return rowNum;
+  }
 
   ////////
   //   Using px, py, pz, and rest mass, fill histograms raw of dN/dy,

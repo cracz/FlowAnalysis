@@ -1,7 +1,10 @@
-SRCS = ConfigReader.cxx FlowAnalyzer.cxx
-OBJS = $(SRCS:.cxx=.o)
-DEPS = FlowUtils.h
-TARGET = FlowAnalyzer
+SRCS1 = ConfigReader.cxx FlowAnalyzer.cxx
+SRCS2 = ConfigReader.cxx TreeAnalyzer.cxx
+OBJS1 = $(SRCS1:.cxx=.o)
+OBJS2 = $(SRCS2:.cxx=.o)
+DEPS  = FlowUtils.h
+TARGET1 = FlowAnalyzer
+TARGET2 = TreeAnalyzer
 
 ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTLIBS      = $(shell root-config --libs)
@@ -24,13 +27,19 @@ FLAGS = -Wall -g -fPIC
 COMPILE = $(CC) $(FLAGS)
 
 
-all: $(TARGET)
+all: $(TARGET1) $(TARGET2)
 
-$(TARGET): $(OBJS)
+$(TARGET1): $(OBJS1)
+	$(COMPILE) -o $@ $^ $(SOLIBS) $(ROOTCFLAGS) $(ROOTLIBS) $(INCFLAGS) $(LIBFLAGS)
+
+$(TARGET2): $(OBJS2)
 	$(COMPILE) -o $@ $^ $(SOLIBS) $(ROOTCFLAGS) $(ROOTLIBS) $(INCFLAGS) $(LIBFLAGS)
 
 FlowAnalyzer.o: FlowUtils.h ConfigReader.h FlowAnalyzer.cxx
 	$(COMPILE) -o $@ -c FlowAnalyzer.cxx $(SOLIBS) $(ROOTCFLAGS) $(ROOTLIBS) $(INCFLAGS) $(LIBFLAGS)
+
+TreeAnalyzer.o: FlowUtils.h ConfigReader.h TreeAnalyzer.cxx
+	$(COMPILE) -o $@ -c TreeAnalyzer.cxx $(SOLIBS) $(ROOTCFLAGS) $(ROOTLIBS) $(INCFLAGS) $(LIBFLAGS)
 
 ConfigReader.o: ConfigReader.h ConfigReader.cxx
 	$(COMPILE) -o $@ -c ConfigReader.cxx $(ROOTCFLAGS) $(ROOTLIBS)
@@ -38,7 +47,7 @@ ConfigReader.o: ConfigReader.h ConfigReader.cxx
 .PHONY: clean
 
 clean:
-	rm -f *.so $(TARGET) $(OBJS)
+	rm -f *.so $(TARGET1) $(TARGET2) $(OBJS)
 
 
 
