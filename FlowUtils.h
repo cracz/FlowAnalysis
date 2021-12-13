@@ -223,6 +223,9 @@ namespace FlowUtils
   }
 
 
+  Double_t phi(Double_t px, Double_t py)
+  { return TMath::ATan2(py, px); }
+
   Int_t epdSector(Short_t tileID)
   { return TMath::Abs( tileID/100 ); }
 
