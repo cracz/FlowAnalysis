@@ -1668,6 +1668,7 @@ int main(int argc, char *argv[])
       h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
     }
 
+  h_PID->Write();
   h_eventCheck->Write();
   h_trackCheck->Write();
   h_nhits->Write();
