@@ -1,5 +1,5 @@
 //////
-// THIS IS A VERSION OF FlowAnalyzer.cxx ANALYZES TREES RATHER THAN PICODSTS.
+// THIS IS A VERSION OF FlowAnalyzer.cxx THAT ANALYZES TREES RATHER THAN PICODSTS.
 //
 // This program reads trees made from picoDsts that have already passed 
 // through event cuts. It performs an analysis of anisotropic
@@ -59,31 +59,12 @@
 #include "StRoot/StEpdUtil/StEpdGeom.h"
 #include "StRoot/StEpdUtil/StBbcGeom.h"
 
-// Bichsel header
-//#include "StRoot/StBichsel/Bichsel.h"
-
 // Configuration file reader
 #include "ConfigReader.h"
 
 // My Util Header
 #include "FlowUtils.h"
 
-/*
-// Bichsel Function Functions
-Double_t bichselZ(Double_t *x,Double_t *par) 
-{
-  Double_t pove   = x[0];
-  Double_t poverm = pove/par[0];
-  return TMath::Exp(Bichsel::Instance()->GetMostProbableZ(TMath::Log10(poverm),par[1]));
-}
-
-Double_t bichsel70(Double_t *x,Double_t *par) 
-{
-  Double_t pove   = x[0];
-  Double_t poverm = pove/par[0];
-  return TMath::Exp(Bichsel::Instance()->GetI70(TMath::Log10(poverm),par[1]));
-}
-*/
 
 //=========================================================
 //          SOME CONTROLS
@@ -106,10 +87,6 @@ Int_t RUN_ITERATION = 0;
 //          
 //=========================================================
 
-//using namespace FlowUtils;
-
-
-//void FlowAnalyzer(TString inFile, TString jobID, std::string configFileName, TString correctionFileName, TString resolutionFileName)
 int main(int argc, char *argv[])
 {
   TStopwatch* stopWatch = new TStopwatch();
@@ -142,39 +119,6 @@ int main(int argc, char *argv[])
   const Double_t PSI_BOUNDS = TMath::Pi()/ORDER_M + 1;  // Boundaries for many histograms
   const Double_t Q_BOUNDS = 100;
   const Bool_t ODD_PLANE = ((int)ORDER_M % 2 == 1) ? true : false;
-  /*
-  //=== INITIALIZE PICOREADER
-  StPicoDstReader* picoReader = new StPicoDstReader(inFile);
-  picoReader->Init();
-  picoReader->SetStatus("*",0);
-  picoReader->SetStatus("Event",1);
-  picoReader->SetStatus("Track",1);
-  picoReader->SetStatus("EpdHit",1);
-  picoReader->SetStatus("BTofHit",1);
-  picoReader->SetStatus("BTofPidTraits",1);
-  if (!picoReader->chain()) { std::cout << "No chain found." << std::endl; return 1; }
-  
-  //Long64_t eventsInTree = picoReader->tree()->GetEntries();
-  Long64_t events2read  = picoReader->chain()->GetEntries();
-    
-  std::cout << "Number of events to read: " << events2read << std::endl;
-
-
-  TClonesArray *epdHits = new TClonesArray("StPicoEpdHit");
-  unsigned int found;
-
-  TChain *picoChain = picoReader->chain();
-  picoChain->SetBranchStatus("EpdHit*",1,&found);   // note you need the asterisk                                                                                
-  std::cout << "EpdHit Branch returned found = " << found << std::endl;
-  picoChain->SetBranchAddress("EpdHit",&epdHits);
-  */
-
-  /*
-  StEpdEpFinder *epdEpFinder = new StEpdEpFinder(CENT_BINS, "StEpdEpFinderCorrectionHistograms_OUTPUT_"+jobID+".root", "StEpdEpFinderCorrectionHistograms_INPUT.root");
-  epdEpFinder->SetEpdHitFormat(EPD_FORMAT);
-  epdEpFinder->SetnMipThreshold(configs.epd_threshold);
-  epdEpFinder->SetMaxTileWeight(configs.epd_max_weight);
-  */
 
   //=== INITIALIZE TTREE
   Int_t N_track = 195;  // Max number of tracks in an event (FOR 3 GEV ONLY!!!)
@@ -184,26 +128,22 @@ int main(int argc, char *argv[])
   Float_t f_xvtx;
   Float_t f_yvtx;
   Float_t f_zvtx;
-  Int_t i_centrality;
-  Int_t i_trackNumber;
+  UShort_t i_centrality;
+  UShort_t i_trackNumber;
   Int_t PID[N_track];
   Short_t charge[N_track];
   Float_t Px[N_track];
   Float_t Py[N_track];
   Float_t Pz[N_track];
-  //Int_t BBCadc[32];
   UShort_t i_nEPDhits;
   Short_t EPDids[744];
   Float_t EPDnMip[744];
-  //Float_t EPDadc[744];
-  //Float_t ZdcSmdEastHorizontal[8];
-  //Float_t ZdcSmdEastVertical[8];  
 
   TFile *inputFile = TFile::Open(inFile);
   TTree *tree = (TTree*)inputFile->Get("Autree");
   
-  tree->SetBranchAddress("runID", &i_runID);
-  tree->SetBranchAddress("eventID",&i_eventID);
+  tree->SetBranchAddress("runId", &i_runID);
+  tree->SetBranchAddress("eventId",&i_eventID);
   tree->SetBranchAddress("bField",&f_bField);
   tree->SetBranchAddress("Vx",&f_xvtx);
   tree->SetBranchAddress("Vy",&f_yvtx);
@@ -215,13 +155,9 @@ int main(int argc, char *argv[])
   tree->SetBranchAddress("Px",&Px);
   tree->SetBranchAddress("Py",&Py);
   tree->SetBranchAddress("Pz",&Pz);
-  //tree->SetBranchAddress("BBCadc",&BBCadc);
   tree->SetBranchAddress("nEPDhits",&i_nEPDhits);
   tree->SetBranchAddress("EPDid",&EPDids);
   tree->SetBranchAddress("EPDnMip",&EPDnMip);
-  //tree->SetBranchAddress("EPDadc",&EPDadc);
-  //tree->SetBranchAddress("ZdcSmdEastHorizontal",&ZdcSmdEastHorizontal);
-  //tree->SetBranchAddress("ZdcSmdEastVertical",&ZdcSmdEastVertical);
 
 
   // INPUT FILE FOR CORRECTION INFORMATION
@@ -316,71 +252,52 @@ int main(int argc, char *argv[])
   //          END file setup
   //=========================================================
 
-  /*
-  //=========================================================
-  //          Bichsel Function Setup
-  //=========================================================
-  Double_t log2dx = 1.0;
-  Double_t xStart = 0.01;
-  Double_t xStop  = 3.0;
-  Int_t npx = 10000;
-  //                      Mass  log2(dx)
-  Double_t params[2] = {  1.0,   log2dx  };
-
-  params[0] = D_M0_DE;
-  TF1 *bichselZ_de = new TF1(Form("BichselZ_de_log2dx_%i",(int)log2dx),bichselZ,xStart,xStop,2);
-  if (!bichselZ_de) { std::cout << "De function error" << std::endl; return 1; }
-  bichselZ_de->SetParameters(params); 
-  bichselZ_de->SetNpx(npx);
-
-  params[0] = D_M0_TR;
-  TF1 *bichselZ_tr = new TF1(Form("BichselZ_tr_log2dx_%i",(int)log2dx),bichselZ,xStart,xStop,2);
-  if (!bichselZ_tr) { std::cout << "Tr function error" << std::endl; return 1; }
-  bichselZ_tr->SetParameters(params); 
-  bichselZ_tr->SetNpx(npx);
-  //=========================================================
-  //          END Bichsel Function Setup
-  //=========================================================
-  */
 
   // HISTOGRAMS
   //TH1::SetDefaultSumw2(true);
 
   TH1D *h_PID = new TH1D("h_PID","Track IDs;ID;Tracks", 6, -1, 5);
 
-  /*
-  TH1D *h_eventCheck = new TH1D("h_eventCheck","Event number after each cut;;Events", 3, 0, 3);
-  //const char *eventSections[3] = {"No cuts", "Trigger cut", "Vertex cut"};
+
+  TH1D *h_eventCheck = (TH1D*)inputFile->Get("h_eventCheck");
   h_eventCheck->SetStats(0);
 
-  TH1D *h_trackCheck = new TH1D("h_trackCheck","Track number after each cut;;Tracks", 3, 0, 3);
-  //const char *trackSections[3] = {"Event cuts only", "QA Cuts", "PID cuts"};  
+  TH1D *h_trackCheck = (TH1D*)inputFile->Get("h_trackCheck");
   h_trackCheck->SetStats(0);
-
+  /*
   TH1D *h_eventCheck_EpdF = new TH1D("h_eventCheck_EpdF","EPD F Event Number;;Events", 2, 0, 2);
   //const char *eventSections_EpdF[2] = {"5 Hit Min", "9 Hit Min"};
   h_eventCheck_EpdF->SetStats(0);
 
   TH1D *h_simulationCheck = new TH1D ("h_simulationCheck", "N_{trk} with no TPC efficiency", 3, 0, 3);
   TH1D *h_simulationCheck_total = new TH1D ("h_simulationCheck_total", "Total N_{trk}", 3, 0, 3);
-
-  TH1D *h_nhits      = new TH1D("h_nhits", "nHits;Number of hits;Tracks", 50, 0, 50);
-  TH1D *h_nhits_fit  = new TH1D("h_nhits_fit","nHitsFit;Number of hits;Tracks", 50, 0, 50);
-  TH1D *h_nhits_dEdx = new TH1D("h_nhits_dEdx","nHitsdEdx;Number of hits;Tracks", 50, 0, 50);
   */
+  TH1D *h_nhits       = (TH1D*)inputFile->Get("h_nhits");
+  TH1D *h_nhits_ratio = (TH1D*)inputFile->Get("h_nhits_ratio");
+  TH1D *h_nhits_dEdx  = (TH1D*)inputFile->Get("h_nhits_dEdx");
+  TH1D *h_DCA         = (TH1D*)inputFile->Get("h_DCA");
+
   TH1D *h_primTracks = new TH1D("h_primTracks","Raw Number of Primary Tracks;Tracks;Events", 200, 0, 200);
 
-  //TH1D *h_zvtx = new TH1D("h_zvtx","Primary Vertex Position in z;Distance (cm);Events", 100, 190, 210);
+  TH1D *h_zvtx = (TH1D*)inputFile->Get("h_zvtx");
 
   TH1D *h_eta_s   = new TH1D("h_eta_s", "Particle #eta_{CM};#eta-#eta_{mid};Particles", 600, -6, 2);
   TH1D *h_eta_TPC_s = new TH1D("h_eta_TPC_s", "TPC tracks' #eta_{CM};#eta-#eta_{mid};Particles", 600, -2, 2);
 
   TH1D *h_tileWeights = new TH1D("h_tileWeights", "EPD Tile Weights;Hits;nMIP Weights", 5, -1, 4);
-  TH1D *h_centralities = new TH1D("h_centralities", "Centralities;Centrality ID;Events", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+  TH1D *h_centralities = (TH1D*)inputFile->Get("h_centralities");
 
+  TH1D *h_trackmult = (TH1D*)inputFile->Get("h_trackmult");
+  TH1D *h_refmult   = (TH1D*)inputFile->Get("h_refmult");
+  TH1D *h_tofmult   = (TH1D*)inputFile->Get("h_tofmult");
+
+  TH1D *h_pT  = (TH1D*)inputFile->Get("h_pT");
+  TH1D *h_eta = (TH1D*)inputFile->Get("h_eta");
+  TH1D *h_phi = (TH1D*)inputFile->Get("h_phi");
+  
   //TH1D *h_tofBeta = new TH1D("h_tofBeta", "TOF #beta;#beta;Tracks", 150, 0, 1.5);
   //TH1D *h_m2 = new TH1D("h_m2", "m^{2};m^{2} (GeV^{2}/c^{4});Tracks", 1000, 0, 10);
-  
+  /*  
   TH1D *h_pp_dndm = new TH1D("h_pp_dndm", "#pi^{+} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}", 60, 0, 3);
   TH1D *h_pm_dndm = new TH1D("h_pm_dndm", "#pi^{-} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}", 60, 0, 3);
   TH1D *h_kp_dndm = new TH1D("h_kp_dndm", "K^{+} Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}",   60, 0, 3);
@@ -388,7 +305,48 @@ int main(int argc, char *argv[])
   TH1D *h_pr_dndm = new TH1D("h_pr_dndm", "Proton Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}",  60, 0, 3);
   TH1D *h_de_dndm = new TH1D("h_de_dndm", "Deuteron Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}",60, 0, 3);
   TH1D *h_tr_dndm = new TH1D("h_tr_dndm", "Triton Raw m_{T} Spectrum;m_{T}-m_{0} (GeV);dN/dm_{T}",  60, 0, 3);
+  */
+  TH1D *h_mult_pp = (TH1D*)inputFile->Get("h_mult_pp");
+  TH1D *h_mult_pm = (TH1D*)inputFile->Get("h_mult_pm");
+  TH1D *h_mult_kp = (TH1D*)inputFile->Get("h_mult_kp");
+  TH1D *h_mult_km = (TH1D*)inputFile->Get("h_mult_km");
+  TH1D *h_mult_pr = (TH1D*)inputFile->Get("h_mult_pr");
+  TH1D *h_mult_de = (TH1D*)inputFile->Get("h_mult_de");
+  TH1D *h_mult_tr = (TH1D*)inputFile->Get("h_mult_tr");
 
+  TH1D *h_pT_pp = (TH1D*)inputFile->Get("h_pT_pp");
+  TH1D *h_pT_pm = (TH1D*)inputFile->Get("h_pT_pm");
+  TH1D *h_pT_kp = (TH1D*)inputFile->Get("h_pT_kp");
+  TH1D *h_pT_km = (TH1D*)inputFile->Get("h_pT_km");
+  TH1D *h_pT_pr = (TH1D*)inputFile->Get("h_pT_pr");
+  TH1D *h_pT_de = (TH1D*)inputFile->Get("h_pT_de");
+  TH1D *h_pT_tr = (TH1D*)inputFile->Get("h_pT_tr");
+
+  TH1D *h_dndy_pp = (TH1D*)inputFile->Get("h_dndy_pp");
+  TH1D *h_dndy_pm = (TH1D*)inputFile->Get("h_dndy_pm");
+  TH1D *h_dndy_kp = (TH1D*)inputFile->Get("h_dndy_kp");
+  TH1D *h_dndy_km = (TH1D*)inputFile->Get("h_dndy_km");
+  TH1D *h_dndy_pr = (TH1D*)inputFile->Get("h_dndy_pr");
+  TH1D *h_dndy_de = (TH1D*)inputFile->Get("h_dndy_de");
+  TH1D *h_dndy_tr = (TH1D*)inputFile->Get("h_dndy_tr");
+
+  TH1D *h_eta_pp = (TH1D*)inputFile->Get("h_eta_pp");
+  TH1D *h_eta_pm = (TH1D*)inputFile->Get("h_eta_pm");
+  TH1D *h_eta_kp = (TH1D*)inputFile->Get("h_eta_kp");
+  TH1D *h_eta_km = (TH1D*)inputFile->Get("h_eta_km");
+  TH1D *h_eta_pr = (TH1D*)inputFile->Get("h_eta_pr");
+  TH1D *h_eta_de = (TH1D*)inputFile->Get("h_eta_de");
+  TH1D *h_eta_tr = (TH1D*)inputFile->Get("h_eta_tr");
+
+  TH1D *h_phi_pp = (TH1D*)inputFile->Get("h_phi_pp");
+  TH1D *h_phi_pm = (TH1D*)inputFile->Get("h_phi_pm");
+  TH1D *h_phi_kp = (TH1D*)inputFile->Get("h_phi_kp");
+  TH1D *h_phi_km = (TH1D*)inputFile->Get("h_phi_km");
+  TH1D *h_phi_pr = (TH1D*)inputFile->Get("h_phi_pr");
+  TH1D *h_phi_de = (TH1D*)inputFile->Get("h_phi_de");
+  TH1D *h_phi_tr = (TH1D*)inputFile->Get("h_phi_tr");
+
+  /*
   TH1D *h_pp_dndy = new TH1D("h_pp_dndy", "#pi^{+} Raw Rapidity Spectrum;y;dN/dy", 40, -2, 0);
   TH1D *h_pm_dndy = new TH1D("h_pm_dndy", "#pi^{-} Raw Rapidity Spectrum;y;dN/dy", 40, -2, 0);
   TH1D *h_kp_dndy = new TH1D("h_kp_dndy", "K^{+} Raw Rapidity Spectrum;y;dN/dy",   40, -2, 0);
@@ -404,7 +362,7 @@ int main(int argc, char *argv[])
   TH1D *h_pr_pT = new TH1D("h_pr_pT", "Proton p_{T};p_{T} (GeV);",  100, 0, 5);
   TH1D *h_de_pT = new TH1D("h_de_pT", "Deuteron p_{T};p_{T} (GeV);",100, 0, 5);
   TH1D *h_tr_pT = new TH1D("h_tr_pT", "Triton p_{T};p_{T} (GeV);",  100, 0, 5);
-
+  */
   TH1D *h_pp_mom = new TH1D("h_pp_mom", "#pi^{+} Total Momentum;|p| (GeV);", 100, 0, 5);
   TH1D *h_pm_mom = new TH1D("h_pm_mom", "#pi^{-} Total Momentum;|p| (GeV);", 100, 0, 5);
   TH1D *h_kp_mom = new TH1D("h_kp_mom", "K^{+} Total Momentum;|p| (GeV);",   100, 0, 5);
@@ -412,7 +370,7 @@ int main(int argc, char *argv[])
   TH1D *h_pr_mom = new TH1D("h_pr_mom", "Proton Total Momentum;|p| (GeV);",  100, 0, 5);
   TH1D *h_de_mom = new TH1D("h_de_mom", "Deuteron Total Momentum;|p| (GeV);",100, 0, 5);
   TH1D *h_tr_mom = new TH1D("h_tr_mom", "Triton Total Momentum;|p| (GeV);",  100, 0, 5);
-
+  /*
   TH2D *h2_pp_MvsY  = new TH2D("h2_pp_MvsY", "#pi^{+} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}", 32, -1.6, 0, 60, 0, 3);
   TH2D *h2_pm_MvsY  = new TH2D("h2_pm_MvsY", "#pi^{-} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}", 32, -1.6, 0, 60, 0, 3);
   TH2D *h2_kp_MvsY  = new TH2D("h2_kp_MvsY", "K^{+} m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",   32, -1.6, 0, 60, 0, 3);
@@ -420,7 +378,7 @@ int main(int argc, char *argv[])
   TH2D *h2_pr_MvsY  = new TH2D("h2_pr_MvsY", "Proton m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",  32, -1.6, 0, 60, 0, 3);
   TH2D *h2_de_MvsY  = new TH2D("h2_de_MvsY", "Deuteron m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",32, -1.6, 0, 60, 0, 3);
   TH2D *h2_tr_MvsY  = new TH2D("h2_tr_MvsY", "Triton m_{T} vs. Rapidity (Weighted);y;m_{T} - m_{0}",  32, -1.6, 0, 60, 0, 3);
-
+  */
 
   TH1D *h_psiTpc_RAW  = new TH1D("h_psiTpc_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", TPC);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiTpcA_RAW = new TH1D("h_psiTpcA_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", TPC A);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
@@ -525,19 +483,51 @@ int main(int argc, char *argv[])
 
 
   TProfile2D *p2_pp_vs_eta = new TProfile2D("p2_pp_vs_eta","<TnMIP> for Supersectors vs #eta;#eta;Supersector", 400, -6, -2, 12, 0.5, 12.5);
-  //TH2D *h2_trans_vtx = new TH2D("h2_trans_vtx","Primary Vertex after V_{z} Cut;x (cm);y (cm)", 500, -5, 5, 500, -5, 5);
-  //TH2D *h2_trans_vtx_cut = new TH2D("h2_trans_vtx_cut","Final Primary Vertices;x (cm);y (cm)", 500, -5, 5, 500, -5, 5);
+  TH2D *h2_trans_vtx     = (TH2D*)inputFile->Get("h2_trans_vtx");
+  TH2D *h2_trans_vtx_cut = (TH2D*)inputFile->Get("h2_trans_vtx_cut");
+
+  TH2D *h2_refmult_vs_trackmult = (TH2D*)inputFile->Get("h2_refmult_vs_trackmult");
+  TH2D *h2_tofmult_vs_trackmult = (TH2D*)inputFile->Get("h2_tofmult_vs_trackmult");
+  TH2D *h2_tofmult_vs_refmult   = (TH2D*)inputFile->Get("h2_tofmult_vs_refmult");
 
   TH2D *h2_hits_vs_cent_EpdE = new TH2D("h2_nHits_vs_cent_EpdE", "EPD E;Centrality;Hits", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS, 50, 0, 50);
   TH2D *h2_hits_vs_cent_EpdF = new TH2D("h2_nHits_vs_cent_EpdF", "EPD F;Centrality;Hits", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS, 50, 0, 50);
   TH2D *h2_hits_vs_cent_TpcB = new TH2D("h2_nHits_vs_cent_TpcB", "TPC B;Centrality;Hits", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS, 50, 0, 50);
+
+  TH2D *h2_dEdx_vs_qp = (TH2D*)inputFile->Get("h2_dEdx_vs_qp");
+  TH2D *h2_dEdx_vs_qp_half = (TH2D*)inputFile->Get("h2_dEdx_vs_qp_half");
+  TH2D *h2_beta_vs_qp = (TH2D*)inputFile->Get("h2_beta_vs_qp");
+  TH2D *h2_m2_vs_qp   = (TH2D*)inputFile->Get("h2_m2_vs_qp");
+
+  TH2D *h2_dEdx_vs_qp_pp = (TH2D*)inputFile->Get("h2_dEdx_vs_qp_pp");
+  TH2D *h2_dEdx_vs_qp_pm = (TH2D*)inputFile->Get("h2_dEdx_vs_qp_pm");
+  TH2D *h2_dEdx_vs_qp_kp = (TH2D*)inputFile->Get("h2_dEdx_vs_qp_kp");
+  TH2D *h2_dEdx_vs_qp_km = (TH2D*)inputFile->Get("h2_dEdx_vs_qp_km");
+  TH2D *h2_dEdx_vs_qp_pr = (TH2D*)inputFile->Get("h2_dEdx_vs_qp_pr");
+  TH2D *h2_dEdx_vs_qp_de = (TH2D*)inputFile->Get("h2_dEdx_vs_qp_de");
+  TH2D *h2_dEdx_vs_qp_tr = (TH2D*)inputFile->Get("h2_dEdx_vs_qp_tr");
+
+  TH2D *h2_beta_vs_qp_pp = (TH2D*)inputFile->Get("h2_beta_vs_qp_pp");
+  TH2D *h2_beta_vs_qp_pm = (TH2D*)inputFile->Get("h2_beta_vs_qp_pm");
+  TH2D *h2_beta_vs_qp_kp = (TH2D*)inputFile->Get("h2_beta_vs_qp_kp");
+  TH2D *h2_beta_vs_qp_km = (TH2D*)inputFile->Get("h2_beta_vs_qp_km");
+  TH2D *h2_beta_vs_qp_pr = (TH2D*)inputFile->Get("h2_beta_vs_qp_pr");
+  TH2D *h2_beta_vs_qp_de = (TH2D*)inputFile->Get("h2_beta_vs_qp_de");
+  TH2D *h2_beta_vs_qp_tr = (TH2D*)inputFile->Get("h2_beta_vs_qp_tr");
+
+  TH2D *h2_m2_vs_qp_pp = (TH2D*)inputFile->Get("h2_m2_vs_qp_pp");
+  TH2D *h2_m2_vs_qp_pm = (TH2D*)inputFile->Get("h2_m2_vs_qp_pm");
+  TH2D *h2_m2_vs_qp_kp = (TH2D*)inputFile->Get("h2_m2_vs_qp_kp");
+  TH2D *h2_m2_vs_qp_km = (TH2D*)inputFile->Get("h2_m2_vs_qp_km");
+  TH2D *h2_m2_vs_qp_pr = (TH2D*)inputFile->Get("h2_m2_vs_qp_pr");
+  TH2D *h2_m2_vs_qp_de = (TH2D*)inputFile->Get("h2_m2_vs_qp_de");
+  TH2D *h2_m2_vs_qp_tr = (TH2D*)inputFile->Get("h2_m2_vs_qp_tr");
+  
   /*
   TH2D *h2_betap  = new TH2D("h2_betap","1/#beta vs Momentum;q*|p| (GeV);1/#beta", 300, -3, 3, 300, 0.5, 3.5);
   TH2D *h2_m2_qp   = new TH2D("h2_m2_qp", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 400, -4, 4, 400, -0.1, 1.5);
   TH2D *h2_m2_qp_ext  = new TH2D("h2_m2_qp_ext", "m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)", 400, -4, 4, 400, -0.1, 10);
   TH2D *h2_m2_vs_qpT  = new TH2D("h2_m2_vs_qpT", "m^{2} vs q*p_{T};q*p_{T} (GeV);m^{2} (GeV^{2})", 300, -3, 3, 300, -0.1, 1.2);
-  TH2D *h2_dEdx_vs_qp = new TH2D("h2_dEdx_vs_qp", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, -2, 2, 500, 0, 10);
-  TH2D *h2_dEdx_vs_qp_half = new TH2D("h2_dEdx_vs_qp_half", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, 0, 4, 500, 0, 12);
   TH2D *h2_dEdx_vs_qp_half_postZdCut = new TH2D("h2_dEdx_vs_qp_half_postZdCut", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, 0, 4, 500, 0, 12);
   TH2D *h2_dEdx_vs_qp_half_postZtCut = new TH2D("h2_dEdx_vs_qp_half_postZtCut", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, 0, 4, 500, 0, 12);
 
@@ -559,6 +549,15 @@ int main(int argc, char *argv[])
   TH2D *h2_phi_vs_eta_TPC = new TH2D("h2_phi_vs_eta_TPC", "TPC;#eta;#phi", 300, -2.2, 0.2, 300, -4, 4);
   TH2D *h2_phi_vs_eta_EPD = new TH2D("h2_phi_vs_eta_EPD", "EPD;#eta;#phi", 300, -6, -2.5, 300, -4, 4);
 
+  TH2D *h2_pT_vs_yCM_pp = (TH2D*)inputFile->Get("h2_pT_vs_yCM_pp");
+  TH2D *h2_pT_vs_yCM_pm = (TH2D*)inputFile->Get("h2_pT_vs_yCM_pm");
+  TH2D *h2_pT_vs_yCM_kp = (TH2D*)inputFile->Get("h2_pT_vs_yCM_kp");
+  TH2D *h2_pT_vs_yCM_km = (TH2D*)inputFile->Get("h2_pT_vs_yCM_km");
+  TH2D *h2_pT_vs_yCM_pr = (TH2D*)inputFile->Get("h2_pT_vs_yCM_pr");
+  TH2D *h2_pT_vs_yCM_de = (TH2D*)inputFile->Get("h2_pT_vs_yCM_de");
+  TH2D *h2_pT_vs_yCM_tr = (TH2D*)inputFile->Get("h2_pT_vs_yCM_tr");
+
+  /*
   TH2D *h2_y_vs_eta;
   TH2D *h2_y_vs_eta_pp;
   TH2D *h2_y_vs_eta_pm;
@@ -614,7 +613,7 @@ int main(int argc, char *argv[])
       h2_pT_vs_yCM_de = new TH2D("h2_pT_vs_yCM_de", "Deuteron;y-y_{mid};p_{T} (GeV/c)",300, -0.2, 2.2, 300, 0, 3.0);
       h2_pT_vs_yCM_tr = new TH2D("h2_pT_vs_yCM_tr", "Triton;y-y_{mid};p_{T} (GeV/c)",  300, -0.2, 2.2, 300, 0, 3.0);
     }
-
+  */
   // Here the name refers to the eta region that will be displayed/searched using the event plane angle from the opposite region
 
   TProfile2D *h2_v2ScanTpc = new TProfile2D("h2_v2ScanTpc", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
@@ -738,11 +737,12 @@ int main(int argc, char *argv[])
 
       tree->GetEntry(ievent);
 
-      Int_t nTracks = i_trackNumber;
+      Int_t nTracks = (Int_t)i_trackNumber;
       if (nTracks < 5) continue;                // Preliminary cut to hopefully speed things up a bit. This cut repeated below also.
 
-      TVector3 pVtx(f_xvtx, f_yvtx, f_zvtx);
+      eventInfo.centID = i_centrality;
 
+      TVector3 pVtx(f_xvtx, f_yvtx, f_zvtx);
       Double_t d_px;
       Double_t d_py;
       Double_t d_pz;
@@ -759,23 +759,6 @@ int main(int argc, char *argv[])
 	  particleInfo.reset();
 
 	  eventInfo.primTracks++;
-	  /*
-	  TVector3 mom_vec  = picoTrack->pMom();
-	  Double_t d_dEdx   = picoTrack->dEdx();
-	  Double_t d_charge = picoTrack->charge();
-	  Double_t d_mom    = picoTrack->pPtot();
-	  Double_t d_pT     = picoTrack->pPt();
-	  Double_t d_px     = picoTrack->pMom().x();
-	  Double_t d_py     = picoTrack->pMom().y();
-	  Double_t d_pz     = picoTrack->pMom().z();
-	  Double_t d_phi    = mom_vec.Phi();
-	  Double_t d_eta    = mom_vec.Eta();
-	  Double_t d_TPCnSigmaPion   = picoTrack->nSigmaPion();
-	  Double_t d_TPCnSigmaKaon   = picoTrack->nSigmaKaon();
-	  Double_t d_TPCnSigmaProton = picoTrack->nSigmaProton();
-	  Double_t d_zDeuteron = (d_charge > 0) ? TMath::Log(d_dEdx / bichselZ_de->Eval(d_mom)) : FlowUtils::D_BAD_VALUE;
-	  Double_t d_zTriton   = (d_charge > 0) ? TMath::Log(d_dEdx / bichselZ_tr->Eval(d_mom)) : FlowUtils::D_BAD_VALUE;
-	  */
 
 	  d_px  = Px[iTrk];
 	  d_py  = Py[iTrk];
@@ -875,31 +858,31 @@ int main(int argc, char *argv[])
 
 
 	      /*
-	      if (tofTrack)
+		if (tofTrack)
 		{
-		  h_m2->Fill(d_m2);
-		  h2_betap->Fill(d_charge * d_mom, 1/d_tofBeta);
-		  h2_m2_qp->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
-		  h2_m2_qp_ext->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
-		  h2_m2_vs_qpT->Fill(d_charge * d_pT, d_m2);
+		h_m2->Fill(d_m2);
+		h2_betap->Fill(d_charge * d_mom, 1/d_tofBeta);
+		h2_m2_qp->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
+		h2_m2_qp_ext->Fill(d_charge * d_mom, d_mom * d_mom * (1/(d_tofBeta*d_tofBeta) - 1));
+		h2_m2_vs_qpT->Fill(d_charge * d_pT, d_m2);
 
-		  h2_pi_m2_vs_TPC_nsig->Fill(d_TPCnSigmaPion, d_m2);
-		  h2_ka_m2_vs_TPC_nsig->Fill(d_TPCnSigmaKaon, d_m2);
-		  h2_pr_m2_vs_TPC_nsig->Fill(d_TPCnSigmaProton, d_m2);
-		  h2_de_m2_vs_z->Fill(d_zDeuteron, d_m2);
-		  h2_tr_m2_vs_z->Fill(d_zTriton, d_m2);
+		h2_pi_m2_vs_TPC_nsig->Fill(d_TPCnSigmaPion, d_m2);
+		h2_ka_m2_vs_TPC_nsig->Fill(d_TPCnSigmaKaon, d_m2);
+		h2_pr_m2_vs_TPC_nsig->Fill(d_TPCnSigmaProton, d_m2);
+		h2_de_m2_vs_z->Fill(d_zDeuteron, d_m2);
+		h2_tr_m2_vs_z->Fill(d_zTriton, d_m2);
 		}
 
-	      h2_dEdx_vs_qp->Fill(d_charge * d_mom, d_dEdx);
-	      h2_dEdx_vs_qp_half->Fill(d_charge * d_mom, d_dEdx);
+		h2_dEdx_vs_qp->Fill(d_charge * d_mom, d_dEdx);
+		h2_dEdx_vs_qp_half->Fill(d_charge * d_mom, d_dEdx);
 
-	      h2_nSig_vs_qp_pi->Fill(d_charge * d_mom, d_TPCnSigmaPion);
-	      h2_nSig_vs_qp_ka->Fill(d_charge * d_mom, d_TPCnSigmaKaon);
-	      h2_nSig_vs_qp_pr->Fill(d_charge * d_mom, d_TPCnSigmaProton);
+		h2_nSig_vs_qp_pi->Fill(d_charge * d_mom, d_TPCnSigmaPion);
+		h2_nSig_vs_qp_ka->Fill(d_charge * d_mom, d_TPCnSigmaKaon);
+		h2_nSig_vs_qp_pr->Fill(d_charge * d_mom, d_TPCnSigmaProton);
 
-	      h2_nSig_vs_qpT_pi->Fill(d_charge * d_pT, d_TPCnSigmaPion);
-	      h2_nSig_vs_qpT_ka->Fill(d_charge * d_pT, d_TPCnSigmaKaon);
-	      h2_nSig_vs_qpT_pr->Fill(d_charge * d_pT, d_TPCnSigmaProton);
+		h2_nSig_vs_qpT_pi->Fill(d_charge * d_pT, d_TPCnSigmaPion);
+		h2_nSig_vs_qpT_ka->Fill(d_charge * d_pT, d_TPCnSigmaKaon);
+		h2_nSig_vs_qpT_pr->Fill(d_charge * d_pT, d_TPCnSigmaProton);
 	      */
 
 	      Bool_t pion     = (s_PID == 0);
@@ -924,10 +907,10 @@ int main(int argc, char *argv[])
 			  particleInfo.ppTag = true;
 			  particleInfo.rapidity = d_rapidity;
 			  
-			  FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_PI, h_pp_dndy, h_pp_dndm, h2_pp_MvsY);
-			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
-			  h2_y_vs_eta_pp->Fill(d_eta, d_rapidity);
-			  h_pp_pT->Fill(d_pT);
+			  //FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_PI, h_pp_dndy, h_pp_dndm, h2_pp_MvsY);
+			  //h2_y_vs_eta->Fill(d_eta, d_rapidity);
+			  //h2_y_vs_eta_pp->Fill(d_eta, d_rapidity);
+			  //h_pp_pT->Fill(d_pT);
 			  h_pp_mom->Fill(d_mom);
 			}
 		    }
@@ -943,10 +926,10 @@ int main(int argc, char *argv[])
 			  particleInfo.pmTag = true;
 			  particleInfo.rapidity = d_rapidity;
 
-			  FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_PI, h_pm_dndy, h_pm_dndm, h2_pm_MvsY);
-			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
-			  h2_y_vs_eta_pm->Fill(d_eta, d_rapidity);
-			  h_pm_pT->Fill(d_pT);
+			  //FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_PI, h_pm_dndy, h_pm_dndm, h2_pm_MvsY);
+			  //h2_y_vs_eta->Fill(d_eta, d_rapidity);
+			  //h2_y_vs_eta_pm->Fill(d_eta, d_rapidity);
+			  //h_pm_pT->Fill(d_pT);
 			  h_pm_mom->Fill(d_mom);
 			}
 		    }
@@ -965,10 +948,10 @@ int main(int argc, char *argv[])
 			  particleInfo.kpTag = true;
 			  particleInfo.rapidity = d_rapidity;
 
-			  FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_KA, h_kp_dndy, h_kp_dndm, h2_kp_MvsY);
-			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
-			  h2_y_vs_eta_kp->Fill(d_eta, d_rapidity);
-			  h_kp_pT->Fill(d_pT);
+			  //FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_KA, h_kp_dndy, h_kp_dndm, h2_kp_MvsY);
+			  //h2_y_vs_eta->Fill(d_eta, d_rapidity);
+			  //h2_y_vs_eta_kp->Fill(d_eta, d_rapidity);
+			  //h_kp_pT->Fill(d_pT);
 			  h_kp_mom->Fill(d_mom);
 			}
 		    }
@@ -984,10 +967,10 @@ int main(int argc, char *argv[])
 			  particleInfo.kmTag = true;
 			  particleInfo.rapidity = d_rapidity;
 
-			  FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_KA, h_km_dndy, h_km_dndm, h2_km_MvsY);
-			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
-			  h2_y_vs_eta_km->Fill(d_eta, d_rapidity);
-			  h_km_pT->Fill(d_pT);
+			  //FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_KA, h_km_dndy, h_km_dndm, h2_km_MvsY);
+			  //h2_y_vs_eta->Fill(d_eta, d_rapidity);
+			  //h2_y_vs_eta_km->Fill(d_eta, d_rapidity);
+			  //h_km_pT->Fill(d_pT);
 			  h_km_mom->Fill(d_mom);
 			}
 		    }
@@ -1008,10 +991,10 @@ int main(int argc, char *argv[])
 		      if (d_rapidity - Y_MID > configs.yCM_flow_pr_low && d_rapidity - Y_MID < configs.yCM_pid_pr_high && 
 			  d_pT >= configs.pt_flow_pr_low && d_pT <= configs.pt_flow_pr_high)
 			{
-			  FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_PR, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
-			  h2_y_vs_eta->Fill(d_eta, d_rapidity);
-			  h2_y_vs_eta_pr->Fill(d_eta, d_rapidity);
-			  h_pr_pT->Fill(d_pT);
+			  //FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_PR, h_pr_dndy, h_pr_dndm, h2_pr_MvsY);
+			  //h2_y_vs_eta->Fill(d_eta, d_rapidity);
+			  //h2_y_vs_eta_pr->Fill(d_eta, d_rapidity);
+			  //h_pr_pT->Fill(d_pT);
 			  h_pr_mom->Fill(d_mom);
 			}
 		    }
@@ -1029,10 +1012,10 @@ int main(int argc, char *argv[])
 		      particleInfo.deTag = true;
 		      particleInfo.rapidity = d_rapidity;
 
-		      FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_DE, h_de_dndy, h_de_dndm, h2_de_MvsY);
-		      h2_y_vs_eta->Fill(d_eta, d_rapidity);
-		      h2_y_vs_eta_de->Fill(d_eta, d_rapidity);
-		      h_de_pT->Fill(d_pT);
+		      //FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_DE, h_de_dndy, h_de_dndm, h2_de_MvsY);
+		      //h2_y_vs_eta->Fill(d_eta, d_rapidity);
+		      //h2_y_vs_eta_de->Fill(d_eta, d_rapidity);
+		      //h_de_pT->Fill(d_pT);
 		      h_de_mom->Fill(d_mom);
 		    }
 		}
@@ -1049,10 +1032,10 @@ int main(int argc, char *argv[])
 		      particleInfo.trTag = true;
 		      particleInfo.rapidity = d_rapidity;
 
-		      FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_TR, h_tr_dndy, h_tr_dndm, h2_tr_MvsY);
-		      h2_y_vs_eta->Fill(d_eta, d_rapidity);
-		      h2_y_vs_eta_tr->Fill(d_eta, d_rapidity);
-		      h_tr_pT->Fill(d_pT);
+		      //FlowUtils::fillRawSpect(d_px, d_py, d_pz, D_M0_TR, h_tr_dndy, h_tr_dndm, h2_tr_MvsY);
+		      //h2_y_vs_eta->Fill(d_eta, d_rapidity);
+		      //h2_y_vs_eta_tr->Fill(d_eta, d_rapidity);
+		      //h_tr_pT->Fill(d_pT);
 		      h_tr_mom->Fill(d_mom);
 		    }
 		}
@@ -1064,64 +1047,9 @@ int main(int argc, char *argv[])
 
 
       //=========================================================
-      //          Centrality Assignment
-      //=========================================================
-
-      // 3.0 GeV FXT  --  From Zachary Sweger Nov 11, 2020
-      if (configs.sqrt_s_NN == 3.0 || configs.sqrt_s_NN == 3.22)    // UNTIL 3.22 GEV HAS OFFICIAL CENTRALITY DEFINITION, LEAVING IT AS IDENTICAL TO 3.00 GEV!!!!
-	{
-	  if     ( eventInfo.primTracks >=   5 && eventInfo.primTracks <=   6 ) eventInfo.centID =  0;  // 75% - 80% (Peripheral)
-	  else if( eventInfo.primTracks >=   7 && eventInfo.primTracks <=   8 ) eventInfo.centID =  1;
-	  else if( eventInfo.primTracks >=   9 && eventInfo.primTracks <=  11 ) eventInfo.centID =  2;
-	  else if( eventInfo.primTracks >=  12 && eventInfo.primTracks <=  15 ) eventInfo.centID =  3;
-	  else if( eventInfo.primTracks >=  16 && eventInfo.primTracks <=  20 ) eventInfo.centID =  4;
-	  else if( eventInfo.primTracks >=  21 && eventInfo.primTracks <=  25 ) eventInfo.centID =  5;
-	  else if( eventInfo.primTracks >=  26 && eventInfo.primTracks <=  32 ) eventInfo.centID =  6;
-	  else if( eventInfo.primTracks >=  33 && eventInfo.primTracks <=  40 ) eventInfo.centID =  7;
-	  else if( eventInfo.primTracks >=  41 && eventInfo.primTracks <=  49 ) eventInfo.centID =  8;
-	  else if( eventInfo.primTracks >=  50 && eventInfo.primTracks <=  59 ) eventInfo.centID =  9;
-	  else if( eventInfo.primTracks >=  60 && eventInfo.primTracks <=  71 ) eventInfo.centID = 10;
-	  else if( eventInfo.primTracks >=  72 && eventInfo.primTracks <=  85 ) eventInfo.centID = 11;
-	  else if( eventInfo.primTracks >=  86 && eventInfo.primTracks <= 100 ) eventInfo.centID = 12;
-	  else if( eventInfo.primTracks >= 101 && eventInfo.primTracks <= 118 ) eventInfo.centID = 13;
-	  else if( eventInfo.primTracks >= 119 && eventInfo.primTracks <= 141 ) eventInfo.centID = 14;
-	  else if( eventInfo.primTracks >= 142 && eventInfo.primTracks <= 195 ) eventInfo.centID = 15;  // 0% - 5% (Central)
-	}
-
-      // 7.2 GeV FXT
-      else if (configs.sqrt_s_NN == 7.2)
-	{
-	  if     ( eventInfo.primTracks >=   2 && eventInfo.primTracks <=   3 ) eventInfo.centID =  0;  // 75% - 80% (Peripheral)
-	  else if( eventInfo.primTracks >=   4 && eventInfo.primTracks <=   5 ) eventInfo.centID =  1;
-	  else if( eventInfo.primTracks >=   6 && eventInfo.primTracks <=   8 ) eventInfo.centID =  2;
-	  else if( eventInfo.primTracks >=   9 && eventInfo.primTracks <=  11 ) eventInfo.centID =  3;
-	  else if( eventInfo.primTracks >=  12 && eventInfo.primTracks <=  15 ) eventInfo.centID =  4;
-	  else if( eventInfo.primTracks >=  16 && eventInfo.primTracks <=  21 ) eventInfo.centID =  5;
-	  else if( eventInfo.primTracks >=  22 && eventInfo.primTracks <=  29 ) eventInfo.centID =  6;
-	  else if( eventInfo.primTracks >=  30 && eventInfo.primTracks <=  38 ) eventInfo.centID =  7;
-	  else if( eventInfo.primTracks >=  39 && eventInfo.primTracks <=  49 ) eventInfo.centID =  8;
-	  else if( eventInfo.primTracks >=  50 && eventInfo.primTracks <=  63 ) eventInfo.centID =  9;
-	  else if( eventInfo.primTracks >=  64 && eventInfo.primTracks <=  79 ) eventInfo.centID = 10;
-	  else if( eventInfo.primTracks >=  80 && eventInfo.primTracks <=  99 ) eventInfo.centID = 11;
-	  else if( eventInfo.primTracks >= 100 && eventInfo.primTracks <= 123 ) eventInfo.centID = 12;
-	  else if( eventInfo.primTracks >= 124 && eventInfo.primTracks <= 153 ) eventInfo.centID = 13;
-	  else if( eventInfo.primTracks >= 154 && eventInfo.primTracks <= 190 ) eventInfo.centID = 14;
-	  else if( eventInfo.primTracks >= 191 && eventInfo.primTracks <= 240 ) eventInfo.centID = 15;  // 0% - 5% (Central)
-	}
-
-      if (eventInfo.centID == FlowUtils::I_BAD_VALUE) continue;      
-      if (eventInfo.centID < FIRST_CENT) continue;
-      //=========================================================
-      //          END Centrality Assignment
-      //=========================================================
-
-
-      //=========================================================
       //                EPD STUFF
       //=========================================================
-      //StEpdEpInfo result = epdEpFinder->Results(epdHits,pVtx,eventInfo.centID);
       StEpdGeom *epdGeom = new StEpdGeom();
-      //StPicoEpdHit *epdHit;
       Short_t tileID;
       TVector3 tileVector;     // Vector from vertex to center of tile that was hit
       Int_t tileSector;
@@ -1135,8 +1063,6 @@ int main(int argc, char *argv[])
       for (UShort_t iEpdHit = 0; iEpdHit < i_nEPDhits; iEpdHit++)
 	{
 	  epdParticleInfo.reset();
-
-	  //epdHit = (StPicoEpdHit*)(epdHits->At(iEpdHit));
 
 	  tileID = EPDids[iEpdHit];
 	  if (tileID > 0) continue;      // Exclude the West side
@@ -1240,7 +1166,6 @@ int main(int argc, char *argv[])
       //=========================================================
 
 
-      //if (eventInfo.nTracksTpc  < configs.min_tracks) continue;
       if (eventInfo.nTracksTpcA < configs.min_tracks) continue;
       if (eventInfo.nTracksTpcB < configs.min_tracks) continue;
       if (eventInfo.nHitsEpd    < configs.min_tracks) continue;
@@ -1252,24 +1177,6 @@ int main(int argc, char *argv[])
       FlowUtils::checkZeroQ(eventInfo);
       if (eventInfo.badEvent) continue;
 
-
-      // RAW SUB-EVENT PLANE ANGLES //
-      /*
-      if (ORDER_M % 2 == 1)           // Q vectors must change sign past mid-rapidity; Full TPC already takes this into account.
-	{
-	  if (Y_MID > configs.far_abs_tpc_eta) // if TPC A is completely past mid-rapidity, flip psi.
-	    {
-	      eventInfo.XnTpcA *= -1.0;
-	      eventInfo.YnTpcA *= -1.0;
-	    }
-	  eventInfo.XnEpd  *= -1.0;
-	  eventInfo.YnEpd  *= -1.0;
-	  eventInfo.XnEpdE *= -1.0;
-	  eventInfo.YnEpdE *= -1.0;
-	  eventInfo.XnEpdF *= -1.0;
-	  eventInfo.YnEpdF *= -1.0;
-	}
-      */
 
       FlowUtils::getAllPsi(eventInfo, ORDER_M);
 
@@ -1423,8 +1330,8 @@ int main(int argc, char *argv[])
 	  Double_t etaEpd;
 	  Double_t psiTpc  = eventInfo.psiTpc;
 	  Double_t psiEpd  = eventInfo.psiEpd;
-	  Double_t psiEpdE  = eventInfo.psiEpdE;
-	  Double_t psiEpdF  = eventInfo.psiEpdF;
+	  Double_t psiEpdE = eventInfo.psiEpdE;
+	  Double_t psiEpdF = eventInfo.psiEpdF;
 	  Double_t psiTpcA = eventInfo.psiTpcA;
 	  Double_t psiTpcB = eventInfo.psiTpcB;
 	  Int_t centralityID = eventInfo.centID;
@@ -1598,19 +1505,19 @@ int main(int argc, char *argv[])
 		      /*
 		      // pT DEPENDENT WITH CHANGING RAPIDITIES
 		      if (jthRapidity-Y_MID > 0.25 && jthRapidity-Y_MID < 0.5 && jthpT > 0.4 && jthpT < 2.0)
-			{ p2_vn_pT_cent_pr_yp25p50->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      { p2_vn_pT_cent_pr_yp25p50->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		      else if (jthRapidity-Y_MID > 0.5 && jthRapidity-Y_MID < 0.75 && jthpT > 0.4 && jthpT < 2.0)
-			{ p2_vn_pT_cent_pr_yp50p75->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      { p2_vn_pT_cent_pr_yp50p75->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		      else if (jthRapidity-Y_MID > 0.75 && jthRapidity-Y_MID < 1.0 && jthpT > 0.4 && jthpT < 2.0)
-			{ p2_vn_pT_cent_pr_yp751p0->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      { p2_vn_pT_cent_pr_yp751p0->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 
 		      // pT DEPENDENT WITH SYMMETRIC RAPIDITY
 		      if (jthRapidity-Y_MID > -0.5 && jthRapidity-Y_MID < 0.5 && jthpT > 1.0 && jthpT < 2.5)
-			{ p2_vn_pT_cent_pr_symm->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      { p2_vn_pT_cent_pr_symm->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		      if (jthRapidity-Y_MID > 0.25 && jthRapidity-Y_MID < 0.5 && jthpT > 1.0 && jthpT < 2.5)
-			{ p2_vn_pT_cent_pr_symm_yp25p50->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      { p2_vn_pT_cent_pr_symm_yp25p50->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		      if (jthRapidity-Y_MID > -0.5 && jthRapidity-Y_MID < -0.25 && jthpT > 1.0 && jthpT < 2.5)
-			{ p2_vn_pT_cent_pr_symm_yNp50Np25->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
+		      { p2_vn_pT_cent_pr_symm_yNp50Np25->Fill(centID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 		      */
 
 		      // NORMAL ACCEPTANCE 0 < y_cm < 0.5
@@ -1641,64 +1548,64 @@ int main(int argc, char *argv[])
 			      h2_triCorr_vs_yCM_midCent_pr->Fill(jthRapidity - Y_MID, TMath::Cos(3.0 * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
 			  /*
-			  if (centID == 14 || centID == 15)
+			    if (centID == 14 || centID == 15)
 			    {
-			      if (jthpT > 1.0 && jthpT < 1.5) 
-				p_vn_yCM_pT011p5_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 1.5 && jthpT < 2.0) 
-				p_vn_yCM_pT1p502_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 2.0 && jthpT < 2.5) 
-				p_vn_yCM_pT022p5_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.0 && jthpT < 1.5) 
+			    p_vn_yCM_pT011p5_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.5 && jthpT < 2.0) 
+			    p_vn_yCM_pT1p502_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 2.0 && jthpT < 2.5) 
+			    p_vn_yCM_pT022p5_c0010_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
 
-			  if (centID == 12 || centID == 13)
+			    if (centID == 12 || centID == 13)
 			    {
-			      if (jthpT > 1.0 && jthpT < 1.5) 
-				p_vn_yCM_pT011p5_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 1.5 && jthpT < 2.0) 
-				p_vn_yCM_pT1p502_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 2.0 && jthpT < 2.5) 
-				p_vn_yCM_pT022p5_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.0 && jthpT < 1.5) 
+			    p_vn_yCM_pT011p5_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.5 && jthpT < 2.0) 
+			    p_vn_yCM_pT1p502_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 2.0 && jthpT < 2.5) 
+			    p_vn_yCM_pT022p5_c1020_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
 
-			  if (centID == 10 || centID == 11)
+			    if (centID == 10 || centID == 11)
 			    {
-			      if (jthpT > 1.0 && jthpT < 1.5) 
-				p_vn_yCM_pT011p5_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 1.5 && jthpT < 2.0) 
-				p_vn_yCM_pT1p502_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 2.0 && jthpT < 2.5) 
-				p_vn_yCM_pT022p5_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.0 && jthpT < 1.5) 
+			    p_vn_yCM_pT011p5_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.5 && jthpT < 2.0) 
+			    p_vn_yCM_pT1p502_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 2.0 && jthpT < 2.5) 
+			    p_vn_yCM_pT022p5_c2030_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
 
-			  if (centID == 8 || centID == 9)
+			    if (centID == 8 || centID == 9)
 			    {
-			      if (jthpT > 1.0 && jthpT < 1.5) 
-				p_vn_yCM_pT011p5_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 1.5 && jthpT < 2.0) 
-				p_vn_yCM_pT1p502_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 2.0 && jthpT < 2.5) 
-				p_vn_yCM_pT022p5_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.0 && jthpT < 1.5) 
+			    p_vn_yCM_pT011p5_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.5 && jthpT < 2.0) 
+			    p_vn_yCM_pT1p502_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 2.0 && jthpT < 2.5) 
+			    p_vn_yCM_pT022p5_c3040_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
 
-			  if (centID == 6 || centID == 7)
+			    if (centID == 6 || centID == 7)
 			    {
-			      if (jthpT > 1.0 && jthpT < 1.5) 
-				p_vn_yCM_pT011p5_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 1.5 && jthpT < 2.0) 
-				p_vn_yCM_pT1p502_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 2.0 && jthpT < 2.5) 
-				p_vn_yCM_pT022p5_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.0 && jthpT < 1.5) 
+			    p_vn_yCM_pT011p5_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.5 && jthpT < 2.0) 
+			    p_vn_yCM_pT1p502_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 2.0 && jthpT < 2.5) 
+			    p_vn_yCM_pT022p5_c4050_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
 
-			  if (centID == 4 || centID == 5)
+			    if (centID == 4 || centID == 5)
 			    {
-			      if (jthpT > 1.0 && jthpT < 1.5) 
-				p_vn_yCM_pT011p5_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 1.5 && jthpT < 2.0) 
-				p_vn_yCM_pT1p502_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-			      if (jthpT > 2.0 && jthpT < 2.5) 
-				p_vn_yCM_pT022p5_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.0 && jthpT < 1.5) 
+			    p_vn_yCM_pT011p5_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 1.5 && jthpT < 2.0) 
+			    p_vn_yCM_pT1p502_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
+			    if (jthpT > 2.0 && jthpT < 2.5) 
+			    p_vn_yCM_pT022p5_c5060_pr_symm->Fill(jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 			    }
 			  */
 			}// End rapidity symmetric region
@@ -1760,17 +1667,110 @@ int main(int argc, char *argv[])
       h2_v2ScanEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
     }
-  /*
-  // Put in event and track cut labels
-  const char *eventSections[3] = {"No cuts", "Trigger cut", "Vertex cut"};
-  for (int i = 1; i <= h_eventCheck->GetNbinsX(); i++) { h_eventCheck->GetXaxis()->SetBinLabel(i, eventSections[i-1]); }
 
-  const char *trackSections[3] = {"Event cuts only", "QA Cuts", "PID cuts"};  
-  for (int i = 1; i <= h_trackCheck->GetNbinsX(); i++) { h_trackCheck->GetXaxis()->SetBinLabel(i, trackSections[i-1]); }
+  h_eventCheck->Write();
+  h_trackCheck->Write();
+  h_nhits->Write();
+  h_nhits_ratio->Write();
+  h_nhits_dEdx->Write();
+  h_DCA->Write();
+  h_zvtx->Write();
+  h_centralities->Write();
+  h_trackmult->Write();
+  h_refmult->Write();
+  h_tofmult->Write();
+  h_pT->Write();
+  h_eta->Write();
+  h_phi->Write();
+  
+  h_mult_pp->Write();
+  h_mult_pm->Write();
+  h_mult_kp->Write();
+  h_mult_km->Write();
+  h_mult_pr->Write();
+  h_mult_de->Write();
+  h_mult_tr->Write();
 
-  const char *eventSections_EpdF[2] = {"5 Hit Min", "9 Hit Min"};
-  for (int i = 1; i <= h_eventCheck_EpdF->GetNbinsX(); i++) { h_eventCheck_EpdF->GetXaxis()->SetBinLabel(i, eventSections_EpdF[i-1]); }
-  */
+  h_pT_pp->Write();
+  h_pT_pm->Write();
+  h_pT_kp->Write();
+  h_pT_km->Write();
+  h_pT_pr->Write();
+  h_pT_de->Write();
+  h_pT_tr->Write();
+
+  h_dndy_pp->Write();
+  h_dndy_pm->Write();
+  h_dndy_kp->Write();
+  h_dndy_km->Write();
+  h_dndy_pr->Write();
+  h_dndy_de->Write();
+  h_dndy_tr->Write();
+
+  h_eta_pp->Write();
+  h_eta_pm->Write();
+  h_eta_kp->Write();
+  h_eta_km->Write();
+  h_eta_pr->Write();
+  h_eta_de->Write();
+  h_eta_tr->Write();
+
+  h_phi_pp->Write();
+  h_phi_pm->Write();
+  h_phi_kp->Write();
+  h_phi_km->Write();
+  h_phi_pr->Write();
+  h_phi_de->Write();
+  h_phi_tr->Write();
+
+  h2_trans_vtx->Write();
+  h2_trans_vtx_cut->Write();
+  h2_refmult_vs_trackmult->Write();
+  h2_tofmult_vs_trackmult->Write();
+  h2_tofmult_vs_refmult->Write();
+
+  h2_dEdx_vs_qp->Write();
+  h2_dEdx_vs_qp_half->Write();
+  h2_beta_vs_qp->Write();
+  h2_m2_vs_qp->Write();
+
+  h2_dEdx_vs_qp_pp->Write();
+  h2_dEdx_vs_qp_pm->Write();
+  h2_dEdx_vs_qp_kp->Write();
+  h2_dEdx_vs_qp_km->Write();
+  h2_dEdx_vs_qp_pr->Write();
+  h2_dEdx_vs_qp_de->Write();
+  h2_dEdx_vs_qp_tr->Write();
+
+  h2_beta_vs_qp_pp->Write();
+  h2_beta_vs_qp_pm->Write();
+  h2_beta_vs_qp_kp->Write();
+  h2_beta_vs_qp_km->Write();
+  h2_beta_vs_qp_pr->Write();
+  h2_beta_vs_qp_de->Write();
+  h2_beta_vs_qp_tr->Write();
+
+  h2_m2_vs_qp_pp->Write();
+  h2_m2_vs_qp_pm->Write();
+  h2_m2_vs_qp_kp->Write();
+  h2_m2_vs_qp_km->Write();
+  h2_m2_vs_qp_pr->Write();
+  h2_m2_vs_qp_de->Write();
+  h2_m2_vs_qp_tr->Write();
+
+  h2_pT_vs_yCM_pp->Write();
+  h2_pT_vs_yCM_pm->Write();
+  h2_pT_vs_yCM_kp->Write();
+  h2_pT_vs_yCM_km->Write();
+  h2_pT_vs_yCM_pr->Write();
+  h2_pT_vs_yCM_de->Write();
+  h2_pT_vs_yCM_tr->Write();
+
+
+
+
+
+
 
   // Display total allocated memory
 
