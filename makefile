@@ -47,7 +47,7 @@ ConfigReader.o: ConfigReader.h ConfigReader.cxx
 .PHONY: clean
 
 clean:
-	rm -f *.so $(TARGET1) $(TARGET2) $(OBJS)
+	rm -f *.so $(TARGET1) $(TARGET2) $(OBJS1) $(OBJS2)
 
 
 
