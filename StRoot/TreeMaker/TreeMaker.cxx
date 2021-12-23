@@ -74,7 +74,7 @@ Int_t TreeMaker::Init()
   h_eventCheck->GetXaxis()->SetBinLabel(3,"Minbias Cut");
   h_eventCheck->GetXaxis()->SetBinLabel(4,"V_{Z} Cut");
   h_eventCheck->GetXaxis()->SetBinLabel(5,"V_{r} Cut");
-  h_eventCheck->GetXaxis()->SetBinLabel(5,"Centrality Cut");
+  h_eventCheck->GetXaxis()->SetBinLabel(6,"Centrality Cut");
     
   h_trackCheck = new TH1D("h_trackCheck","Track number after each cut;;Tracks", 3, 0, 3);
   h_trackCheck->GetXaxis()->SetBinLabel(1,"Event Cuts Only");
@@ -114,7 +114,7 @@ Int_t TreeMaker::Init()
   h_DCA         = new TH1D("h_DCA","DCA (cm);DCA (cm);Tracks",100,0.0,10.0);
     
   h_pT = new TH1D("h_pT","p_{T};p_{T};Tracks",1000,0.0,10.0);
-  h_eta = new TH1D("h_eta","#eta;#eta;Tracks",500,-5.0,5.0);
+  h_eta = new TH1D("h_eta","#eta;#eta;Tracks",500,-6.0,4.0);
   h_phi = new TH1D("h_phi","#phi (Radian);#phi;Tracks",1000,-1.5*PI,1.5*PI);
   h2_dEdx_vs_qp = new TH2D("h2_dEdx_vs_qp", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, -2, 2, 500, 0, 10);
   h2_dEdx_vs_qp_half = new TH2D("h2_dEdx_vs_qp_half", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, 0, 4, 500, 0, 12);
@@ -300,31 +300,57 @@ Int_t TreeMaker::Make()
 		      h2_tofmult_vs_trackmult->Fill(primTracks,event->nBTOFMatch());
 		      h2_tofmult_vs_refmult->Fill(event->refMultHalfEast(),event->nBTOFMatch());
 
-		      // Get centrality
+
+		      // GET CENTRALITY
 		      Int_t centrality = -99;
 
 		      // 3.0 GeV FXT  --  From Zachary Sweger Nov 11, 2020
-		      if     ( primTracks >=   5 && primTracks <=   6 ) centrality =  0;  // 75% - 80% (Peripheral)
-		      else if( primTracks >=   7 && primTracks <=   8 ) centrality =  1;
-		      else if( primTracks >=   9 && primTracks <=  11 ) centrality =  2;
-		      else if( primTracks >=  12 && primTracks <=  15 ) centrality =  3;
-		      else if( primTracks >=  16 && primTracks <=  20 ) centrality =  4;
-		      else if( primTracks >=  21 && primTracks <=  25 ) centrality =  5;
-		      else if( primTracks >=  26 && primTracks <=  32 ) centrality =  6;
-		      else if( primTracks >=  33 && primTracks <=  40 ) centrality =  7;
-		      else if( primTracks >=  41 && primTracks <=  49 ) centrality =  8;
-		      else if( primTracks >=  50 && primTracks <=  59 ) centrality =  9;
-		      else if( primTracks >=  60 && primTracks <=  71 ) centrality = 10;
-		      else if( primTracks >=  72 && primTracks <=  85 ) centrality = 11;
-		      else if( primTracks >=  86 && primTracks <= 100 ) centrality = 12;
-		      else if( primTracks >= 101 && primTracks <= 118 ) centrality = 13;
-		      else if( primTracks >= 119 && primTracks <= 141 ) centrality = 14;
-		      else if( primTracks >= 142 && primTracks <= 195 ) centrality = 15;  // 0% - 5% (Central)
+		      if (configs.sqrt_s_NN == 3.0)
+			{
+			  if     ( primTracks >=   5 && primTracks <=   6 ) centrality =  0;  // 75% - 80% (Peripheral)
+			  else if( primTracks >=   7 && primTracks <=   8 ) centrality =  1;
+			  else if( primTracks >=   9 && primTracks <=  11 ) centrality =  2;
+			  else if( primTracks >=  12 && primTracks <=  15 ) centrality =  3;
+			  else if( primTracks >=  16 && primTracks <=  20 ) centrality =  4;
+			  else if( primTracks >=  21 && primTracks <=  25 ) centrality =  5;
+			  else if( primTracks >=  26 && primTracks <=  32 ) centrality =  6;
+			  else if( primTracks >=  33 && primTracks <=  40 ) centrality =  7;
+			  else if( primTracks >=  41 && primTracks <=  49 ) centrality =  8;
+			  else if( primTracks >=  50 && primTracks <=  59 ) centrality =  9;
+			  else if( primTracks >=  60 && primTracks <=  71 ) centrality = 10;
+			  else if( primTracks >=  72 && primTracks <=  85 ) centrality = 11;
+			  else if( primTracks >=  86 && primTracks <= 100 ) centrality = 12;
+			  else if( primTracks >= 101 && primTracks <= 118 ) centrality = 13;
+			  else if( primTracks >= 119 && primTracks <= 141 ) centrality = 14;
+			  else if( primTracks >= 142 && primTracks <= 195 ) centrality = 15;  // 0% - 5% (Central)
+			}
+
+		      // 7.2 GeV FXT
+		      else if (configs.sqrt_s_NN == 7.2)
+			{
+			  if     ( primTracks >=   2 && primTracks <=   3 ) centrality =  0;  // 75% - 80% (Peripheral)
+			  else if( primTracks >=   4 && primTracks <=   5 ) centrality =  1;
+			  else if( primTracks >=   6 && primTracks <=   8 ) centrality =  2;
+			  else if( primTracks >=   9 && primTracks <=  11 ) centrality =  3;
+			  else if( primTracks >=  12 && primTracks <=  15 ) centrality =  4;
+			  else if( primTracks >=  16 && primTracks <=  21 ) centrality =  5;
+			  else if( primTracks >=  22 && primTracks <=  29 ) centrality =  6;
+			  else if( primTracks >=  30 && primTracks <=  38 ) centrality =  7;
+			  else if( primTracks >=  39 && primTracks <=  49 ) centrality =  8;
+			  else if( primTracks >=  50 && primTracks <=  63 ) centrality =  9;
+			  else if( primTracks >=  64 && primTracks <=  79 ) centrality = 10;
+			  else if( primTracks >=  80 && primTracks <=  99 ) centrality = 11;
+			  else if( primTracks >= 100 && primTracks <= 123 ) centrality = 12;
+			  else if( primTracks >= 124 && primTracks <= 153 ) centrality = 13;
+			  else if( primTracks >= 154 && primTracks <= 190 ) centrality = 14;
+			  else if( primTracks >= 191 && primTracks <= 240 ) centrality = 15;  // 0% - 5% (Central)
+			}
+
 
 		      // Select only good centrality valued events
 		      if(centrality >= FIRST_CENT)
 			{
-			  h_eventCheck->Fill(6); // Count # of min-bias events after all cuts
+			  h_eventCheck->Fill(5); // Count # of min-bias events after all cuts
 			  h_centralities->Fill(centrality);
 
 			  // Prepare New Tree parameters
