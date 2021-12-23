@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
 
 
-  TH1D *h_phiRelative = new TH1D("h_phiRelative", ";#phi - #psi_{"+ORDER_M_STR+"};", 100, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_phiRelative_pr = new TH1D("h_phiRelative_pr", "-0.1 < y_{CM}^{pr} < 0.1;#phi - #psi_{"+ORDER_M_STR+"};dN/d(#Delta#phi)", 100, -PSI_BOUNDS, PSI_BOUNDS);
 
   TH1D *h_psiEpdE_NoAuto = new TH1D("h_psiEpdE_NoAuto", "EP Angles, No Auto-Correlations (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
@@ -1284,10 +1284,7 @@ int main(int argc, char *argv[])
 
 		  // v2 from TPC B and relative jthPhi angles for dN/dphi fitting
 		  if (eventInfo.tpcParticles.at(j).isInTpcB)
-		    {
-		      p_vn_TpcB->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
-		      h_phiRelative->Fill(jthPhi - psi);			
-		    }
+		    { p_vn_TpcB->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency)); }
 
 		  // PI+
 		  if (eventInfo.tpcParticles.at(j).ppTag)
@@ -1369,6 +1366,10 @@ int main(int argc, char *argv[])
 			{
 			  p2_vn_yCM_cent_pr_symmetry->Fill(centID, jthRapidity - Y_MID, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
+
+			  if (jthRapidity - Y_MID > -0.1 && jthRapidity - Y_MID < 0.1)
+			    { h_phiRelative_pr->Fill(jthPhi - psi); }
+
 			  //p3_vn_pT_yCM_cent_pr_symm->Fill(centID, jthRapidity-Y_MID, jthpT, TMath::Cos(ORDER_N * (jthPhi - psi)) / (resolution * tpcEfficiency));
 
 			  if (centID >= 8 && centID <= 13)
@@ -1432,7 +1433,6 @@ int main(int argc, char *argv[])
       h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
     }
 
-  h_PID->Write();
   h_eventCheck->Write();
   h_trackCheck->Write();
   h_nhits->Write();
