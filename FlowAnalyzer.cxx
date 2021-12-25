@@ -862,8 +862,8 @@ int main(int argc, char *argv[])
 	  unsigned short nHits = picoTrack->nHits();
 	  
 	  bool b_bad_hits     = ( nHits < configs.nHits );
-	  bool b_bad_dEdx     = ( picoTrack->nHitsDedx() <= configs.dEdx );
-	  bool b_bad_tracking = ( ((double)picoTrack->nHitsFit() / (double)picoTrack->nHitsPoss()) <= configs.tracking );
+	  bool b_bad_dEdx     = ( picoTrack->nHitsDedx() <= configs.nHits_dEdx );
+	  bool b_bad_tracking = ( ((double)picoTrack->nHitsFit() / (double)picoTrack->nHitsPoss()) <= configs.nHits_ratio );
 	  bool b_bad_DCA      = ( picoTrack->gDCA(pVtx.X(),pVtx.Y(),pVtx.Z()) >= configs.dca );
 
 	  if (b_bad_hits || b_bad_dEdx || b_bad_tracking || b_bad_DCA) continue;

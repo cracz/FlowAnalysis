@@ -390,8 +390,8 @@ Int_t TreeMaker::Make()
 			      //          Track QA Cuts
 			      //=========================================================
 			      bool b_bad_hits  = ( track->nHits() < configs.nHits );
-			      bool b_bad_dEdx  = ( track->nHitsDedx() <= configs.dEdx );
-			      bool b_bad_ratio = ( ((double)track->nHitsFit() / (double)track->nHitsPoss()) <= configs.tracking );
+			      bool b_bad_dEdx  = ( track->nHitsDedx() <= configs.nHits_dEdx );
+			      bool b_bad_ratio = ( ((double)track->nHitsFit() / (double)track->nHitsPoss()) <= configs.nHits_ratio );
 			      bool b_bad_DCA   = ( track->gDCA(d_xvtx,d_yvtx,d_zvtx) >= configs.dca );
 
 			      if (b_bad_hits || b_bad_dEdx || b_bad_ratio || b_bad_DCA) continue;

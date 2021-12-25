@@ -10,7 +10,7 @@ void ConfigReader::initialize()
   intValCuts["minbias"] = -999;
   intValCuts["epd_max_weight"] = -999;
   intValCuts["nHits"] = -999;
-  intValCuts["dEdx"] = -999;
+  intValCuts["nHits_dEdx"] = -999;
   intValCuts["min_tracks"] = -999;
   intValCuts["shift_terms"] = -999;
   intValCuts["epdA_inner_row"] = -999;
@@ -22,7 +22,7 @@ void ConfigReader::initialize()
   dblValCuts["order_n"] = -999.0; 
   dblValCuts["order_m"] = -999.0; 
   dblValCuts["epd_threshold"] = -999.0; 
-  dblValCuts["tracking"] = -999.0; 
+  dblValCuts["nHits_ratio"] = -999.0; 
   dblValCuts["dca"] = -999.0; 
   dblValCuts["min_abs_tpc_eta"] = -999.0; 
   dblValCuts["near_abs_tpc_eta"] = -999.0; 
@@ -113,7 +113,7 @@ void ConfigReader::setAllCuts()
   minbias = intValCuts["minbias"];
   epd_max_weight = intValCuts["epd_max_weight"];
   nHits = intValCuts["nHits"];
-  dEdx = intValCuts["dEdx"];
+  nHits_dEdx = intValCuts["nHits_dEdx"];
   min_tracks = intValCuts["min_tracks"];
   shift_terms = intValCuts["shift_terms"];
   epdA_inner_row = intValCuts["epdA_inner_row"];
@@ -125,7 +125,7 @@ void ConfigReader::setAllCuts()
   order_n = dblValCuts["order_n"]; 
   order_m = dblValCuts["order_m"]; 
   epd_threshold = dblValCuts["epd_threshold"]; 
-  tracking = dblValCuts["tracking"]; 
+  nHits_ratio = dblValCuts["nHits_ratio"]; 
   dca = dblValCuts["dca"]; 
   min_abs_tpc_eta = dblValCuts["min_abs_tpc_eta"]; 
   near_abs_tpc_eta = dblValCuts["near_abs_tpc_eta"]; 

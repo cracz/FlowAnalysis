@@ -20,7 +20,7 @@ class ConfigReader
   Int_t minbias;
   Int_t epd_max_weight;
   Int_t nHits;
-  Int_t dEdx;
+  Int_t nHits_dEdx;
   Int_t min_tracks;
   Int_t shift_terms;
   Int_t epdA_inner_row;
@@ -31,7 +31,7 @@ class ConfigReader
   Double_t order_n;
   Double_t order_m;
   Double_t epd_threshold;
-  Double_t tracking;
+  Double_t nHits_ratio;
   Double_t dca;
   Double_t min_abs_tpc_eta;
   Double_t near_abs_tpc_eta;
