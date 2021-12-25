@@ -4,6 +4,9 @@
 # To get a list of all available variables, check ConfigReader.h.
 
 
+# 0 = false, 1 = true
+fixed_target=1
+
 sqrt_s_NN=3.0
 y_mid=-1.05
 order_n=3.0

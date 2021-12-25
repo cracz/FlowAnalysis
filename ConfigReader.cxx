@@ -7,6 +7,7 @@
 // I have to initialize the maps like this because c++98 sucks (or maybe just the CINT does)
 void ConfigReader::initialize()
 {
+  intValCuts["fixed_target"] = -999;
   intValCuts["minbias"] = -999;
   intValCuts["epd_max_weight"] = -999;
   intValCuts["nHits"] = -999;
@@ -110,6 +111,7 @@ void ConfigReader::initialize()
 
 void ConfigReader::setAllCuts()
 {
+  fixed_target = intValCuts["fixed_target"];
   minbias = intValCuts["minbias"];
   epd_max_weight = intValCuts["epd_max_weight"];
   nHits = intValCuts["nHits"];

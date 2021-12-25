@@ -17,6 +17,7 @@ class ConfigReader
   void setAllCuts();
   void read(std::string fileName);
 
+  Int_t fixed_target; // boolean: 0 or 1
   Int_t minbias;
   Int_t epd_max_weight;
   Int_t nHits;
