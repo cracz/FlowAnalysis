@@ -12,7 +12,7 @@ y_mid=-1.05
 order_n=3.0
 order_m=1.0
 shift_terms=10
-minbias=620052
+triggers=620052
 
 # Systematic cuts
 
@@ -22,10 +22,18 @@ nHits=10
 dEdx=5
 tracking=0.52
 dca=3.0
-min_abs_tpc_eta=0.0
-near_abs_tpc_eta=-1.0
-far_abs_tpc_eta=-1.1
-max_abs_tpc_eta=-2.0
+
+tpc_A_low_eta=-2.0
+tpc_A_high_eta=-1.1
+tpc_B_low_eta=-1.0
+tpc_B_high_eta=0.0
+
+#min_abs_tpc_eta=0.0
+#near_abs_tpc_eta=-1.0
+#far_abs_tpc_eta=-1.1
+#max_abs_tpc_eta=-2.0
+
+
 r_vtx=1.5
 z_vtx_low=198.0
 z_vtx_high=202.0

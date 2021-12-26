@@ -8,7 +8,7 @@
 void ConfigReader::initialize()
 {
   intValCuts["fixed_target"] = -999;
-  intValCuts["minbias"] = -999;
+  //intValCuts["minbias"] = -999;
   intValCuts["epd_max_weight"] = -999;
   intValCuts["nHits"] = -999;
   intValCuts["nHits_dEdx"] = -999;
@@ -25,10 +25,10 @@ void ConfigReader::initialize()
   dblValCuts["epd_threshold"] = -999.0; 
   dblValCuts["nHits_ratio"] = -999.0; 
   dblValCuts["dca"] = -999.0; 
-  dblValCuts["min_abs_tpc_eta"] = -999.0; 
-  dblValCuts["near_abs_tpc_eta"] = -999.0; 
-  dblValCuts["far_abs_tpc_eta"] = -999.0; 
-  dblValCuts["max_abs_tpc_eta"] = -999.0; 
+  dblValCuts["tpc_A_low_eta"] = -999.0; 
+  dblValCuts["tpc_A_high_eta"] = -999.0; 
+  dblValCuts["tpc_B_low_eta"] = -999.0; 
+  dblValCuts["tpc_B_high_eta"] = -999.0; 
   dblValCuts["r_vtx"] = -999.0; 
   dblValCuts["z_vtx_low"] = -999.0; 
   dblValCuts["z_vtx_high"] = -999.0; 
@@ -112,7 +112,7 @@ void ConfigReader::initialize()
 void ConfigReader::setAllCuts()
 {
   fixed_target = intValCuts["fixed_target"];
-  minbias = intValCuts["minbias"];
+  //minbias = intValCuts["minbias"];
   epd_max_weight = intValCuts["epd_max_weight"];
   nHits = intValCuts["nHits"];
   nHits_dEdx = intValCuts["nHits_dEdx"];
@@ -129,10 +129,10 @@ void ConfigReader::setAllCuts()
   epd_threshold = dblValCuts["epd_threshold"]; 
   nHits_ratio = dblValCuts["nHits_ratio"]; 
   dca = dblValCuts["dca"]; 
-  min_abs_tpc_eta = dblValCuts["min_abs_tpc_eta"]; 
-  near_abs_tpc_eta = dblValCuts["near_abs_tpc_eta"]; 
-  far_abs_tpc_eta = dblValCuts["far_abs_tpc_eta"]; 
-  max_abs_tpc_eta = dblValCuts["max_abs_tpc_eta"]; 
+  tpc_A_low_eta = dblValCuts["tpc_A_low_eta"]; 
+  tpc_A_high_eta = dblValCuts["tpc_A_high_eta"]; 
+  tpc_B_low_eta = dblValCuts["tpc_B_low_eta"]; 
+  tpc_B_high_eta = dblValCuts["tpc_B_high_eta"]; 
   r_vtx = dblValCuts["r_vtx"]; 
   z_vtx_low = dblValCuts["z_vtx_low"]; 
   z_vtx_high = dblValCuts["z_vtx_high"]; 
@@ -236,6 +236,20 @@ void ConfigReader::notifyError()
     { std::cout << "There were no keys or values read successfully." << std::endl; }
 }
 
+Bool_t ConfigReader::triggersMatch(UInt_t readTrigger)
+{
+  Bool_t triggerMatchFound = false;
+  for (unsigned int i = 0; i < triggers.size(); i++)
+    { 
+      if (readTrigger == triggers[i]) 
+	{ 
+	  triggerMatchFound = true; 
+	  break;
+	} 
+    }
+  return triggerMatchFound;
+}
+
 void ConfigReader::read(std::string fileName)
 {
   std::ifstream inputStream(fileName.c_str());
@@ -269,6 +283,46 @@ void ConfigReader::read(std::string fileName)
       
       lastKey   = key;
       lastValue = value;
+
+      // Now check if "value" is actually a list of values, if not, split it and try to save the triggers.
+      size_t commaPos = value.find(",");
+
+      if (commaPos != std::string::npos && key.compare("triggers") == 0)
+	{
+	  std::stringstream valueStream(value);
+
+	  while(valueStream.good())
+	    {
+	      std::string subString;
+	      std::getline(valueStream, subString, ',');
+	      try
+		{ 
+		  UInt_t triggerValue = (UInt_t)std::atoi(subString.c_str()); 
+		  triggers.push_back(triggerValue);
+		}
+	      catch (...)
+		{
+		  std::cout << "Error parsing this value: " << value << std::endl;
+		  errorFlag = true;
+		  break;
+		}
+	    }
+	}
+      else if (key.compare("triggers") == 0) // No commas, so only one trigger
+	{
+	  try
+	    { 
+	      UInt_t triggerValue = (UInt_t)std::atoi(value.c_str()); 
+	      triggers.push_back(triggerValue); 
+	    }
+	  catch (...)
+	    {
+	      std::cout << "Error in this value for triggers: " << value << std::endl;
+	      errorFlag = true;
+	    }
+	}
+      if (errorFlag) break;
+
 
       try
 	{ intValCuts.at(key) = std::atoi(value.c_str()); }

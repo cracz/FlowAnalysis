@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include "TString.h"
 
 class ConfigReader
@@ -16,9 +17,12 @@ class ConfigReader
   void initialize();
   void setAllCuts();
   void read(std::string fileName);
+  Bool_t triggersMatch(UInt_t readTrigger);
+
+  std::vector<UInt_t> triggers;
 
   Int_t fixed_target; // boolean: 0 or 1
-  Int_t minbias;
+  //Int_t minbias;
   Int_t epd_max_weight;
   Int_t nHits;
   Int_t nHits_dEdx;
@@ -34,10 +38,10 @@ class ConfigReader
   Double_t epd_threshold;
   Double_t nHits_ratio;
   Double_t dca;
-  Double_t min_abs_tpc_eta;
-  Double_t near_abs_tpc_eta;
-  Double_t far_abs_tpc_eta;
-  Double_t max_abs_tpc_eta;
+  Double_t tpc_A_low_eta;
+  Double_t tpc_A_high_eta;
+  Double_t tpc_B_low_eta;
+  Double_t tpc_B_high_eta;
   Double_t r_vtx;
   Double_t z_vtx_low;
   Double_t z_vtx_high;

@@ -246,9 +246,9 @@ int main(int argc, char *argv[])
   TH1D *h_trackCheck = (TH1D*)inputFile->Get("h_trackCheck");
   h_trackCheck->SetStats(0);
   /*
-  TH1D *h_eventCheck_EpdF = new TH1D("h_eventCheck_EpdF","EPD F Event Number;;Events", 2, 0, 2);
-  //const char *eventSections_EpdF[2] = {"5 Hit Min", "9 Hit Min"};
-  h_eventCheck_EpdF->SetStats(0);
+  TH1D *h_eventCheck_EpdB = new TH1D("h_eventCheck_EpdB","EPD F Event Number;;Events", 2, 0, 2);
+  //const char *eventSections_EpdB[2] = {"5 Hit Min", "9 Hit Min"};
+  h_eventCheck_EpdB->SetStats(0);
 
   TH1D *h_simulationCheck = new TH1D ("h_simulationCheck", "N_{trk} with no TPC efficiency", 3, 0, 3);
   TH1D *h_simulationCheck_total = new TH1D ("h_simulationCheck_total", "Total N_{trk}", 3, 0, 3);
@@ -356,12 +356,12 @@ int main(int argc, char *argv[])
   TH1D *h_psiTpcA_RAW = new TH1D("h_psiTpcA_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", TPC A);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiTpcB_RAW = new TH1D("h_psiTpcB_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", TPC B);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiEpd_RAW  = new TH1D("h_psiEpd_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdE_RAW = new TH1D("h_psiEpdE_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdF_RAW = new TH1D("h_psiEpdF_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD F);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdA_RAW = new TH1D("h_psiEpdA_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdB_RAW = new TH1D("h_psiEpdB_RAW", "Raw Event Plane Angles (m = "+ORDER_M_STR+", EPD F);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
-  TProfile *p_vn_EpdE = new TProfile("p_vn_EpdE", "v_{"+ORDER_N_STR+"} by Centrality (EPD E);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_vn_EpdA = new TProfile("p_vn_EpdA", "v_{"+ORDER_N_STR+"} by Centrality (EPD E);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
-  TProfile *p_vn_EpdF = new TProfile("p_vn_EpdF", "v_{"+ORDER_N_STR+"} by Centrality (EPD F);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_vn_EpdB = new TProfile("p_vn_EpdB", "v_{"+ORDER_N_STR+"} by Centrality (EPD F);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
 				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
   //TProfile *p_vn_TpcA = new TProfile("p_vn_TpcA", "v_{"+ORDER_N_STR+"} by Centrality (TPC A);Centrality;<cos("+ORDER_N_STR+"(#phi - #psi_{"+ORDER_M_STR+"}))>", 
   //				    CENT_BINS, FIRST_CENT, FIRST_CENT+CENT_BINS);
@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
 
   TH1D *h_phiRelative_pr = new TH1D("h_phiRelative_pr", "-0.1 < y_{CM}^{pr} < 0.1;#phi - #psi_{"+ORDER_M_STR+"};dN/d(#Delta#phi)", 100, -PSI_BOUNDS, PSI_BOUNDS);
 
-  TH1D *h_psiEpdE_NoAuto = new TH1D("h_psiEpdE_NoAuto", "EP Angles, No Auto-Correlations (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdA_NoAuto = new TH1D("h_psiEpdA_NoAuto", "EP Angles, No Auto-Correlations (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
   TH2D *h2_phiRelative_vs_yCM_midCent_pr 
     = new TH2D("h2_phiRelative_vs_yCM_midCent_pr", ";y-y_{mid};#phi-#psi_{"+ORDER_M_STR+"}", 20, -1, 1, 100, -TMath::Pi(), TMath::Pi());
@@ -440,17 +440,17 @@ int main(int argc, char *argv[])
   TProfile *p_TpcAB = new TProfile("p_TpcAB","TPC A-B Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,A}_{"+ORDER_M_STR+"}-#psi^{TPC,B}_{"+ORDER_M_STR+"}))>",
 				   CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
 
-  TProfile *p_TpcAEpdE = new TProfile("p_TpcAEpdE","TPC A EPD E Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,A}_{"+ORDER_M_STR+"}-#psi^{EPD,E}_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_TpcAEpdA = new TProfile("p_TpcAEpdA","TPC A EPD E Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,A}_{"+ORDER_M_STR+"}-#psi^{EPD,E}_{"+ORDER_M_STR+"}))>", 
 				      CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  TProfile *p_TpcAEpdF = new TProfile("p_TpcAEpdF","TPC A EPD F Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,A}_{"+ORDER_M_STR+"}-#psi^{EPD,F}_{"+ORDER_M_STR+"}))>",
-				      CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-
-  TProfile *p_TpcBEpdE = new TProfile("p_TpcBEpdE","TPC B EPD E Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,B}_{"+ORDER_M_STR+"}-#psi^{EPD,E}_{"+ORDER_M_STR+"}))>",
-				      CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  TProfile *p_TpcBEpdF = new TProfile("p_TpcBEpdF","TPC B EPD F Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,B}_{"+ORDER_M_STR+"}-#psi^{EPD,F}_{"+ORDER_M_STR+"}))>",
+  TProfile *p_TpcAEpdB = new TProfile("p_TpcAEpdB","TPC A EPD F Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,A}_{"+ORDER_M_STR+"}-#psi^{EPD,F}_{"+ORDER_M_STR+"}))>",
 				      CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
 
-  TProfile *p_EpdEEpdF = new TProfile("p_EpdEEpdF","EPD E EPD F Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{EPD,E}_{"+ORDER_M_STR+"}-#psi^{EPD,F}_{"+ORDER_M_STR+"}))>", 
+  TProfile *p_TpcBEpdA = new TProfile("p_TpcBEpdA","TPC B EPD E Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,B}_{"+ORDER_M_STR+"}-#psi^{EPD,E}_{"+ORDER_M_STR+"}))>",
+				      CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+  TProfile *p_TpcBEpdB = new TProfile("p_TpcBEpdB","TPC B EPD F Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{TPC,B}_{"+ORDER_M_STR+"}-#psi^{EPD,F}_{"+ORDER_M_STR+"}))>",
+				      CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
+
+  TProfile *p_EpdAEpdB = new TProfile("p_EpdAEpdB","EPD E EPD F Correlations;Centrality;<cos("+ORDER_N_STR+"(#psi^{EPD,E}_{"+ORDER_M_STR+"}-#psi^{EPD,F}_{"+ORDER_M_STR+"}))>", 
 				      CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
 
 
@@ -462,8 +462,8 @@ int main(int argc, char *argv[])
   TH2D *h2_tofmult_vs_trackmult = (TH2D*)inputFile->Get("h2_tofmult_vs_trackmult");
   TH2D *h2_tofmult_vs_refmult   = (TH2D*)inputFile->Get("h2_tofmult_vs_refmult");
 
-  TH2D *h2_hits_vs_cent_EpdE = new TH2D("h2_nHits_vs_cent_EpdE", "EPD E;Centrality;Hits", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS, 50, 0, 50);
-  TH2D *h2_hits_vs_cent_EpdF = new TH2D("h2_nHits_vs_cent_EpdF", "EPD F;Centrality;Hits", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS, 50, 0, 50);
+  TH2D *h2_hits_vs_cent_EpdA = new TH2D("h2_nHits_vs_cent_EpdA", "EPD E;Centrality;Hits", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS, 50, 0, 50);
+  TH2D *h2_hits_vs_cent_EpdB = new TH2D("h2_nHits_vs_cent_EpdB", "EPD F;Centrality;Hits", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS, 50, 0, 50);
   TH2D *h2_hits_vs_cent_TpcB = new TH2D("h2_nHits_vs_cent_TpcB", "TPC B;Centrality;Hits", CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS, 50, 0, 50);
 
   TH2D *h2_dEdx_vs_qp = (TH2D*)inputFile->Get("h2_dEdx_vs_qp");
@@ -511,9 +511,9 @@ int main(int argc, char *argv[])
 
   TProfile2D *h2_v2ScanTpc = new TProfile2D("h2_v2ScanTpc", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 					      50, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  TProfile2D *h2_v2ScanTpcEpdE = new TProfile2D("h2_v2ScanTpcEpdE", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD,E}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
+  TProfile2D *h2_v2ScanTpcEpdA = new TProfile2D("h2_v2ScanTpcEpdA", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD,E}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 					      50, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
-  TProfile2D *h2_v2ScanTpcEpdF = new TProfile2D("h2_v2ScanTpcEpdF", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD,F}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
+  TProfile2D *h2_v2ScanTpcEpdB = new TProfile2D("h2_v2ScanTpcEpdB", "<cos("+ORDER_N_STR+"(#phi^{TPC} - #psi^{EPD,F}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 					      50, -2, 0, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   TProfile2D *h2_v2ScanEpd = new TProfile2D("h2_v2ScanEpd", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 					      50, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
@@ -522,8 +522,8 @@ int main(int argc, char *argv[])
   TProfile2D *h2_v2ScanEpdTpcB = new TProfile2D("h2_v2ScanEpdTpcB", "<cos("+ORDER_N_STR+"(#phi^{EPD} - #psi^{TPC,B}_{"+ORDER_M_STR+"}))>;#eta;Centrality (%)", 
 						  50, -5.2, -2.3, CENT_BINS, FIRST_CENT, FIRST_CENT + CENT_BINS);
   h2_v2ScanTpc->SetStats(0);
-  h2_v2ScanTpcEpdE->SetStats(0);
-  h2_v2ScanTpcEpdF->SetStats(0);
+  h2_v2ScanTpcEpdA->SetStats(0);
+  h2_v2ScanTpcEpdB->SetStats(0);
   h2_v2ScanEpd->SetStats(0);
   h2_v2ScanEpdTpcA->SetStats(0);
   h2_v2ScanEpdTpcB->SetStats(0);
@@ -535,20 +535,20 @@ int main(int argc, char *argv[])
   //const char *centralityBins[16] = {"0-5", "5-10", "10-15" "15-20", "20-25", "25-30", "30-35", "35-40", "40-45", "45-50", "50-55", "55-60", "60-65", "65-70", "70-75", "75-80"};
 
 
-  TH2D *h2_psiEpdETpcA = new TH2D("h2_psiEpdETpcA", "#psi^{EPD,E} vs #psi^{TPC,A} (Order "+ORDER_M_STR+");#psi^{TPC}_{A};#psi^{EPD}_{E}", 
+  TH2D *h2_psiEpdATpcA = new TH2D("h2_psiEpdATpcA", "#psi^{EPD,E} vs #psi^{TPC,A} (Order "+ORDER_M_STR+");#psi^{TPC}_{A};#psi^{EPD}_{E}", 
 				  200, -PSI_BOUNDS, PSI_BOUNDS, 200, -PSI_BOUNDS, PSI_BOUNDS);
-  TH2D *h2_psiEpdFTpcA = new TH2D("h2_psiEpdFTpcA", "#psi^{EPD,F} vs #psi^{TPC,A} (Order "+ORDER_M_STR+");#psi^{TPC}_{A};#psi^{EPD}_{F}", 
+  TH2D *h2_psiEpdBTpcA = new TH2D("h2_psiEpdBTpcA", "#psi^{EPD,F} vs #psi^{TPC,A} (Order "+ORDER_M_STR+");#psi^{TPC}_{A};#psi^{EPD}_{F}", 
 				  200, -PSI_BOUNDS, PSI_BOUNDS, 200, -PSI_BOUNDS, PSI_BOUNDS);
 
-  TH2D *h2_psiEpdETpcB = new TH2D("h2_psiEpdETpcB", "#psi^{EPD,E} vs #psi^{TPC,B} (Order "+ORDER_M_STR+");#psi^{TPC}_{B};#psi^{EPD}_{E}", 
+  TH2D *h2_psiEpdATpcB = new TH2D("h2_psiEpdATpcB", "#psi^{EPD,E} vs #psi^{TPC,B} (Order "+ORDER_M_STR+");#psi^{TPC}_{B};#psi^{EPD}_{E}", 
 				  200, -PSI_BOUNDS, PSI_BOUNDS, 200, -PSI_BOUNDS, PSI_BOUNDS);
-  TH2D *h2_psiEpdFTpcB = new TH2D("h2_psiEpdFTpcB", "#psi^{EPD,F} vs #psi^{TPC,B} (Order "+ORDER_M_STR+");#psi^{TPC}_{B};#psi^{EPD}_{F}", 
+  TH2D *h2_psiEpdBTpcB = new TH2D("h2_psiEpdBTpcB", "#psi^{EPD,F} vs #psi^{TPC,B} (Order "+ORDER_M_STR+");#psi^{TPC}_{B};#psi^{EPD}_{F}", 
 				  200, -PSI_BOUNDS, PSI_BOUNDS, 200, -PSI_BOUNDS, PSI_BOUNDS);
 
   TH2D *h2_psiTpcATpcB = new TH2D("h2_psiTpcATpcB", "#psi^{TPC,A} vs #psi^{TPC,B} (Order "+ORDER_M_STR+");#psi^{TPC}_{B};#psi^{TPC}_{A}", 
 				  200, -PSI_BOUNDS, PSI_BOUNDS, 200, -PSI_BOUNDS, PSI_BOUNDS);
 
-  TH2D *h2_psiEpdEEpdF = new TH2D("h2_psiEpdEEpdF", "#psi^{EPD,E} vs #psi^{EPD,F} (Order "+ORDER_M_STR+");#psi^{EPD}_{F};#psi^{EPD}_{E}", 
+  TH2D *h2_psiEpdAEpdB = new TH2D("h2_psiEpdAEpdB", "#psi^{EPD,E} vs #psi^{EPD,F} (Order "+ORDER_M_STR+");#psi^{EPD}_{F};#psi^{EPD}_{E}", 
 				  200, -PSI_BOUNDS, PSI_BOUNDS, 200, -PSI_BOUNDS, PSI_BOUNDS);
 
 
@@ -561,10 +561,10 @@ int main(int argc, char *argv[])
   TH1D *h_YnTpcB = new TH1D("h_YnTpcB", "Y_n Distribution (TPC B);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
   TH1D *h_XnEpd  = new TH1D("h_XnEpd", "X_n Distribution (EPD);X_n;Events",    250, -Q_BOUNDS, Q_BOUNDS);
   TH1D *h_YnEpd  = new TH1D("h_YnEpd", "Y_n Distribution (EPD);Y_n;Events",    250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_XnEpdE = new TH1D("h_XnEpdE", "X_n Distribution (EPD E);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnEpdE = new TH1D("h_YnEpdE", "Y_n Distribution (EPD E);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_XnEpdF = new TH1D("h_XnEpdF", "X_n Distribution (EPD F);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnEpdF = new TH1D("h_YnEpdF", "Y_n Distribution (EPD F);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnEpdA = new TH1D("h_XnEpdA", "X_n Distribution (EPD E);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnEpdA = new TH1D("h_YnEpdA", "Y_n Distribution (EPD E);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnEpdB = new TH1D("h_XnEpdB", "X_n Distribution (EPD F);X_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnEpdB = new TH1D("h_YnEpdB", "Y_n Distribution (EPD F);Y_n;Events", 250, -Q_BOUNDS, Q_BOUNDS);
 
   // CORRECTION HISTOGRAMS
   TProfile *p_sinAvgsTpc  = new TProfile("p_sinAvgsTpc", "Sin Averages (TPC);j (Correction term);<sin(jn#psi^{TPC}_{n})>",      configs.shift_terms, 1, configs.shift_terms + 1);
@@ -575,10 +575,10 @@ int main(int argc, char *argv[])
   TProfile *p_cosAvgsTpcB = new TProfile("p_cosAvgsTpcB", "Cos Averages (TPC B);j (Correction term);<sin(jn#psi^{TPC,B}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
   TProfile *p_sinAvgsEpd  = new TProfile("p_sinAvgsEpd", "Sin Averages (EPD);j (Correction term);<sin(jn#psi^{EPD}_{n})>",      configs.shift_terms, 1, configs.shift_terms + 1);
   TProfile *p_cosAvgsEpd  = new TProfile("p_cosAvgsEpd", "Cos Averages (EPD);j (Correction term);<sin(jn#psi^{EPD}_{n})>",      configs.shift_terms, 1, configs.shift_terms + 1);
-  TProfile *p_sinAvgsEpdE = new TProfile("p_sinAvgsEpdE", "Sin Averages (EPD E);j (Correction term);<sin(jn#psi^{EPD,E}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
-  TProfile *p_cosAvgsEpdE = new TProfile("p_cosAvgsEpdE", "Cos Averages (EPD E);j (Correction term);<sin(jn#psi^{EPD,E}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
-  TProfile *p_sinAvgsEpdF = new TProfile("p_sinAvgsEpdF", "Sin Averages (EPD F);j (Correction term);<sin(jn#psi^{EPD,F}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
-  TProfile *p_cosAvgsEpdF = new TProfile("p_cosAvgsEpdF", "Cos Averages (EPD F);j (Correction term);<sin(jn#psi^{EPD,F}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_sinAvgsEpdA = new TProfile("p_sinAvgsEpdA", "Sin Averages (EPD E);j (Correction term);<sin(jn#psi^{EPD,E}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_cosAvgsEpdA = new TProfile("p_cosAvgsEpdA", "Cos Averages (EPD E);j (Correction term);<sin(jn#psi^{EPD,E}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_sinAvgsEpdB = new TProfile("p_sinAvgsEpdB", "Sin Averages (EPD F);j (Correction term);<sin(jn#psi^{EPD,F}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
+  TProfile *p_cosAvgsEpdB = new TProfile("p_cosAvgsEpdB", "Cos Averages (EPD F);j (Correction term);<sin(jn#psi^{EPD,F}_{n})>", configs.shift_terms, 1, configs.shift_terms + 1);
 
   // RECENTERED (RC) HISTOGRAMS
   TH1D *h_XnTpc_RC  = new TH1D("h_XnTpc_RC", "Re-centered X_n Distribution (TPC);X_n;Events",    200, -Q_BOUNDS, Q_BOUNDS);
@@ -589,25 +589,25 @@ int main(int argc, char *argv[])
   TH1D *h_YnTpcB_RC = new TH1D("h_YnTpcB_RC", "Re-centered Y_n Distribution (TPC B);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
   TH1D *h_XnEpd_RC  = new TH1D("h_XnEpd_RC", "Re-centered X_n Distribution (EPD);X_n;Events",    200, -Q_BOUNDS, Q_BOUNDS);
   TH1D *h_YnEpd_RC  = new TH1D("h_YnEpd_RC", "Re-centered Y_n Distribution (EPD);Y_n;Events",    200, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_XnEpdE_RC = new TH1D("h_XnEpdE_RC", "Re-centered X_n Distribution (EPD E);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnEpdE_RC = new TH1D("h_YnEpdE_RC", "Re-centered Y_n Distribution (EPD E);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_XnEpdF_RC = new TH1D("h_XnEpdF_RC", "Re-centered X_n Distribution (EPD F);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
-  TH1D *h_YnEpdF_RC = new TH1D("h_YnEpdF_RC", "Re-centered Y_n Distribution (EPD F);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnEpdA_RC = new TH1D("h_XnEpdA_RC", "Re-centered X_n Distribution (EPD E);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnEpdA_RC = new TH1D("h_YnEpdA_RC", "Re-centered Y_n Distribution (EPD E);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_XnEpdB_RC = new TH1D("h_XnEpdB_RC", "Re-centered X_n Distribution (EPD F);X_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
+  TH1D *h_YnEpdB_RC = new TH1D("h_YnEpdB_RC", "Re-centered Y_n Distribution (EPD F);Y_n;Events", 200, -Q_BOUNDS, Q_BOUNDS);
 
   TH1D *h_psiTpc_RC  = new TH1D("h_psiTpc_RC", "Re-centered Event Plane Angles (m = "+ORDER_M_STR+", TPC);#psi_{"+ORDER_M_STR+"};Events",    400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiTpcA_RC = new TH1D("h_psiTpcA_RC", "Re-centered Event Plane Angles (m = "+ORDER_M_STR+", TPC A);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiTpcB_RC = new TH1D("h_psiTpcB_RC", "Re-centered Event Plane Angles (m = "+ORDER_M_STR+", TPC B);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiEpd_RC  = new TH1D("h_psiEpd_RC", "Re-centered Event Plane Angles (m = "+ORDER_M_STR+", EPD);#psi_{"+ORDER_M_STR+"};Events",    400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdE_RC = new TH1D("h_psiEpdE_RC", "Re-centered Event Plane Angles (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdF_RC = new TH1D("h_psiEpdF_RC", "Re-centered Event Plane Angles (m = "+ORDER_M_STR+", EPD F);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdA_RC = new TH1D("h_psiEpdA_RC", "Re-centered Event Plane Angles (m = "+ORDER_M_STR+", EPD E);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdB_RC = new TH1D("h_psiEpdB_RC", "Re-centered Event Plane Angles (m = "+ORDER_M_STR+", EPD F);#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
   // RECENTERED AND SHIFTED HISTOGRAMS
   TH1D *h_psiTpc_FLAT  = new TH1D("h_psiTpc_FLAT", "Flattened Event Plane Angle (TPC, order "+ORDER_M_STR+");#psi_{"+ORDER_M_STR+"};Events",    400, -PSI_BOUNDS, PSI_BOUNDS);      
   TH1D *h_psiTpcA_FLAT = new TH1D("h_psiTpcA_FLAT", "Flattened Event Plane Angle (TPC A, order "+ORDER_M_STR+");#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiTpcB_FLAT = new TH1D("h_psiTpcB_FLAT", "Flattened Event Plane Angle (TPC B, order "+ORDER_M_STR+");#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
   TH1D *h_psiEpd_FLAT  = new TH1D("h_psiEpd_FLAT", "Flattened Event Plane Angle (EPD, order "+ORDER_M_STR+");#psi_{"+ORDER_M_STR+"};Events",    400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdE_FLAT = new TH1D("h_psiEpdE_FLAT", "Flattened Event Plane Angle (EPD E, order "+ORDER_M_STR+");#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
-  TH1D *h_psiEpdF_FLAT = new TH1D("h_psiEpdF_FLAT", "Flattened Event Plane Angle (EPD F, order "+ORDER_M_STR+");#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdA_FLAT = new TH1D("h_psiEpdA_FLAT", "Flattened Event Plane Angle (EPD E, order "+ORDER_M_STR+");#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
+  TH1D *h_psiEpdB_FLAT = new TH1D("h_psiEpdB_FLAT", "Flattened Event Plane Angle (EPD F, order "+ORDER_M_STR+");#psi_{"+ORDER_M_STR+"};Events", 400, -PSI_BOUNDS, PSI_BOUNDS);
 
 
   FlowUtils::Event eventInfo;
@@ -688,7 +688,7 @@ int main(int argc, char *argv[])
 		}
 
 
-	      if (d_eta > configs.max_abs_tpc_eta && d_eta < configs.far_abs_tpc_eta)          // TPC A
+	      if (d_eta > configs.tpc_A_low_eta && d_eta < configs.tpc_A_high_eta)          // TPC A
 		{
 		  eventInfo.nTracksTpcA++;
 		  particleInfo.isInTpcA = true;	  
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
 		      eventInfo.YnTpcA += d_pT * TMath::Sin(ORDER_M * d_phi);
 		    }
 		} // End TPC A
-	      else if (d_eta > configs.near_abs_tpc_eta && d_eta < configs.min_abs_tpc_eta)     // TPC B
+	      else if (d_eta > configs.tpc_B_low_eta && d_eta < configs.tpc_B_high_eta)     // TPC B
 		{
 		  eventInfo.nTracksTpcB++;
 		  particleInfo.isInTpcB = true;
@@ -956,8 +956,8 @@ int main(int argc, char *argv[])
 
 	  if (tileRow >= configs.epdA_inner_row && tileRow <= configs.epdA_outer_row)
 	    {
-	      eventInfo.nHitsEpdE++;
-	      epdParticleInfo.isInEpdE = true;
+	      eventInfo.nHitsEpdA++;
+	      epdParticleInfo.isInEpdA = true;
 	      epdParticleInfo.phi    = tilePhi;
 	      epdParticleInfo.eta    = tileEta;
 	      epdParticleInfo.weight = tileWeight;
@@ -966,19 +966,19 @@ int main(int argc, char *argv[])
 		{
 		  if (tileEta > Y_MID)        // Account for Q vector sign change past mid-rapidity.
 		    {
-		      eventInfo.XnEpdE += tileWeight * TMath::Cos(ORDER_M * tilePhi);
-		      eventInfo.YnEpdE += tileWeight * TMath::Sin(ORDER_M * tilePhi);
+		      eventInfo.XnEpdA += tileWeight * TMath::Cos(ORDER_M * tilePhi);
+		      eventInfo.YnEpdA += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 		    }
 		  else if (tileEta < Y_MID)
 		    {
-		      eventInfo.XnEpdE -= tileWeight * TMath::Cos(ORDER_M * tilePhi);
-		      eventInfo.YnEpdE -= tileWeight * TMath::Sin(ORDER_M * tilePhi);
+		      eventInfo.XnEpdA -= tileWeight * TMath::Cos(ORDER_M * tilePhi);
+		      eventInfo.YnEpdA -= tileWeight * TMath::Sin(ORDER_M * tilePhi);
 		    }
 		}
 	      else
 		{
-		  eventInfo.XnEpdE += tileWeight * TMath::Cos(ORDER_M * tilePhi);
-		  eventInfo.YnEpdE += tileWeight * TMath::Sin(ORDER_M * tilePhi);
+		  eventInfo.XnEpdA += tileWeight * TMath::Cos(ORDER_M * tilePhi);
+		  eventInfo.YnEpdA += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 		}
 
 
@@ -986,8 +986,8 @@ int main(int argc, char *argv[])
 	    }
 	  else if (tileRow >= configs.epdB_inner_row && tileRow <= configs.epdB_outer_row)
 	    {
-	      eventInfo.nHitsEpdF++;
-	      epdParticleInfo.isInEpdF = true;
+	      eventInfo.nHitsEpdB++;
+	      epdParticleInfo.isInEpdB = true;
 	      epdParticleInfo.phi    = tilePhi;
 	      epdParticleInfo.eta    = tileEta;
 	      epdParticleInfo.weight = tileWeight;
@@ -996,19 +996,19 @@ int main(int argc, char *argv[])
 		{
 		  if (tileEta > Y_MID)        // Account for Q vector sign change past mid-rapidity.
 		    {
-		      eventInfo.XnEpdF += tileWeight * TMath::Cos(ORDER_M * tilePhi);
-		      eventInfo.YnEpdF += tileWeight * TMath::Sin(ORDER_M * tilePhi);
+		      eventInfo.XnEpdB += tileWeight * TMath::Cos(ORDER_M * tilePhi);
+		      eventInfo.YnEpdB += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 		    }
 		  else if (tileEta < Y_MID)
 		    {
-		      eventInfo.XnEpdF -= tileWeight * TMath::Cos(ORDER_M * tilePhi);
-		      eventInfo.YnEpdF -= tileWeight * TMath::Sin(ORDER_M * tilePhi);
+		      eventInfo.XnEpdB -= tileWeight * TMath::Cos(ORDER_M * tilePhi);
+		      eventInfo.YnEpdB -= tileWeight * TMath::Sin(ORDER_M * tilePhi);
 		    }
 		}
 	      else
 		{
-		  eventInfo.XnEpdF += tileWeight * TMath::Cos(ORDER_M * tilePhi);
-		  eventInfo.YnEpdF += tileWeight * TMath::Sin(ORDER_M * tilePhi);
+		  eventInfo.XnEpdB += tileWeight * TMath::Cos(ORDER_M * tilePhi);
+		  eventInfo.YnEpdB += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 		}
 
 	      eventInfo.epdParticles.push_back(epdParticleInfo);
@@ -1023,10 +1023,10 @@ int main(int argc, char *argv[])
       if (eventInfo.nTracksTpcA < configs.min_tracks) continue;
       if (eventInfo.nTracksTpcB < configs.min_tracks) continue;
       if (eventInfo.nHitsEpd    < configs.min_tracks) continue;
-      if (eventInfo.nHitsEpdE   < configs.min_tracks) continue;
-      //if (eventInfo.nHitsEpdF   >= configs.min_tracks) h_eventCheck_EpdF->Fill(0);//h_eventCheck_EpdF->Fill(eventSections_EpdF[0], 1);
-      //if (eventInfo.nHitsEpdF   >= configs.min_tracks+4) h_eventCheck_EpdF->Fill(1);//h_eventCheck_EpdF->Fill(eventSections_EpdF[1], 1);
-      if (eventInfo.nHitsEpdF   < configs.min_tracks+4) continue;
+      if (eventInfo.nHitsEpdA   < configs.min_tracks) continue;
+      //if (eventInfo.nHitsEpdB   >= configs.min_tracks) h_eventCheck_EpdB->Fill(0);//h_eventCheck_EpdB->Fill(eventSections_EpdB[0], 1);
+      //if (eventInfo.nHitsEpdB   >= configs.min_tracks+4) h_eventCheck_EpdB->Fill(1);//h_eventCheck_EpdB->Fill(eventSections_EpdB[1], 1);
+      if (eventInfo.nHitsEpdB   < configs.min_tracks+4) continue;
       
       FlowUtils::checkZeroQ(eventInfo);
       if (eventInfo.badEvent) continue;
@@ -1044,8 +1044,8 @@ int main(int argc, char *argv[])
       for (unsigned int i = 0; i < eventInfo.epdParticles.size(); i++)
 	{ h_eta_s->Fill(eventInfo.epdParticles.at(i).eta - Y_MID); }
 
-      h2_hits_vs_cent_EpdE->Fill(eventInfo.centID, eventInfo.nHitsEpdE);
-      h2_hits_vs_cent_EpdF->Fill(eventInfo.centID, eventInfo.nHitsEpdF);
+      h2_hits_vs_cent_EpdA->Fill(eventInfo.centID, eventInfo.nHitsEpdA);
+      h2_hits_vs_cent_EpdB->Fill(eventInfo.centID, eventInfo.nHitsEpdB);
       h2_hits_vs_cent_TpcB->Fill(eventInfo.centID, eventInfo.nTracksTpcB);
 
       h_primTracks->Fill(eventInfo.primTracks);
@@ -1059,17 +1059,17 @@ int main(int argc, char *argv[])
       h_YnTpcB->Fill(eventInfo.YnTpcB);
       h_XnEpd->Fill(eventInfo.XnEpd);
       h_YnEpd->Fill(eventInfo.YnEpd);
-      h_XnEpdE->Fill(eventInfo.XnEpdE);
-      h_YnEpdE->Fill(eventInfo.YnEpdE);
-      h_XnEpdF->Fill(eventInfo.XnEpdF);
-      h_YnEpdF->Fill(eventInfo.YnEpdF);
+      h_XnEpdA->Fill(eventInfo.XnEpdA);
+      h_YnEpdA->Fill(eventInfo.YnEpdA);
+      h_XnEpdB->Fill(eventInfo.XnEpdB);
+      h_YnEpdB->Fill(eventInfo.YnEpdB);
 
       h_psiTpc_RAW->Fill(eventInfo.psiTpc);
       h_psiTpcA_RAW->Fill(eventInfo.psiTpcA);
       h_psiTpcB_RAW->Fill(eventInfo.psiTpcB);
       h_psiEpd_RAW->Fill(eventInfo.psiEpd);
-      h_psiEpdE_RAW->Fill(eventInfo.psiEpdE);
-      h_psiEpdF_RAW->Fill(eventInfo.psiEpdF);
+      h_psiEpdA_RAW->Fill(eventInfo.psiEpdA);
+      h_psiEpdB_RAW->Fill(eventInfo.psiEpdB);
 
 
 
@@ -1087,22 +1087,22 @@ int main(int argc, char *argv[])
 	  h_XnTpcA_RC->Fill(eventInfo.XnTpcA);
 	  h_XnTpcB_RC->Fill(eventInfo.XnTpcB);
 	  h_XnEpd_RC->Fill(eventInfo.XnEpd);
-	  h_XnEpdE_RC->Fill(eventInfo.XnEpdE);
-	  h_XnEpdF_RC->Fill(eventInfo.XnEpdF);
+	  h_XnEpdA_RC->Fill(eventInfo.XnEpdA);
+	  h_XnEpdB_RC->Fill(eventInfo.XnEpdB);
 
 	  h_YnTpc_RC->Fill(eventInfo.YnTpc);
 	  h_YnTpcA_RC->Fill(eventInfo.YnTpcA);
 	  h_YnTpcB_RC->Fill(eventInfo.YnTpcB);
 	  h_YnEpd_RC->Fill(eventInfo.YnEpd);
-	  h_YnEpdE_RC->Fill(eventInfo.YnEpdE);
-	  h_YnEpdF_RC->Fill(eventInfo.YnEpdF);
+	  h_YnEpdA_RC->Fill(eventInfo.YnEpdA);
+	  h_YnEpdB_RC->Fill(eventInfo.YnEpdB);
 
 	  h_psiTpc_RC->Fill(eventInfo.psiTpc);
 	  h_psiTpcA_RC->Fill(eventInfo.psiTpcA);
 	  h_psiTpcB_RC->Fill(eventInfo.psiTpcB);
 	  h_psiEpd_RC->Fill(eventInfo.psiEpd);
-	  h_psiEpdE_RC->Fill(eventInfo.psiEpdE);
-	  h_psiEpdF_RC->Fill(eventInfo.psiEpdF);
+	  h_psiEpdA_RC->Fill(eventInfo.psiEpdA);
+	  h_psiEpdB_RC->Fill(eventInfo.psiEpdB);
 
 	  // Accumulate terms for averages over the re-centered angles for event plane angle shifting
 	  for (int j = 1; j <= configs.shift_terms; j++)
@@ -1115,10 +1115,10 @@ int main(int argc, char *argv[])
 	      p_cosAvgsTpcB->Fill(j, TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiTpcB));
 	      p_sinAvgsEpd->Fill(j,  TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpd));
 	      p_cosAvgsEpd->Fill(j,  TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpd));
-	      p_sinAvgsEpdE->Fill(j, TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpdE));
-	      p_cosAvgsEpdE->Fill(j, TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpdE));
-	      p_sinAvgsEpdF->Fill(j, TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpdF));
-	      p_cosAvgsEpdF->Fill(j, TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpdF));
+	      p_sinAvgsEpdA->Fill(j, TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpdA));
+	      p_cosAvgsEpdA->Fill(j, TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpdA));
+	      p_sinAvgsEpdB->Fill(j, TMath::Sin((Double_t)j * ORDER_M * eventInfo.psiEpdB));
+	      p_cosAvgsEpdB->Fill(j, TMath::Cos((Double_t)j * ORDER_M * eventInfo.psiEpdB));
 	    }
 	}
       //=========================================================
@@ -1139,35 +1139,35 @@ int main(int argc, char *argv[])
 	  h_psiTpcA_FLAT->Fill(eventInfo.psiTpcA);
 	  h_psiTpcB_FLAT->Fill(eventInfo.psiTpcB);
 	  h_psiEpd_FLAT->Fill(eventInfo.psiEpd);
-	  h_psiEpdE_FLAT->Fill(eventInfo.psiEpdE);
-	  h_psiEpdF_FLAT->Fill(eventInfo.psiEpdF);
+	  h_psiEpdA_FLAT->Fill(eventInfo.psiEpdA);
+	  h_psiEpdB_FLAT->Fill(eventInfo.psiEpdB);
 	  //=========================================================
 	  //          End Event Plane Angle Shifting
 	  //=========================================================
 
 
 	  // 2D Correlations between event planes
-	  h2_psiEpdETpcA->Fill(eventInfo.psiTpcA,eventInfo.psiEpdE);
-	  h2_psiEpdFTpcA->Fill(eventInfo.psiTpcA,eventInfo.psiEpdF);
+	  h2_psiEpdATpcA->Fill(eventInfo.psiTpcA,eventInfo.psiEpdA);
+	  h2_psiEpdBTpcA->Fill(eventInfo.psiTpcA,eventInfo.psiEpdB);
 
-	  h2_psiEpdETpcB->Fill(eventInfo.psiTpcB,eventInfo.psiEpdE);
-	  h2_psiEpdFTpcB->Fill(eventInfo.psiTpcB,eventInfo.psiEpdF);
+	  h2_psiEpdATpcB->Fill(eventInfo.psiTpcB,eventInfo.psiEpdA);
+	  h2_psiEpdBTpcB->Fill(eventInfo.psiTpcB,eventInfo.psiEpdB);
 
 	  h2_psiTpcATpcB->Fill(eventInfo.psiTpcB,eventInfo.psiTpcA);
 
-	  h2_psiEpdEEpdF->Fill(eventInfo.psiEpdF,eventInfo.psiEpdE);
+	  h2_psiEpdAEpdB->Fill(eventInfo.psiEpdB,eventInfo.psiEpdA);
 	  //
 
 
 	  // 1D correlation averages used in calculating resolution using the 3 sub-event method
 	  p_TpcAB->Fill(eventInfo.centID,    TMath::Cos(ORDER_N * (eventInfo.psiTpcA - eventInfo.psiTpcB)));
 
-	  p_TpcAEpdE->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiTpcA - eventInfo.psiEpdE)));
-	  p_TpcAEpdF->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiTpcA - eventInfo.psiEpdF)));
-	  p_TpcBEpdE->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiTpcB - eventInfo.psiEpdE)));
-	  p_TpcBEpdF->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiTpcB - eventInfo.psiEpdF)));
+	  p_TpcAEpdA->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiTpcA - eventInfo.psiEpdA)));
+	  p_TpcAEpdB->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiTpcA - eventInfo.psiEpdB)));
+	  p_TpcBEpdA->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiTpcB - eventInfo.psiEpdA)));
+	  p_TpcBEpdB->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiTpcB - eventInfo.psiEpdB)));
 
-	  p_EpdEEpdF->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiEpdE - eventInfo.psiEpdF)));
+	  p_EpdAEpdB->Fill(eventInfo.centID, TMath::Cos(ORDER_N * (eventInfo.psiEpdA - eventInfo.psiEpdB)));
 	  //
 
 
@@ -1184,8 +1184,8 @@ int main(int argc, char *argv[])
 	  Double_t etaEpd;
 	  Double_t psiTpc  = eventInfo.psiTpc;
 	  Double_t psiEpd  = eventInfo.psiEpd;
-	  Double_t psiEpdE = eventInfo.psiEpdE;
-	  Double_t psiEpdF = eventInfo.psiEpdF;
+	  Double_t psiEpdA = eventInfo.psiEpdA;
+	  Double_t psiEpdB = eventInfo.psiEpdB;
 	  Double_t psiTpcA = eventInfo.psiTpcA;
 	  Double_t psiTpcB = eventInfo.psiTpcB;
 	  Int_t centralityID = eventInfo.centID;
@@ -1206,8 +1206,8 @@ int main(int argc, char *argv[])
 	      etaTpc = eventInfo.tpcParticles.at(j).eta;
 
 	      h2_v2ScanTpc->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpd)));
-	      h2_v2ScanTpcEpdE->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpdE)));
-	      h2_v2ScanTpcEpdF->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpdF)));
+	      h2_v2ScanTpcEpdA->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpdA)));
+	      h2_v2ScanTpcEpdB->Fill(etaTpc, centralityID, TMath::Cos(ORDER_M * (phiTpc - psiEpdB)));
 	      //h2_phiSearchTpc->Fill(phiTpc, centralityID);
 	    }
 	  //=========================================================
@@ -1224,7 +1224,7 @@ int main(int argc, char *argv[])
 	      Double_t jthPhi;
 	      Double_t jthpT;
 	      Double_t jthRapidity;
-	      Double_t psi = eventInfo.psiEpdE;
+	      Double_t psi = eventInfo.psiEpdA;
 	      Int_t centID = eventInfo.centID;
 
 	      if (centID < 4) continue;  // ONLY LOOKING AT CENTRALITY 60% AND LOWER
@@ -1235,25 +1235,25 @@ int main(int argc, char *argv[])
 	      // v2 from EPD E
 	      for (UInt_t j = 0; j < eventInfo.epdParticles.size(); j++)  // Loop through the j number of EPD E hits
 		{
-		  if (eventInfo.epdParticles.at(j).isInEpdE)
+		  if (eventInfo.epdParticles.at(j).isInEpdA)
 		    {
 		      jthWeight = eventInfo.epdParticles.at(j).weight;
 		      jthPhi    = eventInfo.epdParticles.at(j).phi;
 
-		      Double_t newXn = eventInfo.XnEpdE - jthWeight * TMath::Cos(ORDER_M * jthPhi);   // For event i, remove the jth particle from event plane
-		      Double_t newYn = eventInfo.YnEpdE - jthWeight * TMath::Sin(ORDER_M * jthPhi);
+		      Double_t newXn = eventInfo.XnEpdA - jthWeight * TMath::Cos(ORDER_M * jthPhi);   // For event i, remove the jth particle from event plane
+		      Double_t newYn = eventInfo.YnEpdA - jthWeight * TMath::Sin(ORDER_M * jthPhi);
 		      Double_t newPsi = TMath::ATan2(newYn, newXn) / ORDER_M;
-		      //eventInfo.eventPlanesEpdE.push_back(newPsi);
-		      h_psiEpdE_NoAuto->Fill(newPsi);
+		      //eventInfo.eventPlanesEpdA.push_back(newPsi);
+		      h_psiEpdA_NoAuto->Fill(newPsi);
 
 		      // Add contribution to v_n from the jth particle using the event plane that omits the jth particle:
-		      p_vn_EpdE->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - newPsi)) / resolution);
+		      p_vn_EpdA->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - newPsi)) / resolution);
 		    }
-		  else if (eventInfo.epdParticles.at(j).isInEpdF)
+		  else if (eventInfo.epdParticles.at(j).isInEpdB)
 		    {
 		      jthPhi = eventInfo.epdParticles.at(j).phi;
 
-		      p_vn_EpdF->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
+		      p_vn_EpdB->Fill(centID, TMath::Cos(ORDER_N * (jthPhi - psi)) / resolution);
 		    }
 		}
 
@@ -1426,8 +1426,8 @@ int main(int argc, char *argv[])
     {
       labelIndex = FIRST_CENT + i - 1;
       h2_v2ScanTpc->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
-      h2_v2ScanTpcEpdE->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
-      h2_v2ScanTpcEpdF->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
+      h2_v2ScanTpcEpdA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
+      h2_v2ScanTpcEpdB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]); 
       h2_v2ScanEpd->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcA->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
       h2_v2ScanEpdTpcB->GetYaxis()->SetBinLabel(i, centralityBins[labelIndex]);
@@ -1558,10 +1558,10 @@ int main(int argc, char *argv[])
       p_cosAvgsTpcB  ->Write();
       p_sinAvgsEpd   ->Write();
       p_cosAvgsEpd   ->Write();
-      p_sinAvgsEpdE  ->Write();
-      p_cosAvgsEpdE  ->Write();
-      p_sinAvgsEpdF  ->Write();
-      p_cosAvgsEpdF  ->Write();
+      p_sinAvgsEpdA  ->Write();
+      p_cosAvgsEpdA  ->Write();
+      p_sinAvgsEpdB  ->Write();
+      p_cosAvgsEpdB  ->Write();
       h_XnTpc        ->Write();
       h_YnTpc        ->Write();
       h_XnTpcA       ->Write();
@@ -1570,10 +1570,10 @@ int main(int argc, char *argv[])
       h_YnTpcB       ->Write();
       h_XnEpd        ->Write();
       h_YnEpd        ->Write();
-      h_XnEpdE       ->Write();
-      h_YnEpdE       ->Write();
-      h_XnEpdF       ->Write();
-      h_YnEpdF       ->Write();
+      h_XnEpdA       ->Write();
+      h_YnEpdA       ->Write();
+      h_XnEpdB       ->Write();
+      h_YnEpdB       ->Write();
 
       gROOT->GetListOfFiles()->Remove(correctionOutputFile);
       correctionOutputFile->Close();

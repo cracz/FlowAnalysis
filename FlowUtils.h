@@ -34,8 +34,8 @@ namespace FlowUtils
 
     Bool_t isInTpcA;
     Bool_t isInTpcB;
-    Bool_t isInEpdE;
-    Bool_t isInEpdF;
+    Bool_t isInEpdA;
+    Bool_t isInEpdB;
 
     void reset()
     {
@@ -54,8 +54,8 @@ namespace FlowUtils
 
       isInTpcA = false;
       isInTpcB = false;
-      isInEpdE = false;
-      isInEpdF = false;
+      isInEpdA = false;
+      isInEpdB = false;
     }
   };
 
@@ -80,19 +80,19 @@ namespace FlowUtils
     Double_t XnEpd;
     Double_t YnEpd;
     Double_t psiEpd;
-    Double_t XnEpdE;
-    Double_t YnEpdE;
-    Double_t psiEpdE;
-    Double_t XnEpdF;
-    Double_t YnEpdF;
-    Double_t psiEpdF;
+    Double_t XnEpdA;
+    Double_t YnEpdA;
+    Double_t psiEpdA;
+    Double_t XnEpdB;
+    Double_t YnEpdB;
+    Double_t psiEpdB;
 
     Int_t nTracksTpc;
     Int_t nTracksTpcA;      // Number of GOOD tracks in the sub-event
     Int_t nTracksTpcB;
     Int_t nHitsEpd;
-    Int_t nHitsEpdE;
-    Int_t nHitsEpdF;
+    Int_t nHitsEpdA;
+    Int_t nHitsEpdB;
 
     bool badEvent;      // Flag for marking events to ignore
     Int_t centID;
@@ -115,19 +115,19 @@ namespace FlowUtils
       XnEpd = 0;
       YnEpd = 0;
       psiEpd = D_BAD_VALUE;
-      XnEpdE = 0;
-      YnEpdE = 0;
-      psiEpdE = D_BAD_VALUE;
-      XnEpdF = 0;
-      YnEpdF = 0;
-      psiEpdF = D_BAD_VALUE;
+      XnEpdA = 0;
+      YnEpdA = 0;
+      psiEpdA = D_BAD_VALUE;
+      XnEpdB = 0;
+      YnEpdB = 0;
+      psiEpdB = D_BAD_VALUE;
 
       nTracksTpc = 0;
       nTracksTpcA = 0;
       nTracksTpcB = 0;
       nHitsEpd = 0;
-      nHitsEpdE = 0;
-      nHitsEpdF = 0;
+      nHitsEpdA = 0;
+      nHitsEpdB = 0;
 
       badEvent  = false;
       primTracks = 0;
@@ -147,8 +147,8 @@ namespace FlowUtils
     eventInfo.psiTpcA = TMath::ATan2(eventInfo.YnTpcA, eventInfo.XnTpcA) / order_m;
     eventInfo.psiTpcB = TMath::ATan2(eventInfo.YnTpcB, eventInfo.XnTpcB) / order_m;
     eventInfo.psiEpd  = TMath::ATan2(eventInfo.YnEpd,  eventInfo.XnEpd)  / order_m;
-    eventInfo.psiEpdE = TMath::ATan2(eventInfo.YnEpdE, eventInfo.XnEpdE) / order_m;
-    eventInfo.psiEpdF = TMath::ATan2(eventInfo.YnEpdF, eventInfo.XnEpdF) / order_m;
+    eventInfo.psiEpdA = TMath::ATan2(eventInfo.YnEpdA, eventInfo.XnEpdA) / order_m;
+    eventInfo.psiEpdB = TMath::ATan2(eventInfo.YnEpdB, eventInfo.XnEpdB) / order_m;
   }
 
   ////////
@@ -170,8 +170,8 @@ namespace FlowUtils
     eventInfo.psiTpcA = angleShift(eventInfo.psiTpcA, order_m);
     eventInfo.psiTpcB = angleShift(eventInfo.psiTpcB, order_m);
     eventInfo.psiEpd  = angleShift(eventInfo.psiEpd,  order_m);
-    eventInfo.psiEpdE = angleShift(eventInfo.psiEpdE, order_m);
-    eventInfo.psiEpdF = angleShift(eventInfo.psiEpdF, order_m);
+    eventInfo.psiEpdA = angleShift(eventInfo.psiEpdA, order_m);
+    eventInfo.psiEpdB = angleShift(eventInfo.psiEpdB, order_m);
   }
 
   ////////
@@ -183,8 +183,8 @@ namespace FlowUtils
     //else if (event.XnTpcA == 0 && event.YnTpcA == 0) { event.badEvent = true; }
     if (event.XnTpcB == 0 && event.YnTpcB == 0) { event.badEvent = true; }
     else if (event.XnEpd  == 0 && event.YnEpd  == 0) { event.badEvent = true; }
-    else if (event.XnEpdE == 0 && event.YnEpdE == 0) { event.badEvent = true; }
-    else if (event.XnEpdF == 0 && event.YnEpdF == 0) { event.badEvent = true; }
+    else if (event.XnEpdA == 0 && event.YnEpdA == 0) { event.badEvent = true; }
+    else if (event.XnEpdB == 0 && event.YnEpdB == 0) { event.badEvent = true; }
   }
 
 
@@ -290,44 +290,44 @@ namespace FlowUtils
     TH1D *h_XnTpcA_INPUT = (TH1D*)correctionInputFile->Get("h_XnTpcA");
     TH1D *h_XnTpcB_INPUT = (TH1D*)correctionInputFile->Get("h_XnTpcB");
     TH1D *h_XnEpd_INPUT  = (TH1D*)correctionInputFile->Get("h_XnEpd");
-    TH1D *h_XnEpdE_INPUT = (TH1D*)correctionInputFile->Get("h_XnEpdE");
-    TH1D *h_XnEpdF_INPUT = (TH1D*)correctionInputFile->Get("h_XnEpdF");
+    TH1D *h_XnEpdA_INPUT = (TH1D*)correctionInputFile->Get("h_XnEpdA");
+    TH1D *h_XnEpdB_INPUT = (TH1D*)correctionInputFile->Get("h_XnEpdB");
 
     TH1D *h_YnTpc_INPUT  = (TH1D*)correctionInputFile->Get("h_YnTpc");
     TH1D *h_YnTpcA_INPUT = (TH1D*)correctionInputFile->Get("h_YnTpcA");
     TH1D *h_YnTpcB_INPUT = (TH1D*)correctionInputFile->Get("h_YnTpcB");
     TH1D *h_YnEpd_INPUT  = (TH1D*)correctionInputFile->Get("h_YnEpd");
-    TH1D *h_YnEpdE_INPUT = (TH1D*)correctionInputFile->Get("h_YnEpdE");
-    TH1D *h_YnEpdF_INPUT = (TH1D*)correctionInputFile->Get("h_YnEpdF");
+    TH1D *h_YnEpdA_INPUT = (TH1D*)correctionInputFile->Get("h_YnEpdA");
+    TH1D *h_YnEpdB_INPUT = (TH1D*)correctionInputFile->Get("h_YnEpdB");
 
     Double_t d_XnTpc_Avg  = h_XnTpc_INPUT->GetMean();
     Double_t d_XnTpcA_Avg = h_XnTpcA_INPUT->GetMean();
     Double_t d_XnTpcB_Avg = h_XnTpcB_INPUT->GetMean();
     Double_t d_XnEpd_Avg  = h_XnEpd_INPUT->GetMean();
-    Double_t d_XnEpdE_Avg = h_XnEpdE_INPUT->GetMean();
-    Double_t d_XnEpdF_Avg = h_XnEpdF_INPUT->GetMean();
+    Double_t d_XnEpdA_Avg = h_XnEpdA_INPUT->GetMean();
+    Double_t d_XnEpdB_Avg = h_XnEpdB_INPUT->GetMean();
 
     Double_t d_YnTpc_Avg  = h_YnTpc_INPUT->GetMean();
     Double_t d_YnTpcA_Avg = h_YnTpcA_INPUT->GetMean();
     Double_t d_YnTpcB_Avg = h_YnTpcB_INPUT->GetMean();
     Double_t d_YnEpd_Avg  = h_YnEpd_INPUT->GetMean();
-    Double_t d_YnEpdE_Avg = h_YnEpdE_INPUT->GetMean();
-    Double_t d_YnEpdF_Avg = h_YnEpdF_INPUT->GetMean();
+    Double_t d_YnEpdA_Avg = h_YnEpdA_INPUT->GetMean();
+    Double_t d_YnEpdB_Avg = h_YnEpdB_INPUT->GetMean();
 
 
     eventInfo.XnTpc  -= d_XnTpc_Avg;
     eventInfo.XnTpcA -= d_XnTpcA_Avg;
     eventInfo.XnTpcB -= d_XnTpcB_Avg;
     eventInfo.XnEpd  -= d_XnEpd_Avg;
-    eventInfo.XnEpdE -= d_XnEpdE_Avg;
-    eventInfo.XnEpdF -= d_XnEpdF_Avg;
+    eventInfo.XnEpdA -= d_XnEpdA_Avg;
+    eventInfo.XnEpdB -= d_XnEpdB_Avg;
 
     eventInfo.YnTpc  -= d_YnTpc_Avg;
     eventInfo.YnTpcA -= d_YnTpcA_Avg;
     eventInfo.YnTpcB -= d_YnTpcB_Avg;
     eventInfo.YnEpd  -= d_YnEpd_Avg;
-    eventInfo.YnEpdE -= d_YnEpdE_Avg;
-    eventInfo.YnEpdF -= d_YnEpdF_Avg;
+    eventInfo.YnEpdA -= d_YnEpdA_Avg;
+    eventInfo.YnEpdB -= d_YnEpdB_Avg;
 
     checkZeroQ(eventInfo);
 
@@ -350,10 +350,10 @@ namespace FlowUtils
     TProfile *p_cosAvgsTpcB_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsTpcB");
     TProfile *p_sinAvgsEpd_INPUT  = (TProfile*)correctionInputFile->Get("p_sinAvgsEpd");
     TProfile *p_cosAvgsEpd_INPUT  = (TProfile*)correctionInputFile->Get("p_cosAvgsEpd");
-    TProfile *p_sinAvgsEpdE_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsEpdE");
-    TProfile *p_cosAvgsEpdE_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsEpdE");
-    TProfile *p_sinAvgsEpdF_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsEpdF");
-    TProfile *p_cosAvgsEpdF_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsEpdF");
+    TProfile *p_sinAvgsEpdA_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsEpdA");
+    TProfile *p_cosAvgsEpdA_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsEpdA");
+    TProfile *p_sinAvgsEpdB_INPUT = (TProfile*)correctionInputFile->Get("p_sinAvgsEpdB");
+    TProfile *p_cosAvgsEpdB_INPUT = (TProfile*)correctionInputFile->Get("p_cosAvgsEpdB");
 
 
     // Get corrected event plane angles //
@@ -362,8 +362,8 @@ namespace FlowUtils
     Double_t psiTpcA_delta = 0;
     Double_t psiTpcB_delta = 0;
     Double_t psiEpd_delta  = 0;
-    Double_t psiEpdE_delta = 0;
-    Double_t psiEpdF_delta = 0;
+    Double_t psiEpdA_delta = 0;
+    Double_t psiEpdB_delta = 0;
 
     Double_t jthSinAvg_Tpc  = 0;
     Double_t jthCosAvg_Tpc  = 0;
@@ -373,10 +373,10 @@ namespace FlowUtils
     Double_t jthCosAvg_TpcB = 0;
     Double_t jthSinAvg_Epd  = 0;
     Double_t jthCosAvg_Epd  = 0;
-    Double_t jthSinAvg_EpdE = 0;
-    Double_t jthCosAvg_EpdE = 0;
-    Double_t jthSinAvg_EpdF = 0;
-    Double_t jthCosAvg_EpdF = 0;
+    Double_t jthSinAvg_EpdA = 0;
+    Double_t jthCosAvg_EpdA = 0;
+    Double_t jthSinAvg_EpdB = 0;
+    Double_t jthCosAvg_EpdB = 0;
 
 
     for (Int_t j = 1; j <= shiftTerms; j++)    // Build the correction sums
@@ -389,10 +389,10 @@ namespace FlowUtils
 	jthCosAvg_TpcB = p_cosAvgsTpcB_INPUT->GetBinContent(j);
 	jthSinAvg_Epd  = p_sinAvgsEpd_INPUT->GetBinContent(j);
 	jthCosAvg_Epd  = p_cosAvgsEpd_INPUT->GetBinContent(j);
-	jthSinAvg_EpdE = p_sinAvgsEpdE_INPUT->GetBinContent(j);
-	jthCosAvg_EpdE = p_cosAvgsEpdE_INPUT->GetBinContent(j);
-	jthSinAvg_EpdF = p_sinAvgsEpdF_INPUT->GetBinContent(j);
-	jthCosAvg_EpdF = p_cosAvgsEpdF_INPUT->GetBinContent(j);
+	jthSinAvg_EpdA = p_sinAvgsEpdA_INPUT->GetBinContent(j);
+	jthCosAvg_EpdA = p_cosAvgsEpdA_INPUT->GetBinContent(j);
+	jthSinAvg_EpdB = p_sinAvgsEpdB_INPUT->GetBinContent(j);
+	jthCosAvg_EpdB = p_cosAvgsEpdB_INPUT->GetBinContent(j);
 
 	psiTpc_delta  += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_Tpc * TMath::Cos((Double_t)j * order_m * eventInfo.psiTpc) 
 							+jthCosAvg_Tpc * TMath::Sin((Double_t)j * order_m * eventInfo.psiTpc));
@@ -402,10 +402,10 @@ namespace FlowUtils
 							+jthCosAvg_TpcB * TMath::Sin((Double_t)j * order_m * eventInfo.psiTpcB));
 	psiEpd_delta  += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_Epd * TMath::Cos((Double_t)j * order_m * eventInfo.psiEpd)
 							+jthCosAvg_Epd * TMath::Sin((Double_t)j * order_m * eventInfo.psiEpd));
-	psiEpdE_delta += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_EpdE * TMath::Cos((Double_t)j * order_m * eventInfo.psiEpdE)
-							+jthCosAvg_EpdE * TMath::Sin((Double_t)j * order_m * eventInfo.psiEpdE));
-	psiEpdF_delta += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_EpdF * TMath::Cos((Double_t)j * order_m * eventInfo.psiEpdF)
-							+jthCosAvg_EpdF * TMath::Sin((Double_t)j * order_m * eventInfo.psiEpdF));
+	psiEpdA_delta += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_EpdA * TMath::Cos((Double_t)j * order_m * eventInfo.psiEpdA)
+							+jthCosAvg_EpdA * TMath::Sin((Double_t)j * order_m * eventInfo.psiEpdA));
+	psiEpdB_delta += (2.0/((Double_t)j*order_m)) * (-jthSinAvg_EpdB * TMath::Cos((Double_t)j * order_m * eventInfo.psiEpdB)
+							+jthCosAvg_EpdB * TMath::Sin((Double_t)j * order_m * eventInfo.psiEpdB));
       }
 
     // Shift event plane angles
@@ -413,8 +413,8 @@ namespace FlowUtils
     eventInfo.psiTpcA += psiTpcA_delta;
     eventInfo.psiTpcB += psiTpcB_delta;
     eventInfo.psiEpd  += psiEpd_delta;
-    eventInfo.psiEpdE += psiEpdE_delta;
-    eventInfo.psiEpdF += psiEpdF_delta;
+    eventInfo.psiEpdA += psiEpdA_delta;
+    eventInfo.psiEpdB += psiEpdB_delta;
 
     // Keep angles in the correct period
     setAllPeriods(eventInfo, order_m);

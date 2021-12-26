@@ -180,7 +180,7 @@ public:
   Int_t    Init();
   Int_t    Make();
   Int_t    Finish();
-  Bool_t   IsGoodRun(Int_t runnumber);
+  Bool_t   IsGoodRun(Int_t runNumber, Double_t sqrt_s_NN);
   Double_t getRapidity(Double_t px, Double_t py, Double_t pz, Double_t mass);
   ClassDef(TreeMaker,1) // Class title
 };

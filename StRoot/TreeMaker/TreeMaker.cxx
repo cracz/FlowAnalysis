@@ -33,11 +33,11 @@ ClassImp(TreeMaker)
 TreeMaker::TreeMaker(StPicoDstMaker* Maker, std::string configFileName, TString JobId, Int_t EventsNumber, Double_t inputParameter) : StMaker()
 {
   // Initialize parameters
-  Y_MID   = -1.135;
   mPicoDstMaker = Maker;
   configs.read(configFileName);
   JobIdName = JobId;
   cutTest = inputParameter;
+  Y_MID   = configs.y_mid;
   JobIdName.Append(".root"); // Name output file by assigned Job ID
 }
 
@@ -85,7 +85,8 @@ Int_t TreeMaker::Init()
   h_centralities->GetXaxis()->SetTitle("Centrality bin");
   h_centralities->GetYaxis()->SetTitle("# of events");
     
-  h_zvtx =new TH1D("h_zvtx","Primary Vertex Position in z;Distance (cm);Events", 100, 190, 210);
+  //h_zvtx = new TH1D("h_zvtx","Primary Vertex Position in z;Distance (cm);Events", 100, 190, 210);
+  h_zvtx = new TH1D("h_zvtx","Primary Vertex Position in z;Distance (cm);Events", 840, -210, 210);
 
   h2_trans_vtx = new TH2D("h2_trans_vtx","Primary Vertex after V_{z} Cut;x (cm);y (cm)", 500, -5, 5, 500, -5, 5);
   h2_trans_vtx_cut = new TH2D("h2_trans_vtx_cut","Final Primary Vertices;x (cm);y (cm)", 500, -5, 5, 500, -5, 5);
@@ -114,7 +115,7 @@ Int_t TreeMaker::Init()
   h_DCA         = new TH1D("h_DCA","DCA (cm);DCA (cm);Tracks",100,0.0,10.0);
     
   h_pT = new TH1D("h_pT","p_{T};p_{T};Tracks",1000,0.0,10.0);
-  h_eta = new TH1D("h_eta","#eta;#eta;Tracks",500,-6.0,4.0);
+  h_eta = new TH1D("h_eta","#eta;#eta;Tracks",600,-6.0,6.0);
   h_phi = new TH1D("h_phi","#phi (Radian);#phi;Tracks",1000,-1.5*PI,1.5*PI);
   h2_dEdx_vs_qp = new TH2D("h2_dEdx_vs_qp", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, -2, 2, 500, 0, 10);
   h2_dEdx_vs_qp_half = new TH2D("h2_dEdx_vs_qp_half", "dE/dx vs q|p|;q|p| (GeV);dE/dx (keV/cm)", 400, 0, 4, 500, 0, 12);
@@ -138,13 +139,13 @@ Int_t TreeMaker::Init()
   h_eta_de = new TH1D("h_eta_de","Deuteron #eta;#eta;Tracks",500,-5.0,5.0);
   h_eta_tr = new TH1D("h_eta_tr","Triton #eta;#eta;Tracks",500,-5.0,5.0);
 
-  h_dndy_pp = new TH1D("h_dndy_pp", "#pi^{+} Raw Rapidity Spectrum;y;dN/dy", 40, -2, 0);
-  h_dndy_pm = new TH1D("h_dndy_pm", "#pi^{-} Raw Rapidity Spectrum;y;dN/dy", 40, -2, 0);
-  h_dndy_kp = new TH1D("h_dndy_kp", "K^{+} Raw Rapidity Spectrum;y;dN/dy",   40, -2, 0);
-  h_dndy_km = new TH1D("h_dndy_km", "K^{-} Raw Rapidity Spectrum;y;dN/dy",   40, -2, 0);
-  h_dndy_pr = new TH1D("h_dndy_pr", "Proton Raw Rapidity Spectrum;y;dN/dy",  40, -2, 0);
-  h_dndy_de = new TH1D("h_dndy_de", "Deuteron Raw Rapidity Spectrum;y;dN/dy",  40, -2, 0);
-  h_dndy_tr = new TH1D("h_dndy_tr", "Triton Raw Rapidity Spectrum;y;dN/dy",  40, -2, 0);
+  h_dndy_pp = new TH1D("h_dndy_pp", "#pi^{+} Raw Rapidity Spectrum;y;dN/dy", 80, -2, 2);
+  h_dndy_pm = new TH1D("h_dndy_pm", "#pi^{-} Raw Rapidity Spectrum;y;dN/dy", 80, -2, 2);
+  h_dndy_kp = new TH1D("h_dndy_kp", "K^{+} Raw Rapidity Spectrum;y;dN/dy",   80, -2, 2);
+  h_dndy_km = new TH1D("h_dndy_km", "K^{-} Raw Rapidity Spectrum;y;dN/dy",   80, -2, 2);
+  h_dndy_pr = new TH1D("h_dndy_pr", "Proton Raw Rapidity Spectrum;y;dN/dy",  80, -2, 2);
+  h_dndy_de = new TH1D("h_dndy_de", "Deuteron Raw Rapidity Spectrum;y;dN/dy",  80, -2, 2);
+  h_dndy_tr = new TH1D("h_dndy_tr", "Triton Raw Rapidity Spectrum;y;dN/dy",  80, -2, 2);
   
   h_phi_pp = new TH1D("h_phi_pp","#pi^{+} #phi (Radian);#phi;Tracks",1000,-1.5*PI,1.5*PI);
   h_phi_pm = new TH1D("h_phi_pm","#pi^{-} #phi (Radian);#phi;Tracks",1000,-1.5*PI,1.5*PI);
@@ -185,7 +186,7 @@ Int_t TreeMaker::Init()
   h2_m2_vs_qp_pr = new TH2D("h2_m2_vs_qp_pr", "Proton m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)",  400, -4, 4, 400, -0.1, 1.5);
   h2_m2_vs_qp_de = new TH2D("h2_m2_vs_qp_de", "Deuteron m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)",  400, -4, 4, 400, -0.1, 1.5);
   h2_m2_vs_qp_tr = new TH2D("h2_m2_vs_qp_tr", "Triton m^2 vs q*|p|;q*|p| (GeV);m^2 (GeV^2)",  400, -4, 4, 400, -0.1, 1.5);
-  
+
   h2_pT_vs_yCM_pp = new TH2D("h2_pT_vs_yCM_pp", "#pi^{+};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 3.0);
   h2_pT_vs_yCM_pm = new TH2D("h2_pT_vs_yCM_pm", "#pi^{-};y-y_{mid};p_{T} (GeV/c)", 300, -1.2, 1.2, 300, 0, 3.0);
   h2_pT_vs_yCM_kp = new TH2D("h2_pT_vs_yCM_kp", "K^{+};y-y_{mid};p_{T} (GeV/c)",   300, -1.2, 1.2, 300, 0, 3.0);
@@ -237,19 +238,21 @@ Int_t TreeMaker::Make()
     
   if(event) // Ensure event pointer is not NULL
     { 
-      if( IsGoodRun(event->runId()) )  // Select only good runs
+      if( IsGoodRun(event->runId(), configs.sqrt_s_NN) )  // Select only good runs
 	{ 
 	  h_eventCheck->Fill(1); // Count # of good run events
 
-	  /*
 	  Bool_t b_good_trig = false;
 	  std::vector<UInt_t> triggerIDs = event->triggerIds();
-	  for(UInt_t i = 0; i < triggerIDs.size(); i++)
+	  /*
+	    for(UInt_t i = 0; i < triggerIDs.size(); i++)
 	    { if(triggerIDs.at(i) == 620052) b_good_trig = true; }
 	  */
-	  Bool_t b_good_trig = true;
-
-
+	  
+	  for (UInt_t i = 0; i < triggerIDs.size(); i++) 
+	    { if ( configs.triggersMatch(triggerIDs[i]) ) {b_good_trig = true;} }
+	  
+	  
 	  if(b_good_trig) // Minbias cut
 	    { 
 	      h_eventCheck->Fill(2); // Count # of events after minbias trigger id cut
@@ -648,18 +651,21 @@ Int_t TreeMaker::Make()
   return kStOK;
 }
 
-Bool_t TreeMaker::IsGoodRun(Int_t runnumber)
+Bool_t TreeMaker::IsGoodRun(Int_t runNumber, Double_t sqrt_s_NN)
 {
   // From Ben Kimelman Nov 6, 2020
   Int_t badRunList_3p0GeV[24] = {19151029, 19151045, 19152001, 19152078, 19153023, 19153032, 19153065, 19154012, 19154013, 19154014, 19154015, 19154016, 
     19154017, 19154018, 19154019, 19154020, 19154021, 19154022, 19154023, 19154024, 19154026, 19154046, 19154051, 19154056};
 
   Bool_t b_good_run = true;
-  /*
-    if (configs.sqrt_s_NN == 3.0)
-    { for (Int_t i = 0; i < 24; i++) { if (event->runId() == badRunList_3p0GeV[i]) {b_bad_run = true; break;} } }
-  */
-  for (Int_t i = 0; i < 24; i++) { if (runnumber == badRunList_3p0GeV[i]) {b_good_run = false; break;} } 
+  
+  if (sqrt_s_NN == 3.0)
+    { 
+      for (Int_t i = 0; i < 24; i++) 
+	{ if (runNumber == badRunList_3p0GeV[i]) {b_good_run = false; break;} } 
+    }
+
+  //for (Int_t i = 0; i < 24; i++) { if (runNumber == badRunList_3p0GeV[i]) {b_good_run = false; break;} } 
   
   return b_good_run;
 }
