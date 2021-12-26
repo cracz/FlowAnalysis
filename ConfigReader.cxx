@@ -323,18 +323,20 @@ void ConfigReader::read(std::string fileName)
 	}
       if (errorFlag) break;
 
-
-      try
-	{ intValCuts.at(key) = std::atoi(value.c_str()); }
-      catch (...)//(const std::out_of_range& oorInt) 
+      if (key.compare("triggers") != 0)
 	{
 	  try
-	    { dblValCuts.at(key) = std::atof(value.c_str()); }
-	  catch (...)//(const std::out_of_range& oorDbl) 
+	    { intValCuts.at(key) = std::atoi(value.c_str()); }
+	  catch (...)//(const std::out_of_range& oorInt) 
 	    {
-	      std::cout << "Unknown config key: " << key << std::endl;
-	      errorFlag = true;
-	      break;	      
+	      try
+		{ dblValCuts.at(key) = std::atof(value.c_str()); }
+	      catch (...)//(const std::out_of_range& oorDbl) 
+		{
+		  std::cout << "Unknown config key: " << key << std::endl;
+		  errorFlag = true;
+		  break;	      
+		}
 	    }
 	}
 
