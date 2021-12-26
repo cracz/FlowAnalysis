@@ -919,7 +919,9 @@ int main(int argc, char *argv[])
 	  epdParticleInfo.reset();
 
 	  tileID = EPDids[iEpdHit];
-	  if (tileID > 0) continue;      // Exclude the West side
+	  //if (tileID > 0) continue;      // Exclude the West side
+	  Bool_t epdAside = (tileID < 0);
+	  Bool_t epdBside = (configs.fixed_target) ? (tileID < 0) : (tileID > 0); // EPD B is on the same side as A in FXT
 	  
 	  tileVector = epdGeom->TileCenter(tileID) - pVtx;
 	  tileSector = FlowUtils::epdSector(tileID);
@@ -933,28 +935,30 @@ int main(int argc, char *argv[])
 	  h_tileWeights->Fill(tileWeight);
 	  h2_phi_vs_eta_EPD->Fill(tileEta, tilePhi);
 
-	  eventInfo.nHitsEpd++;
-	  if (ODD_PLANE)
+	  if (epdAside)
 	    {
-	      if (tileEta > Y_MID)        // Account for Q vector sign change past mid-rapidity.
+	      eventInfo.nHitsEpd++;
+	      if (ODD_PLANE)
+		{
+		  if (tileEta > Y_MID)        // Account for Q vector sign change past mid-rapidity.
+		    {
+		      eventInfo.XnEpd += tileWeight * TMath::Cos(ORDER_M * tilePhi);
+		      eventInfo.YnEpd += tileWeight * TMath::Sin(ORDER_M * tilePhi);
+		    }
+		  else if (tileEta < Y_MID)
+		    {
+		      eventInfo.XnEpd -= tileWeight * TMath::Cos(ORDER_M * tilePhi);
+		      eventInfo.YnEpd -= tileWeight * TMath::Sin(ORDER_M * tilePhi);
+		    }
+		}
+	      else
 		{
 		  eventInfo.XnEpd += tileWeight * TMath::Cos(ORDER_M * tilePhi);
 		  eventInfo.YnEpd += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 		}
-	      else if (tileEta < Y_MID)
-		{
-		  eventInfo.XnEpd -= tileWeight * TMath::Cos(ORDER_M * tilePhi);
-		  eventInfo.YnEpd -= tileWeight * TMath::Sin(ORDER_M * tilePhi);
-		}
-	    }
-	  else
-	    {
-	      eventInfo.XnEpd += tileWeight * TMath::Cos(ORDER_M * tilePhi);
-	      eventInfo.YnEpd += tileWeight * TMath::Sin(ORDER_M * tilePhi);
 	    }
 
-
-	  if (tileRow >= configs.epdA_inner_row && tileRow <= configs.epdA_outer_row)
+	  if (epdAside && tileRow >= configs.epdA_inner_row && tileRow <= configs.epdA_outer_row)
 	    {
 	      eventInfo.nHitsEpdA++;
 	      epdParticleInfo.isInEpdA = true;
@@ -984,7 +988,7 @@ int main(int argc, char *argv[])
 
 	      eventInfo.epdParticles.push_back(epdParticleInfo);
 	    }
-	  else if (tileRow >= configs.epdB_inner_row && tileRow <= configs.epdB_outer_row)
+	  else if (epdBside && tileRow >= configs.epdB_inner_row && tileRow <= configs.epdB_outer_row)
 	    {
 	      eventInfo.nHitsEpdB++;
 	      epdParticleInfo.isInEpdB = true;
@@ -1026,7 +1030,8 @@ int main(int argc, char *argv[])
       if (eventInfo.nHitsEpdA   < configs.min_tracks) continue;
       //if (eventInfo.nHitsEpdB   >= configs.min_tracks) h_eventCheck_EpdB->Fill(0);//h_eventCheck_EpdB->Fill(eventSections_EpdB[0], 1);
       //if (eventInfo.nHitsEpdB   >= configs.min_tracks+4) h_eventCheck_EpdB->Fill(1);//h_eventCheck_EpdB->Fill(eventSections_EpdB[1], 1);
-      if (eventInfo.nHitsEpdB   < configs.min_tracks+4) continue;
+      if (configs.fixed_target && eventInfo.nHitsEpdB < configs.min_tracks+4) continue;
+      else if (!configs.fixed_target && eventInfo.nHitsEpdB < configs.min_tracks) continue;
       
       FlowUtils::checkZeroQ(eventInfo);
       if (eventInfo.badEvent) continue;
