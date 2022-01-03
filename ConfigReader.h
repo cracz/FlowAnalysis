@@ -131,9 +131,6 @@ class ConfigReader
   Double_t pt_pid_tr_low;
   Double_t pt_pid_tr_high;
 
-  TString order_n_str;
-  TString order_m_str;
-
  private:
   bool errorFlag;
   TString lastKey;
