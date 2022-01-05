@@ -121,8 +121,9 @@ int main(int argc, char *argv[])
   Float_t EPDnMip[744];
 
   TFile *inputFile = TFile::Open(inFile);
-  TTree *tree = (TTree*)inputFile->Get("Autree");
-  
+  if (!inputFile) { std::cout << "Input file could not be opened properly!" << std::endl; return 1; }
+
+  TTree *tree = (TTree*)inputFile->Get("Autree");  
   tree->SetBranchAddress("runId", &i_runID);
   tree->SetBranchAddress("eventId",&i_eventID);
   tree->SetBranchAddress("bField",&f_bField);
