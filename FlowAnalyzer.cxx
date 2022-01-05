@@ -874,7 +874,7 @@ int main(int argc, char *argv[])
   std::vector<UInt_t> triggerIDs;
 
   // EVENT LOOP
-  for (Long64_t ievent = 0; ievent < events2read; ievent++)
+  for (Long64_t ievent = 0; ievent < 10/*events2read*/; ievent++)
     {
       eventInfo.reset();
 
@@ -1076,7 +1076,7 @@ int main(int argc, char *argv[])
 		      eventInfo.YnTpcA += d_pT * TMath::Sin(ORDER_M * d_phi);
 		    }
 		} // End TPC A
-	      else if (d_eta > configs.tpc_B_low_eta && d_eta < configs.tpc_B_high_eta)     // TPC B
+	      if (d_eta > configs.tpc_B_low_eta && d_eta < configs.tpc_B_high_eta)     // TPC B
 		{
 		  eventInfo.nTracksTpcB++;
 		  particleInfo.isInTpcB = true;
@@ -1565,7 +1565,7 @@ int main(int argc, char *argv[])
       //=========================================================
       //            END EPD STUFF
       //=========================================================
-
+      std::cout << "Test point 1" << std::endl;
 
       //if (eventInfo.nTracksTpc  < configs.min_tracks) continue;
       if (eventInfo.nTracksTpcA < configs.min_tracks) continue;
@@ -1576,6 +1576,9 @@ int main(int argc, char *argv[])
       if (configs.fixed_target && eventInfo.nHitsEpdB >= configs.min_tracks+4) h_eventCheck_EpdB->Fill(1);//h_eventCheck_EpdB->Fill(eventSections_EpdB[1], 1);
       if (configs.fixed_target && eventInfo.nHitsEpdB < configs.min_tracks+4) continue;
       else if (!configs.fixed_target && eventInfo.nHitsEpdB < configs.min_tracks) continue;
+
+
+      std::cout << "Test point 2" << std::endl;
       
       FlowUtils::checkZeroQ(eventInfo);
       if (eventInfo.badEvent) continue;
