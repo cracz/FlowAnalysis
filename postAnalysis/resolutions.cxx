@@ -16,27 +16,27 @@ void resolutions(TString jobID, TString order_n_str)
 
   TH1D *h_centralities = (TH1D*)file->Get("h_centralities");
   
-  TProfile *h_EpdEEpdF = (TProfile*)file->Get("p_EpdEEpdF");
+  TProfile *h_EpdAEpdB = (TProfile*)file->Get("p_EpdAEpdB");
 
-  TProfile *h_TpcBEpdE = (TProfile*)file->Get("p_TpcBEpdE");
-  TProfile *h_TpcBEpdF = (TProfile*)file->Get("p_TpcBEpdF");
-
-  
-  Int_t centBins    = h_EpdEEpdF->GetNbinsX();
-  Int_t firstCentID = h_EpdEEpdF->GetBinLowEdge(1);
-  Int_t lastCentID  = h_EpdEEpdF->GetBinLowEdge(h_EpdEEpdF->GetNbinsX());
+  TProfile *h_TpcBEpdA = (TProfile*)file->Get("p_TpcBEpdA");
+  TProfile *h_TpcBEpdB = (TProfile*)file->Get("p_TpcBEpdB");
 
   
-  TH1D *h_EpdEEpdF_flip = new TH1D("h_EpdEEpdF_flip",h_EpdEEpdF->GetTitle(),centBins,0,centBins);
-  h_EpdEEpdF_flip->GetXaxis()->SetTitle((TString)h_EpdEEpdF->GetXaxis()->GetTitle()+" (%)");
-  h_EpdEEpdF_flip->GetYaxis()->SetTitle(h_EpdEEpdF->GetYaxis()->GetTitle());
+  Int_t centBins    = h_EpdAEpdB->GetNbinsX();
+  Int_t firstCentID = h_EpdAEpdB->GetBinLowEdge(1);
+  Int_t lastCentID  = h_EpdAEpdB->GetBinLowEdge(h_EpdAEpdB->GetNbinsX());
 
-  TH1D *h_TpcBEpdE_flip = new TH1D("h_TpcBEpdE_flip",h_TpcBEpdE->GetTitle(),centBins,0,centBins);
-  h_TpcBEpdE_flip->GetXaxis()->SetTitle((TString)h_TpcBEpdE->GetXaxis()->GetTitle()+" (%)");
-  h_TpcBEpdE_flip->GetYaxis()->SetTitle(h_TpcBEpdE->GetYaxis()->GetTitle());
-  TH1D *h_TpcBEpdF_flip = new TH1D("h_TpcBEpdF_flip",h_TpcBEpdF->GetTitle(),centBins,0,centBins);
-  h_TpcBEpdF_flip->GetXaxis()->SetTitle((TString)h_TpcBEpdF->GetXaxis()->GetTitle()+" (%)");
-  h_TpcBEpdF_flip->GetYaxis()->SetTitle(h_TpcBEpdF->GetYaxis()->GetTitle());
+  
+  TH1D *h_EpdAEpdB_flip = new TH1D("h_EpdAEpdB_flip",h_EpdAEpdB->GetTitle(),centBins,0,centBins);
+  h_EpdAEpdB_flip->GetXaxis()->SetTitle((TString)h_EpdAEpdB->GetXaxis()->GetTitle()+" (%)");
+  h_EpdAEpdB_flip->GetYaxis()->SetTitle(h_EpdAEpdB->GetYaxis()->GetTitle());
+
+  TH1D *h_TpcBEpdA_flip = new TH1D("h_TpcBEpdA_flip",h_TpcBEpdA->GetTitle(),centBins,0,centBins);
+  h_TpcBEpdA_flip->GetXaxis()->SetTitle((TString)h_TpcBEpdA->GetXaxis()->GetTitle()+" (%)");
+  h_TpcBEpdA_flip->GetYaxis()->SetTitle(h_TpcBEpdA->GetYaxis()->GetTitle());
+  TH1D *h_TpcBEpdB_flip = new TH1D("h_TpcBEpdB_flip",h_TpcBEpdB->GetTitle(),centBins,0,centBins);
+  h_TpcBEpdB_flip->GetXaxis()->SetTitle((TString)h_TpcBEpdB->GetXaxis()->GetTitle()+" (%)");
+  h_TpcBEpdB_flip->GetYaxis()->SetTitle(h_TpcBEpdB->GetYaxis()->GetTitle());
 
   TH1D *h_centralities_flip = new TH1D("h_centralities_flip",h_centralities->GetTitle(),centBins,0,centBins);
   h_centralities_flip->GetXaxis()->SetTitle((TString)h_centralities->GetXaxis()->GetTitle()+" (%)");
@@ -45,12 +45,12 @@ void resolutions(TString jobID, TString order_n_str)
 
 
   // Make the possible resolution plots
-  TH1D *h_resolEvsF = new TH1D("h_resolEvsF","EPD E vs EPD F and TPC B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
-  TH1D *h_resolFvsE = new TH1D("h_resolFvsE","EPD F vs EPD E and TPC B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
-  TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD E and EPD F;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolAvsB = new TH1D("h_resolAvsB","EPD A vs EPD B and TPC B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolBvsA = new TH1D("h_resolBvsA","EPD B vs EPD A and TPC B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD A and EPD B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
 
-  TH1D *h_resolutions = new TH1D("h_resolutions","EPD E Resolutions;Centrality;R_{"+order_n_str+"1}",centBins,0,centBins);
-  TH2D *h2_resolutions = new TH2D("h2_resolutions","EPD E Resolutions;Centrality;y-y_{mid}",centBins,0,centBins, 20, -1, 1);
+  TH1D *h_resolutions = new TH1D("h_resolutions","EPD A Resolutions;Centrality;R_{"+order_n_str+"1}",centBins,0,centBins);
+  TH2D *h2_resolutions = new TH2D("h2_resolutions","EPD A Resolutions;Centrality;y-y_{mid}",centBins,0,centBins, 20, -1, 1);
   
   const char *centralityBins[16] = {"75-80", "70-75", "65-70", "60-65", "55-60", "50-55", "45-50", "40-45", "35-40", "30-35", "25-30", "20-25", "15-20", "10-15", "5-10", "0-5"};
 
@@ -63,13 +63,13 @@ void resolutions(TString jobID, TString order_n_str)
   int j = 1;
   for (int i = centBins; i >= 1; i--)
     {
-      h_EpdEEpdF_flip->SetBinContent(j, h_EpdEEpdF->GetBinContent(i));
-      h_EpdEEpdF_flip->SetBinError(j, h_EpdEEpdF->GetBinError(i));
+      h_EpdAEpdB_flip->SetBinContent(j, h_EpdAEpdB->GetBinContent(i));
+      h_EpdAEpdB_flip->SetBinError(j, h_EpdAEpdB->GetBinError(i));
 
-      h_TpcBEpdE_flip->SetBinContent(j, h_TpcBEpdE->GetBinContent(i));
-      h_TpcBEpdE_flip->SetBinError(j, h_TpcBEpdE->GetBinError(i));
-      h_TpcBEpdF_flip->SetBinContent(j, h_TpcBEpdF->GetBinContent(i));
-      h_TpcBEpdF_flip->SetBinError(j, h_TpcBEpdF->GetBinError(i));
+      h_TpcBEpdA_flip->SetBinContent(j, h_TpcBEpdA->GetBinContent(i));
+      h_TpcBEpdA_flip->SetBinError(j, h_TpcBEpdA->GetBinError(i));
+      h_TpcBEpdB_flip->SetBinContent(j, h_TpcBEpdB->GetBinContent(i));
+      h_TpcBEpdB_flip->SetBinError(j, h_TpcBEpdB->GetBinError(i));
 
       h_centralities_flip->SetBinContent(j, h_centralities->GetBinContent(i));
       
@@ -77,96 +77,96 @@ void resolutions(TString jobID, TString order_n_str)
     }
 
   
-  Double_t EpdEEpdF;
-  Double_t TpcBEpdE;
-  Double_t TpcBEpdF;
+  Double_t EpdAEpdB;
+  Double_t TpcBEpdA;
+  Double_t TpcBEpdB;
 
-  Double_t dEpdEEpdF;
-  Double_t dTpcBEpdE;
-  Double_t dTpcBEpdF;
+  Double_t dEpdAEpdB;
+  Double_t dTpcBEpdA;
+  Double_t dTpcBEpdB;
 
-  Double_t R_EvsF;
-  Double_t R_FvsE;
+  Double_t R_AvsB;
+  Double_t R_BvsA;
   Double_t R_TpcB;
-  Double_t dR_EvsF;
-  Double_t dR_FvsE;
+  Double_t dR_AvsB;
+  Double_t dR_BvsA;
   Double_t dR_TpcB;
 
-  Double_t EpdEEpdF_save;
-  Double_t TpcBEpdE_save;
-  Double_t TpcBEpdF_save;
+  Double_t EpdAEpdB_save;
+  Double_t TpcBEpdA_save;
+  Double_t TpcBEpdB_save;
 
-  Double_t dEpdEEpdF_save;
-  Double_t dTpcBEpdE_save;
-  Double_t dTpcBEpdF_save;
+  Double_t dEpdAEpdB_save;
+  Double_t dTpcBEpdA_save;
+  Double_t dTpcBEpdB_save;
 
-  Double_t R_EvsF_save;
-  Double_t dR_EvsF_save;
+  Double_t R_AvsB_save;
+  Double_t dR_AvsB_save;
       
   // Fill resolution plots
   for (int i = 1; i <= centBins; i++)
     {
-      EpdEEpdF_save = h_EpdEEpdF->GetBinContent(i);  //Don't use the flipped values here in the saved histogram!      
-      TpcBEpdE_save = h_TpcBEpdE->GetBinContent(i);  // We need the centrality ID's in order, not the centrality percentages.
-      TpcBEpdF_save = h_TpcBEpdF->GetBinContent(i);
+      EpdAEpdB_save = h_EpdAEpdB->GetBinContent(i);  //Don't use the flipped values here in the saved histogram!      
+      TpcBEpdA_save = h_TpcBEpdA->GetBinContent(i);  // We need the centrality ID's in order, not the centrality percentages.
+      TpcBEpdB_save = h_TpcBEpdB->GetBinContent(i);
 
-      dEpdEEpdF_save = h_EpdEEpdF->GetBinError(i);
-      dTpcBEpdE_save = h_TpcBEpdE->GetBinError(i);
-      dTpcBEpdF_save = h_TpcBEpdF->GetBinError(i);
+      dEpdAEpdB_save = h_EpdAEpdB->GetBinError(i);
+      dTpcBEpdA_save = h_TpcBEpdA->GetBinError(i);
+      dTpcBEpdB_save = h_TpcBEpdB->GetBinError(i);
 
-      R_EvsF_save  = TMath::Sqrt( (EpdEEpdF_save * TpcBEpdE_save) / TpcBEpdF_save );
-      dR_EvsF_save = R_EvsF_save * TMath::Sqrt((dEpdEEpdF_save/(2*EpdEEpdF_save))*(dEpdEEpdF_save/(2*EpdEEpdF_save)) +
-					       (dTpcBEpdE_save/(2*TpcBEpdE_save))*(dTpcBEpdE_save/(2*TpcBEpdE_save)) +
-					       (dTpcBEpdF_save/(2*TpcBEpdF_save))*(dTpcBEpdF_save/(2*TpcBEpdF_save)));
+      R_AvsB_save  = TMath::Sqrt( (EpdAEpdB_save * TpcBEpdA_save) / TpcBEpdB_save );
+      dR_AvsB_save = R_AvsB_save * TMath::Sqrt((dEpdAEpdB_save/(2*EpdAEpdB_save))*(dEpdAEpdB_save/(2*EpdAEpdB_save)) +
+					       (dTpcBEpdA_save/(2*TpcBEpdA_save))*(dTpcBEpdA_save/(2*TpcBEpdA_save)) +
+					       (dTpcBEpdB_save/(2*TpcBEpdB_save))*(dTpcBEpdB_save/(2*TpcBEpdB_save)));
 	    
       
-      EpdEEpdF = h_EpdEEpdF_flip->GetBinContent(i);      
-      TpcBEpdE = h_TpcBEpdE_flip->GetBinContent(i);
-      TpcBEpdF = h_TpcBEpdF_flip->GetBinContent(i);
+      EpdAEpdB = h_EpdAEpdB_flip->GetBinContent(i);      
+      TpcBEpdA = h_TpcBEpdA_flip->GetBinContent(i);
+      TpcBEpdB = h_TpcBEpdB_flip->GetBinContent(i);
 
-      dEpdEEpdF = h_EpdEEpdF_flip->GetBinError(i);
-      dTpcBEpdE = h_TpcBEpdE_flip->GetBinError(i);
-      dTpcBEpdF = h_TpcBEpdF_flip->GetBinError(i);
+      dEpdAEpdB = h_EpdAEpdB_flip->GetBinError(i);
+      dTpcBEpdA = h_TpcBEpdA_flip->GetBinError(i);
+      dTpcBEpdB = h_TpcBEpdB_flip->GetBinError(i);
 
-      R_EvsF = TMath::Sqrt( (EpdEEpdF * TpcBEpdE) / TpcBEpdF );
-      R_FvsE = TMath::Sqrt( (EpdEEpdF * TpcBEpdF) / TpcBEpdE );
-      R_TpcB = TMath::Sqrt( (TpcBEpdE * TpcBEpdF) / EpdEEpdF );
+      R_AvsB = TMath::Sqrt( (EpdAEpdB * TpcBEpdA) / TpcBEpdB );
+      R_BvsA = TMath::Sqrt( (EpdAEpdB * TpcBEpdB) / TpcBEpdA );
+      R_TpcB = TMath::Sqrt( (TpcBEpdA * TpcBEpdB) / EpdAEpdB );
 
-      dR_EvsF = R_EvsF * TMath::Sqrt((dEpdEEpdF/(2*EpdEEpdF))*(dEpdEEpdF/(2*EpdEEpdF)) +
-				     (dTpcBEpdE/(2*TpcBEpdE))*(dTpcBEpdE/(2*TpcBEpdE)) +
-				     (dTpcBEpdF/(2*TpcBEpdF))*(dTpcBEpdF/(2*TpcBEpdF)));
+      dR_AvsB = R_AvsB * TMath::Sqrt((dEpdAEpdB/(2*EpdAEpdB))*(dEpdAEpdB/(2*EpdAEpdB)) +
+				     (dTpcBEpdA/(2*TpcBEpdA))*(dTpcBEpdA/(2*TpcBEpdA)) +
+				     (dTpcBEpdB/(2*TpcBEpdB))*(dTpcBEpdB/(2*TpcBEpdB)));
 
-      dR_FvsE = R_FvsE * TMath::Sqrt((dEpdEEpdF/(2*EpdEEpdF))*(dEpdEEpdF/(2*EpdEEpdF)) +
-				     (dTpcBEpdE/(2*TpcBEpdE))*(dTpcBEpdE/(2*TpcBEpdE)) +
-				     (dTpcBEpdF/(2*TpcBEpdF))*(dTpcBEpdF/(2*TpcBEpdF)));
+      dR_BvsA = R_BvsA * TMath::Sqrt((dEpdAEpdB/(2*EpdAEpdB))*(dEpdAEpdB/(2*EpdAEpdB)) +
+				     (dTpcBEpdA/(2*TpcBEpdA))*(dTpcBEpdA/(2*TpcBEpdA)) +
+				     (dTpcBEpdB/(2*TpcBEpdB))*(dTpcBEpdB/(2*TpcBEpdB)));
 
-      dR_TpcB = R_TpcB * TMath::Sqrt((dTpcBEpdE/(2*TpcBEpdE))*(dTpcBEpdE/(2*TpcBEpdE)) +
-				     (dTpcBEpdF/(2*TpcBEpdF))*(dTpcBEpdF/(2*TpcBEpdF)) +
-				     (dEpdEEpdF/(2*EpdEEpdF))*(dEpdEEpdF/(2*EpdEEpdF)));
+      dR_TpcB = R_TpcB * TMath::Sqrt((dTpcBEpdA/(2*TpcBEpdA))*(dTpcBEpdA/(2*TpcBEpdA)) +
+				     (dTpcBEpdB/(2*TpcBEpdB))*(dTpcBEpdB/(2*TpcBEpdB)) +
+				     (dEpdAEpdB/(2*EpdAEpdB))*(dEpdAEpdB/(2*EpdAEpdB)));
 
-      if(TMath::IsNaN(R_EvsF) || dR_EvsF > 0.1) { R_EvsF = 0; dR_EvsF = 0; }
-      if(TMath::IsNaN(R_FvsE) || dR_FvsE > 0.1) { R_FvsE = 0; dR_FvsE = 0; }
+      if(TMath::IsNaN(R_AvsB) || dR_AvsB > 0.1) { R_AvsB = 0; dR_AvsB = 0; }
+      if(TMath::IsNaN(R_BvsA) || dR_BvsA > 0.1) { R_BvsA = 0; dR_BvsA = 0; }
       if(TMath::IsNaN(R_TpcB) || dR_TpcB > 0.1) { R_TpcB = 0; dR_TpcB = 0; }
-      //if(TMath::IsNaN(R_EvsF_save)) { R_EvsF_save = 0; dR_EvsF_save = 0.1; }      
+      //if(TMath::IsNaN(R_AvsB_save)) { R_AvsB_save = 0; dR_AvsB_save = 0.1; }      
 
-      h_resolEvsF->SetBinContent(i, R_EvsF);
-      h_resolEvsF->SetBinError(i, dR_EvsF);
+      h_resolAvsB->SetBinContent(i, R_AvsB);
+      h_resolAvsB->SetBinError(i, dR_AvsB);
 
-      h_resolFvsE->SetBinContent(i, R_FvsE);
-      h_resolFvsE->SetBinError(i, dR_FvsE);
+      h_resolBvsA->SetBinContent(i, R_BvsA);
+      h_resolBvsA->SetBinError(i, dR_BvsA);
 
       h_resolTpcB->SetBinContent(i, R_TpcB);
       h_resolTpcB->SetBinError(i, dR_TpcB);
 
-      if(!TMath::IsNaN(R_EvsF_save))
+      if(!TMath::IsNaN(R_AvsB_save))
 	{
-	  h_resolutions->SetBinContent(i, R_EvsF_save);
-	  h_resolutions->SetBinError(i, dR_EvsF_save);
+	  h_resolutions->SetBinContent(i, R_AvsB_save);
+	  h_resolutions->SetBinError(i, dR_AvsB_save);
 
 	  for (int j = 11; j <= 20; j++)
 	    {
-	      h2_resolutions->SetBinContent(i, j, R_EvsF_save);
-	      h2_resolutions->SetBinError(i, j, dR_EvsF_save);
+	      h2_resolutions->SetBinContent(i, j, R_AvsB_save);
+	      h2_resolutions->SetBinError(i, j, dR_AvsB_save);
 	    }
 	}
     }
@@ -177,8 +177,8 @@ void resolutions(TString jobID, TString order_n_str)
   // Put the bin labels on the new histograms
   for (int i = 1; i <= centBins; i++)
     {
-      h_resolEvsF->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-      h_resolFvsE->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
+      h_resolAvsB->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
+      h_resolBvsA->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
       h_resolTpcB->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
 
       h_centralities_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
@@ -190,30 +190,30 @@ void resolutions(TString jobID, TString order_n_str)
 
   THStack *stack = new THStack("stack", ";Centrality (%);R_{"+order_n_str+"1}");
 
-  h_resolEvsF->SetMarkerStyle(20);
-  h_resolFvsE->SetMarkerStyle(20);
+  h_resolAvsB->SetMarkerStyle(20);
+  h_resolBvsA->SetMarkerStyle(20);
   h_resolTpcB->SetMarkerStyle(20);
 
-  h_resolEvsF->SetMarkerSize(1.5);
-  h_resolFvsE->SetMarkerSize(1.5);
+  h_resolAvsB->SetMarkerSize(1.5);
+  h_resolBvsA->SetMarkerSize(1.5);
   h_resolTpcB->SetMarkerSize(1.5);
 
-  h_resolEvsF->SetMarkerColor(kBlue-7);
-  h_resolFvsE->SetMarkerColor(kRed-7);
+  h_resolAvsB->SetMarkerColor(kBlue-7);
+  h_resolBvsA->SetMarkerColor(kRed-7);
   h_resolTpcB->SetMarkerColor(kGreen-3);
 
-  h_resolEvsF->SetLineColor(kBlue-7);
-  h_resolFvsE->SetLineColor(kRed-7);
+  h_resolAvsB->SetLineColor(kBlue-7);
+  h_resolBvsA->SetLineColor(kRed-7);
   h_resolTpcB->SetLineColor(kGreen-3);
 
-  stack->Add(h_resolEvsF);
-  stack->Add(h_resolFvsE);
+  stack->Add(h_resolAvsB);
+  stack->Add(h_resolBvsA);
   stack->Add(h_resolTpcB);
 
   TLegend *legend = new TLegend(0.65, 0.75, 0.9, 0.9);
-  legend->AddEntry(h_resolEvsF,"EPD E vs EPD F, TPC B");
-  legend->AddEntry(h_resolFvsE,"EPD F vs EPD E, TPC B");
-  legend->AddEntry(h_resolTpcB,"TPC B vs EPD E, EPD F");
+  legend->AddEntry(h_resolAvsB,"EPD A vs EPD B, TPC B");
+  legend->AddEntry(h_resolBvsA,"EPD B vs EPD A, TPC B");
+  legend->AddEntry(h_resolTpcB,"TPC B vs EPD A, EPD B");
 
   canvas->SetTicks();
   stack->Draw("NOSTACK E1P");
@@ -222,13 +222,13 @@ void resolutions(TString jobID, TString order_n_str)
   canvas->Clear();
 
   TLegend *legend2 = new TLegend(0.6, 0.8, 0.9, 0.9);
-  legend2->AddEntry(h_resolEvsF,"EPD E vs EPD F, TPC B");
+  legend2->AddEntry(h_resolAvsB,"EPD A vs EPD B, TPC B");
 
-  h_resolEvsF->SetMaximum(0.7);
-  h_resolEvsF->SetTitle("");
-  h_resolEvsF->Draw("E1P");
+  h_resolAvsB->SetMaximum(0.7);
+  h_resolAvsB->SetTitle("");
+  h_resolAvsB->Draw("E1P");
   legend2->Draw();
-  canvas->SaveAs(jobID + "_resolutionEonly.png");
+  canvas->SaveAs(jobID + "_resolutionAonly.png");
   canvas->Clear();
 
   canvas->SetTicks(0);
@@ -242,8 +242,8 @@ void resolutions(TString jobID, TString order_n_str)
   
 /*  
   canvas->SetLogy(0);
-  h_resolEvsF->Draw();
-  canvas->SaveAs("h_resolEvsF.png");
+  h_resolAvsB->Draw();
+  canvas->SaveAs("h_resolAvsB.png");
   canvas->Clear();
 
   h_resolAvsC->Draw();

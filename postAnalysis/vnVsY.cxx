@@ -69,6 +69,8 @@ void vnVsY(TString jobID, TString order_n_str)
   TProfile2D *p2_vn_yCM_cent_km = (TProfile2D*)file->Get("p2_vn_yCM_cent_km");
   TProfile2D *p2_vn_yCM_cent_pr = (TProfile2D*)file->Get("p2_vn_yCM_cent_pr");
   TProfile2D *p2_vn_yCM_cent_pr_symmetry = (TProfile2D*)file->Get("p2_vn_yCM_cent_pr_symmetry");
+  TProfile2D *p2_vn_yCM_cent_de = (TProfile2D*)file->Get("p2_vn_yCM_cent_de");
+  TProfile2D *p2_vn_yCM_cent_tr = (TProfile2D*)file->Get("p2_vn_yCM_cent_tr");
 
   p2_vn_yCM_cent_kp->RebinY();
   p2_vn_yCM_cent_km->RebinY();
@@ -98,6 +100,14 @@ void vnVsY(TString jobID, TString order_n_str)
   TProfile *p_vn_yCM_10to40_pr_symm = p2_vn_yCM_cent_pr_symmetry->ProfileY("p_vn_yCM_10to40_pr_symm", 9, 14);
   TProfile *p_vn_yCM_40to60_pr_symm = p2_vn_yCM_cent_pr_symmetry->ProfileY("p_vn_yCM_40to60_pr_symm", 5, 8);
 
+  TProfile *p_vn_yCM_00to10_de = p2_vn_yCM_cent_de->ProfileY("p_vn_yCM_00to10_de", 15, 16);
+  TProfile *p_vn_yCM_10to40_de = p2_vn_yCM_cent_de->ProfileY("p_vn_yCM_10to40_de", 9, 14);
+  TProfile *p_vn_yCM_40to60_de = p2_vn_yCM_cent_de->ProfileY("p_vn_yCM_40to60_de", 5, 8);
+
+  TProfile *p_vn_yCM_00to10_tr = p2_vn_yCM_cent_tr->ProfileY("p_vn_yCM_00to10_tr", 15, 16);
+  TProfile *p_vn_yCM_10to40_tr = p2_vn_yCM_cent_tr->ProfileY("p_vn_yCM_10to40_tr", 9, 14);
+  TProfile *p_vn_yCM_40to60_tr = p2_vn_yCM_cent_tr->ProfileY("p_vn_yCM_40to60_tr", 5, 8);
+
   
   TH1D *h_vn_yCM_00to10_pp = new TH1D("h_vn_yCM_00to10_pp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_10to40_pp = new TH1D("h_vn_yCM_10to40_pp", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
@@ -122,6 +132,14 @@ void vnVsY(TString jobID, TString order_n_str)
   TH1D *h_vn_yCM_00to10_pr_symm = new TH1D("h_vn_yCM_00to10_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_10to40_pr_symm = new TH1D("h_vn_yCM_10to40_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_40to60_pr_symm = new TH1D("h_vn_yCM_40to60_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+
+  TH1D *h_vn_yCM_00to10_de = new TH1D("h_vn_yCM_00to10_de", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_10to40_de = new TH1D("h_vn_yCM_10to40_de", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_40to60_de = new TH1D("h_vn_yCM_40to60_de", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+
+  TH1D *h_vn_yCM_00to10_tr = new TH1D("h_vn_yCM_00to10_tr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_10to40_tr = new TH1D("h_vn_yCM_10to40_tr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_40to60_tr = new TH1D("h_vn_yCM_40to60_tr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
 
 
     //mirrored plots
@@ -170,6 +188,14 @@ void vnVsY(TString jobID, TString order_n_str)
   h_vn_yCM_00to10_pr_symm = p_vn_yCM_00to10_pr_symm->ProjectionX();
   h_vn_yCM_10to40_pr_symm = p_vn_yCM_10to40_pr_symm->ProjectionX();
   h_vn_yCM_40to60_pr_symm = p_vn_yCM_40to60_pr_symm->ProjectionX();
+
+  h_vn_yCM_00to10_de = p_vn_yCM_00to10_de->ProjectionX();
+  h_vn_yCM_10to40_de = p_vn_yCM_10to40_de->ProjectionX();
+  h_vn_yCM_40to60_de = p_vn_yCM_40to60_de->ProjectionX();
+
+  h_vn_yCM_00to10_tr = p_vn_yCM_00to10_tr->ProjectionX();
+  h_vn_yCM_10to40_tr = p_vn_yCM_10to40_tr->ProjectionX();
+  h_vn_yCM_40to60_tr = p_vn_yCM_40to60_tr->ProjectionX();
 
 
   // Make mirrored plots
@@ -254,6 +280,8 @@ void vnVsY(TString jobID, TString order_n_str)
   THStack *kmRapidityStack   = new THStack("kmRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *prRapidityStack   = new THStack("prRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *prRapidityStack_symm = new THStack("prRapidityStack_symm", ";y-y_{mid};v_{"+order_n_str+"}");
+  THStack *deRapidityStack   = new THStack("deRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
+  THStack *trRapidityStack   = new THStack("trRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
 
 
   sh_y_pp->SetMarkerStyle(25);
@@ -359,6 +387,32 @@ void vnVsY(TString jobID, TString order_n_str)
   h_vn_yCM_00to10_pr_symm->SetLineColor(2);
   h_vn_yCM_10to40_pr_symm->SetLineColor(4);
   h_vn_yCM_40to60_pr_symm->SetLineColor(8);
+
+  h_vn_yCM_00to10_de->SetMarkerStyle(20);
+  h_vn_yCM_10to40_de->SetMarkerStyle(20);
+  h_vn_yCM_40to60_de->SetMarkerStyle(20);
+  h_vn_yCM_00to10_de->SetMarkerColor(2);
+  h_vn_yCM_10to40_de->SetMarkerColor(4);
+  h_vn_yCM_40to60_de->SetMarkerColor(8);
+  h_vn_yCM_00to10_de->SetMarkerSize(2);
+  h_vn_yCM_10to40_de->SetMarkerSize(2);
+  h_vn_yCM_40to60_de->SetMarkerSize(2);
+  h_vn_yCM_00to10_de->SetLineColor(2);
+  h_vn_yCM_10to40_de->SetLineColor(4);
+  h_vn_yCM_40to60_de->SetLineColor(8);
+
+  h_vn_yCM_00to10_tr->SetMarkerStyle(20);
+  h_vn_yCM_10to40_tr->SetMarkerStyle(20);
+  h_vn_yCM_40to60_tr->SetMarkerStyle(20);
+  h_vn_yCM_00to10_tr->SetMarkerColor(2);
+  h_vn_yCM_10to40_tr->SetMarkerColor(4);
+  h_vn_yCM_40to60_tr->SetMarkerColor(8);
+  h_vn_yCM_00to10_tr->SetMarkerSize(2);
+  h_vn_yCM_10to40_tr->SetMarkerSize(2);
+  h_vn_yCM_40to60_tr->SetMarkerSize(2);
+  h_vn_yCM_00to10_tr->SetLineColor(2);
+  h_vn_yCM_10to40_tr->SetLineColor(4);
+  h_vn_yCM_40to60_tr->SetLineColor(8);
 
 
 
@@ -608,6 +662,14 @@ void vnVsY(TString jobID, TString order_n_str)
       h_vn_yCM_10to40_pm = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_pm);
       h_vn_yCM_40to60_pm = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_pm);
 
+      h_vn_yCM_00to10_de = PlotUtils::trimRapidityPlot(h_vn_yCM_00to10_de);
+      h_vn_yCM_10to40_de = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_de);
+      h_vn_yCM_40to60_de = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_de);
+
+      h_vn_yCM_00to10_tr = PlotUtils::trimRapidityPlot(h_vn_yCM_00to10_tr);
+      h_vn_yCM_10to40_tr = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_tr);
+      h_vn_yCM_40to60_tr = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_tr);
+
       
       ppRapidityStack->Add(h_vn_yCM_00to10_pp);
       ppRapidityStack->Add(h_vn_yCM_10to40_pp);
@@ -630,6 +692,14 @@ void vnVsY(TString jobID, TString order_n_str)
       prRapidityStack_symm->Add(h_vn_yCM_00to10_pr_symm);
       prRapidityStack_symm->Add(h_vn_yCM_10to40_pr_symm);
       prRapidityStack_symm->Add(h_vn_yCM_40to60_pr_symm);
+
+      deRapidityStack->Add(h_vn_yCM_00to10_de);
+      deRapidityStack->Add(h_vn_yCM_10to40_de);
+      deRapidityStack->Add(h_vn_yCM_40to60_de);
+
+      trRapidityStack->Add(h_vn_yCM_00to10_tr);
+      trRapidityStack->Add(h_vn_yCM_10to40_tr);
+      trRapidityStack->Add(h_vn_yCM_40to60_tr);
 
       /*
       TFile *newFile = new TFile("v3_vs_yCM.root", "RECREATE");
@@ -687,6 +757,20 @@ void vnVsY(TString jobID, TString order_n_str)
       prLegend->SetBorderSize(0);
       prLegend->SetFillColorAlpha(0,0);
 
+      TLegend *deLegend = new TLegend(0.18, 0.72, 0.38, 0.87);
+      deLegend->AddEntry(h_vn_yCM_00to10_de, "0 - 10%");
+      deLegend->AddEntry(h_vn_yCM_10to40_de, "10 - 40%");
+      deLegend->AddEntry(h_vn_yCM_40to60_de, "40 - 60%");
+      deLegend->SetBorderSize(0);
+      deLegend->SetFillColorAlpha(0,0);
+
+      TLegend *trLegend = new TLegend(0.18, 0.72, 0.38, 0.87);
+      trLegend->AddEntry(h_vn_yCM_00to10_tr, "0 - 10%");
+      trLegend->AddEntry(h_vn_yCM_10to40_tr, "10 - 40%");
+      trLegend->AddEntry(h_vn_yCM_40to60_tr, "40 - 60%");
+      trLegend->SetBorderSize(0);
+      trLegend->SetFillColorAlpha(0,0);
+
       
       
       TPaveText *ppText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
@@ -736,6 +820,22 @@ void vnVsY(TString jobID, TString order_n_str)
       prText_y_symm->SetFillColorAlpha(0,0);
       prText_y_symm->SetLineColorAlpha(0,0);
       prText_y_symm->SetTextSize(.035);
+
+      TPaveText *deText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
+      deText->AddText("d");
+      deText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      deText->AddText("0.18 < p_{T} < 1.6 GeV");
+      deText->SetFillColorAlpha(0,0);
+      deText->SetLineColorAlpha(0,0);
+      deText->SetTextSize(.04);
+
+      TPaveText *trText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
+      trText->AddText("t");
+      trText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      trText->AddText("0.18 < p_{T} < 1.6 GeV");
+      trText->SetFillColorAlpha(0,0);
+      trText->SetLineColorAlpha(0,0);
+      trText->SetTextSize(.04);
 
       TLine *zeroLine_y = new TLine(0, 0, 1, 0);
       zeroLine_y->SetLineStyle(9);
@@ -831,6 +931,34 @@ void vnVsY(TString jobID, TString order_n_str)
       prLegend->Draw();
       prText_y_symm->Draw();
       canvas->SaveAs(jobID + "_prRapidityStack_symm.png");
+      canvas->Clear();
+
+      deRapidityStack->Draw();
+      deRapidityStack->GetYaxis()->SetTitleOffset(1.7);
+      deRapidityStack->GetXaxis()->SetNdivisions(210);
+      deRapidityStack->Draw();
+      deRapidityStack->SetMaximum(rapidityUpperBound);
+      deRapidityStack->SetMinimum(rapidityLowerBound);
+      deRapidityStack->Draw("NOSTACK E1P");
+      zeroLine_y->Draw("SAME");
+      deRapidityStack->Draw("NOSTACK E1P SAME");
+      deLegend->Draw();
+      deText->Draw();
+      canvas->SaveAs(jobID + "_deRapidityStack.png");
+      canvas->Clear();
+
+      trRapidityStack->Draw();
+      trRapidityStack->GetYaxis()->SetTitleOffset(1.7);
+      trRapidityStack->GetXaxis()->SetNdivisions(210);
+      trRapidityStack->Draw();
+      trRapidityStack->SetMaximum(rapidityUpperBound);
+      trRapidityStack->SetMinimum(rapidityLowerBound);
+      trRapidityStack->Draw("NOSTACK E1P");
+      zeroLine_y->Draw("SAME");
+      trRapidityStack->Draw("NOSTACK E1P SAME");
+      trLegend->Draw();
+      trText->Draw();
+      canvas->SaveAs(jobID + "_trRapidityStack.png");
       canvas->Clear();
     }
 

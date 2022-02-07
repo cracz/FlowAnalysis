@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-jobID="fourthIteration"
+jobID="B7EC65D05759DB7657D48F006B43243B"
 order_n="3"
 
 #root -l -b -q plotAll.cxx\(\"${jobID}\"\)
@@ -16,8 +16,8 @@ order_n="3"
 #root -l -b -q overlay.cxx\(\"${jobID}\",\"E\"\)
 
 # EP Resolution and Flow Calculations
-#root -l -b -q resolutions.cxx\(\"${jobID}\",\"${order_n}\"\)
+root -l -b -q resolutions.cxx\(\"${jobID}\",\"${order_n}\"\)
 #root -l -b -q coefficients.cxx\(\"${jobID}\",\"${order_n}\"\)
-root -l -b -q vnVsY.cxx\(\"${jobID}\",\"${order_n}\"\)
-root -l -b -q vnVsPt.cxx\(\"${jobID}\",\"${order_n}\"\)
+#root -l -b -q vnVsY.cxx\(\"${jobID}\",\"${order_n}\"\)
+#root -l -b -q vnVsPt.cxx\(\"${jobID}\",\"${order_n}\"\)
 #root -l -b -q finalWithSystematics.cxx\(\"${order_n}\"\)
