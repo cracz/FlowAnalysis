@@ -872,9 +872,10 @@ int main(int argc, char *argv[])
   FlowUtils::Event eventInfo;
   FlowUtils::Particle particleInfo;
   std::vector<UInt_t> triggerIDs;
+  StEpdGeom *epdGeom = new StEpdGeom();
 
   // EVENT LOOP
-  for (Long64_t ievent = 0; ievent < 10/*events2read*/; ievent++)
+  for (Long64_t ievent = 0; ievent < events2read; ievent++)
     {
       eventInfo.reset();
 
@@ -891,8 +892,8 @@ int main(int argc, char *argv[])
       Bool_t b_bad_run = false;
       if (configs.sqrt_s_NN == 3.0)
 	{ for (Int_t i = 0; i < 24; i++) { if (event->runId() == badRunList_3p0GeV[i]) {b_bad_run = true; break;} } }
-      if (configs.sqrt_s_NN == 19.0)
-	{ for (Int_t i = 0; i < 24; i++) { if (event->runId() == badRunList_19p6GeV[i]) {b_bad_run = true; break;} } }
+      if (configs.sqrt_s_NN == 19.6)
+	{ for (Int_t i = 0; i < 374; i++) { if (event->runId() == badRunList_19p6GeV[i]) {b_bad_run = true; break;} } }
       if (b_bad_run) continue;
       //=========================================================
       //          END Bad Run Omission
@@ -1429,7 +1430,7 @@ int main(int argc, char *argv[])
 	  else if( eventInfo.primTracks >= 150 && eventInfo.primTracks <= 186 ) eventInfo.centID = 12;
 	  else if( eventInfo.primTracks >= 187 && eventInfo.primTracks <= 232 ) eventInfo.centID = 13;
 	  else if( eventInfo.primTracks >= 233 && eventInfo.primTracks <= 290 ) eventInfo.centID = 14;
-	  else if( eventInfo.primTracks >= 290 )                                eventInfo.centID = 15;  // 0% - 5% (Central)
+	  else if( eventInfo.primTracks >= 291 )                                eventInfo.centID = 15;  // 0% - 5% (Central)
 	}
 
       if (eventInfo.centID == FlowUtils::I_BAD_VALUE) continue;      
@@ -1443,7 +1444,6 @@ int main(int argc, char *argv[])
       //                EPD STUFF
       //=========================================================
       //StEpdEpInfo result = epdEpFinder->Results(epdHits,pVtx,eventInfo.centID);
-      StEpdGeom *epdGeom = new StEpdGeom();
       StPicoEpdHit *epdHit;
       int tileID;
       TVector3 tileVector;     // Vector from vertex to center of tile that was hit
@@ -1531,7 +1531,7 @@ int main(int argc, char *argv[])
 
 	      eventInfo.epdParticles.push_back(epdParticleInfo);
 	    }
-	  else if (epdBside && tileRow >= configs.epdB_inner_row && tileRow <= configs.epdB_outer_row)
+	  if (epdBside && tileRow >= configs.epdB_inner_row && tileRow <= configs.epdB_outer_row)
 	    {
 	      eventInfo.nHitsEpdB++;
 	      epdParticleInfo.isInEpdB = true;
@@ -1565,7 +1565,6 @@ int main(int argc, char *argv[])
       //=========================================================
       //            END EPD STUFF
       //=========================================================
-      std::cout << "Test point 1" << std::endl;
 
       //if (eventInfo.nTracksTpc  < configs.min_tracks) continue;
       if (eventInfo.nTracksTpcA < configs.min_tracks) continue;
@@ -1578,8 +1577,6 @@ int main(int argc, char *argv[])
       else if (!configs.fixed_target && eventInfo.nHitsEpdB < configs.min_tracks) continue;
 
 
-      std::cout << "Test point 2" << std::endl;
-      
       FlowUtils::checkZeroQ(eventInfo);
       if (eventInfo.badEvent) continue;
 
@@ -2075,7 +2072,7 @@ int main(int argc, char *argv[])
 	  //            End Flow Calculations
 	  //=========================================================
 	}// End if(RUN_ITERATION == 2)
-    }//END EVENT LOOP
+    }// END EVENT LOOP
   eventInfo.reset();
 
   // Switch axis labels on some plots
