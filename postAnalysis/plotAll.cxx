@@ -67,6 +67,11 @@ void plotAll(TString jobID)
 	      gStyle->SetOptStat(211);
 	    }
 
+	  if (name.Contains("h2_psi") || name.Contains("m2_vs_qp") || name.Contains("dEdx_vs_qp"))
+	    {
+	      gStyle->SetOptStat(0);
+	    }
+
 	  hist->Draw("COLZ");
 	  canvas->Update();
 	}
@@ -78,7 +83,7 @@ void plotAll(TString jobID)
 	    {
 	      continue;
 	    }
-	  else if (name.Contains("vtx") || name.Contains("pT") || name.Contains("nhits") || name.Contains("mom")
+	  else if (name.Contains("vtx") || name.Contains("pT") || /*name.Contains("nhits") ||*/ name.Contains("mom")
 		   || name.Contains("primTracks") || name.Contains("dndm") || name.Contains("tofBeta"))
 	    {
 	      canvas->SetLogy();
@@ -95,11 +100,18 @@ void plotAll(TString jobID)
 	      hist->GetYaxis()->SetRangeUser(0.1,10E+7);
 	      gStyle->SetOptStat(11);
 	    }
-	  else if (name.Contains("Check"))
+	  else if (name.Contains("eventCheck"))
+	    {
+	      hist->SetFillColorAlpha(4,0.6);
+	      hist->GetXaxis()->SetLabelSize(0.05);
+	      hist->SetMinimum(1e7);
+	    }
+	  else if (name.Contains("trackCheck"))
 	    {
 	      hist->SetFillColorAlpha(4,0.6);
 	      hist->GetXaxis()->SetLabelSize(0.07);
-	      if (name.Contains("trackCheck")) canvas->SetBottomMargin(0.15);
+	      canvas->SetBottomMargin(0.15);
+	      hist->SetMinimum(2e9);
 	    }
 	  else if (name.Contains("dndm")) 
 	    { 

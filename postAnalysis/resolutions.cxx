@@ -48,6 +48,7 @@ void resolutions(TString jobID, TString order_n_str)
   TH1D *h_resolAvsB = new TH1D("h_resolAvsB","EPD A vs EPD B and TPC B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
   TH1D *h_resolBvsA = new TH1D("h_resolBvsA","EPD B vs EPD A and TPC B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
   TH1D *h_resolTpcB = new TH1D("h_resolTpcB","TPC B vs EPD A and EPD B;Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
+  TH1D *h_resolAvsB_2sub = new TH1D("h_resolAvsB_2sub","EPD A vs EPD B (2 sub-event);Centrality (%);R_{"+order_n_str+"1}",centBins,0,centBins);
 
   TH1D *h_resolutions = new TH1D("h_resolutions","EPD A Resolutions;Centrality;R_{"+order_n_str+"1}",centBins,0,centBins);
   TH2D *h2_resolutions = new TH2D("h2_resolutions","EPD A Resolutions;Centrality;y-y_{mid}",centBins,0,centBins, 20, -1, 1);
@@ -92,6 +93,9 @@ void resolutions(TString jobID, TString order_n_str)
   Double_t dR_BvsA;
   Double_t dR_TpcB;
 
+  Double_t R_AvsB_2sub;
+  Double_t dR_AvsB_2sub;
+
   Double_t EpdAEpdB_save;
   Double_t TpcBEpdA_save;
   Double_t TpcBEpdB_save;
@@ -131,6 +135,11 @@ void resolutions(TString jobID, TString order_n_str)
       R_AvsB = TMath::Sqrt( (EpdAEpdB * TpcBEpdA) / TpcBEpdB );
       R_BvsA = TMath::Sqrt( (EpdAEpdB * TpcBEpdB) / TpcBEpdA );
       R_TpcB = TMath::Sqrt( (TpcBEpdA * TpcBEpdB) / EpdAEpdB );
+      if (EpdAEpdB > 0)
+	{
+	  R_AvsB_2sub = TMath::Sqrt( EpdAEpdB );
+	  dR_AvsB_2sub = (R_AvsB_2sub / 2) * ( dEpdAEpdB / EpdAEpdB);
+	}
 
       dR_AvsB = R_AvsB * TMath::Sqrt((dEpdAEpdB/(2*EpdAEpdB))*(dEpdAEpdB/(2*EpdAEpdB)) +
 				     (dTpcBEpdA/(2*TpcBEpdA))*(dTpcBEpdA/(2*TpcBEpdA)) +
@@ -143,6 +152,7 @@ void resolutions(TString jobID, TString order_n_str)
       dR_TpcB = R_TpcB * TMath::Sqrt((dTpcBEpdA/(2*TpcBEpdA))*(dTpcBEpdA/(2*TpcBEpdA)) +
 				     (dTpcBEpdB/(2*TpcBEpdB))*(dTpcBEpdB/(2*TpcBEpdB)) +
 				     (dEpdAEpdB/(2*EpdAEpdB))*(dEpdAEpdB/(2*EpdAEpdB)));
+
 
       if(TMath::IsNaN(R_AvsB) || dR_AvsB > 0.1) { R_AvsB = 0; dR_AvsB = 0; }
       if(TMath::IsNaN(R_BvsA) || dR_BvsA > 0.1) { R_BvsA = 0; dR_BvsA = 0; }
@@ -157,6 +167,12 @@ void resolutions(TString jobID, TString order_n_str)
 
       h_resolTpcB->SetBinContent(i, R_TpcB);
       h_resolTpcB->SetBinError(i, dR_TpcB);
+
+      if (EpdAEpdB > 0)
+	{
+	  h_resolAvsB_2sub->SetBinContent(i, R_AvsB_2sub);
+	  h_resolAvsB_2sub->SetBinError(i, dR_AvsB_2sub);
+	}
 
       if(!TMath::IsNaN(R_AvsB_save))
 	{
@@ -180,7 +196,7 @@ void resolutions(TString jobID, TString order_n_str)
       h_resolAvsB->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
       h_resolBvsA->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
       h_resolTpcB->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
-
+      h_resolAvsB_2sub->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
       h_centralities_flip->GetXaxis()->SetBinLabel(i, newBinLabels.at(i-1));
     }
   // END RESOLUTIONS
@@ -193,10 +209,12 @@ void resolutions(TString jobID, TString order_n_str)
   h_resolAvsB->SetMarkerStyle(20);
   h_resolBvsA->SetMarkerStyle(20);
   h_resolTpcB->SetMarkerStyle(20);
+  h_resolAvsB_2sub->SetMarkerStyle(20);
 
   h_resolAvsB->SetMarkerSize(1.5);
   h_resolBvsA->SetMarkerSize(1.5);
   h_resolTpcB->SetMarkerSize(1.5);
+  h_resolAvsB_2sub->SetMarkerSize(1.5);
 
   h_resolAvsB->SetMarkerColor(kBlue-7);
   h_resolBvsA->SetMarkerColor(kRed-7);
@@ -210,10 +228,10 @@ void resolutions(TString jobID, TString order_n_str)
   stack->Add(h_resolBvsA);
   stack->Add(h_resolTpcB);
 
-  TLegend *legend = new TLegend(0.65, 0.75, 0.9, 0.9);
-  legend->AddEntry(h_resolAvsB,"EPD A vs EPD B, TPC B");
-  legend->AddEntry(h_resolBvsA,"EPD B vs EPD A, TPC B");
-  legend->AddEntry(h_resolTpcB,"TPC B vs EPD A, EPD B");
+  TLegend *legend = new TLegend(0.7, 0.75, 0.9, 0.9);
+  legend->AddEntry(h_resolAvsB,"EPD A");
+  legend->AddEntry(h_resolBvsA,"EPD B");
+  legend->AddEntry(h_resolTpcB,"TPC B");
 
   canvas->SetTicks();
   stack->Draw("NOSTACK E1P");
@@ -229,6 +247,13 @@ void resolutions(TString jobID, TString order_n_str)
   h_resolAvsB->Draw("E1P");
   legend2->Draw();
   canvas->SaveAs(jobID + "_resolutionAonly.png");
+  canvas->Clear();
+
+  h_resolAvsB_2sub->SetMaximum(0.7);
+  h_resolAvsB_2sub->SetTitle("");
+  h_resolAvsB_2sub->Draw("E1P");
+  //legend2->Draw();
+  canvas->SaveAs(jobID + "_resolution2SubOnly.png");
   canvas->Clear();
 
   canvas->SetTicks(0);

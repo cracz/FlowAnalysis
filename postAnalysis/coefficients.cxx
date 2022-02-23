@@ -96,8 +96,11 @@ void coefficients(TString jobID, TString order_n_str)
   TProfile *p_vn_kp   = (TProfile*)file->Get("p_vn_kp");
   TProfile *p_vn_km   = (TProfile*)file->Get("p_vn_km");
   TProfile *p_vn_pr   = (TProfile*)file->Get("p_vn_pr");
+  TProfile *p_vn_pr_alt   = (TProfile*)file->Get("p_vn_pr_alt");
   TProfile *p_vn_de   = (TProfile*)file->Get("p_vn_de");
   TProfile *p_vn_tr   = (TProfile*)file->Get("p_vn_tr");
+  TProfile *p_vn_de_overA = (TProfile*)file->Get("p_vn_de_overA");
+  TProfile *p_vn_tr_overA = (TProfile*)file->Get("p_vn_tr_overA");
 
   p_vn_kp->Rebin();
   p_vn_km->Rebin();
@@ -109,6 +112,8 @@ void coefficients(TString jobID, TString order_n_str)
   TProfile *p_vn_pr_ext = (TProfile*)file->Get("p_vn_pr_ext");
   TProfile *p_vn_de_ext = (TProfile*)file->Get("p_vn_de_ext");
   TProfile *p_vn_tr_ext = (TProfile*)file->Get("p_vn_tr_ext");
+  TProfile *p_vn_de_ext_overA = (TProfile*)file->Get("p_vn_de_ext_overA");
+  TProfile *p_vn_tr_ext_overA = (TProfile*)file->Get("p_vn_tr_ext_overA");
 
   p_vn_kp_ext->Rebin();
   p_vn_km_ext->Rebin();
@@ -127,8 +132,11 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_kp = p_vn_kp->ProjectionX();
   TH1D *h_vn_km = p_vn_km->ProjectionX();
   TH1D *h_vn_pr = p_vn_pr->ProjectionX();
+  TH1D *h_vn_pr_alt = p_vn_pr_alt->ProjectionX();
   TH1D *h_vn_de = p_vn_de->ProjectionX();
   TH1D *h_vn_tr = p_vn_tr->ProjectionX();
+  TH1D *h_vn_de_overA = p_vn_de_overA->ProjectionX();
+  TH1D *h_vn_tr_overA = p_vn_tr_overA->ProjectionX();
 
   TH1D *h_vn_pp_ext = p_vn_pp_ext->ProjectionX();
   TH1D *h_vn_pm_ext = p_vn_pm_ext->ProjectionX();
@@ -137,6 +145,8 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_pr_ext = p_vn_pr_ext->ProjectionX();
   TH1D *h_vn_de_ext = p_vn_de_ext->ProjectionX();
   TH1D *h_vn_tr_ext = p_vn_tr_ext->ProjectionX();
+  TH1D *h_vn_de_ext_overA = p_vn_de_ext_overA->ProjectionX();
+  TH1D *h_vn_tr_ext_overA = p_vn_tr_ext_overA->ProjectionX();
   
   TH1D *h_vn_pr_for = p_vn_pr_for->ProjectionX();
 
@@ -151,8 +161,11 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_kp = PlotUtils::flipHisto(h_vn_kp);
   h_vn_km = PlotUtils::flipHisto(h_vn_km);
   h_vn_pr = PlotUtils::flipHisto(h_vn_pr);
+  h_vn_pr_alt = PlotUtils::flipHisto(h_vn_pr_alt);
   h_vn_de = PlotUtils::flipHisto(h_vn_de);
   h_vn_tr = PlotUtils::flipHisto(h_vn_tr);
+  h_vn_de_overA = PlotUtils::flipHisto(h_vn_de_overA);
+  h_vn_tr_overA = PlotUtils::flipHisto(h_vn_tr_overA);
 
   h_vn_pp_ext = PlotUtils::flipHisto(h_vn_pp_ext);
   h_vn_pm_ext = PlotUtils::flipHisto(h_vn_pm_ext);
@@ -161,6 +174,8 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_pr_ext = PlotUtils::flipHisto(h_vn_pr_ext);
   h_vn_de_ext = PlotUtils::flipHisto(h_vn_de_ext);
   h_vn_tr_ext = PlotUtils::flipHisto(h_vn_tr_ext);
+  h_vn_de_ext_overA = PlotUtils::flipHisto(h_vn_de_ext_overA);
+  h_vn_tr_ext_overA = PlotUtils::flipHisto(h_vn_tr_ext_overA);
   
   h_vn_pr_for = PlotUtils::flipHisto(h_vn_pr_for);
 
@@ -175,8 +190,11 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_kp = PlotUtils::trimCentralityPlot(h_vn_kp);
   h_vn_km = PlotUtils::trimCentralityPlot(h_vn_km);
   h_vn_pr = PlotUtils::trimCentralityPlot(h_vn_pr);
+  h_vn_pr_alt = PlotUtils::trimCentralityPlot(h_vn_pr_alt);
   h_vn_de = PlotUtils::trimCentralityPlot(h_vn_de);
   h_vn_tr = PlotUtils::trimCentralityPlot(h_vn_tr);
+  h_vn_de_overA = PlotUtils::trimCentralityPlot(h_vn_de_overA);
+  h_vn_tr_overA = PlotUtils::trimCentralityPlot(h_vn_tr_overA);
 
   h_vn_pp_ext = PlotUtils::trimCentralityPlot(h_vn_pp_ext);
   h_vn_pm_ext = PlotUtils::trimCentralityPlot(h_vn_pm_ext);
@@ -185,6 +203,8 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_pr_ext = PlotUtils::trimCentralityPlot(h_vn_pr_ext);
   h_vn_de_ext = PlotUtils::trimCentralityPlot(h_vn_de_ext);
   h_vn_tr_ext = PlotUtils::trimCentralityPlot(h_vn_tr_ext);
+  h_vn_de_ext_overA = PlotUtils::trimCentralityPlot(h_vn_de_ext_overA);
+  h_vn_tr_ext_overA = PlotUtils::trimCentralityPlot(h_vn_tr_ext_overA);
   
   h_vn_pr_for = PlotUtils::trimCentralityPlot(h_vn_pr_for);
 
@@ -201,6 +221,19 @@ void coefficients(TString jobID, TString order_n_str)
   TH1D *h_vn_tr_ext_scaled = (TH1D*)h_vn_tr_ext->Clone();
   h_vn_tr_ext_scaled->Scale(1.0/3.0);
 
+  /*
+  TH1D *h_vn_de_scaled = (TH1D*)h_vn_de_overA->Clone();
+  h_vn_de_scaled->Scale(1.0/2.0);
+  
+  TH1D *h_vn_de_ext_scaled = (TH1D*)h_vn_de_ext_overA->Clone();
+  h_vn_de_ext_scaled->Scale(1.0/2.0);
+
+  TH1D *h_vn_tr_scaled = (TH1D*)h_vn_tr_overA->Clone();
+  h_vn_tr_scaled->Scale(1.0/3.0);
+  
+  TH1D *h_vn_tr_ext_scaled = (TH1D*)h_vn_tr_ext_overA->Clone();
+  h_vn_tr_ext_scaled->Scale(1.0/3.0);
+  */
   
   THStack *piCentralityStack = new THStack("piCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
   THStack *kaCentralityStack = new THStack("kaCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
@@ -215,8 +248,8 @@ void coefficients(TString jobID, TString order_n_str)
 
   THStack *pdtCentralityStack = new THStack("pdtCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
   THStack *pdtExtCentralityStack = new THStack("pdtExtCentralityStack", ";Centrality (%);v_{"+order_n_str+"}");
-  THStack *pdtScaledCentralityStack = new THStack("pdtScaledCentralityStack", ";Centrality (%);v_{"+order_n_str+"}/n_{n}");
-  THStack *pdtExtScaledCentralityStack = new THStack("pdtExtScaledCentralityStack", ";Centrality (%);v_{"+order_n_str+"}/n_{n}");
+  THStack *pdtScaledCentralityStack = new THStack("pdtScaledCentralityStack", ";Centrality (%);v_{"+order_n_str+"}/A");
+  THStack *pdtExtScaledCentralityStack = new THStack("pdtExtScaledCentralityStack", ";Centrality (%);v_{"+order_n_str+"}/A");
   
   THStack *etaRegionStack = new THStack("etaRegionStack", ";Centrality (%);v_{"+order_n_str+"}");
 
@@ -284,6 +317,14 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_pr->GetYaxis()->SetTitleOffset(1.7);
   h_vn_pr->GetYaxis()->SetTitle("v_{"+order_n_str+"}");
 
+  h_vn_pr_alt->SetMarkerStyle(20);
+  h_vn_pr_alt->SetMarkerSize(2.5);
+  h_vn_pr_alt->SetMarkerColor(2);
+  h_vn_pr_alt->SetLineColor(2);
+  h_vn_pr_alt->SetLineWidth(3);
+  h_vn_pr_alt->GetYaxis()->SetTitleOffset(1.7);
+  h_vn_pr_alt->GetYaxis()->SetTitle("v_{"+order_n_str+"}");
+
   h_vn_de->SetMarkerStyle(20);
   h_vn_de->SetMarkerSize(2.5);
   //h_vn_de->SetMarkerColor(2);
@@ -299,6 +340,22 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_tr->SetLineWidth(3);
   h_vn_tr->GetYaxis()->SetTitleOffset(1.7);
   h_vn_tr->GetYaxis()->SetTitle("v_{"+order_n_str+"}");
+
+  h_vn_de_overA->SetMarkerStyle(20);
+  h_vn_de_overA->SetMarkerSize(2.5);
+  //h_vn_de_overA->SetMarkerColor(2);
+  //h_vn_de_overA->SetLineColor(2);
+  h_vn_de_overA->SetLineWidth(3);
+  h_vn_de_overA->GetYaxis()->SetTitleOffset(1.7);
+  h_vn_de_overA->GetYaxis()->SetTitle("v_{"+order_n_str+"}");
+
+  h_vn_tr_overA->SetMarkerStyle(20);
+  h_vn_tr_overA->SetMarkerSize(2.5);
+  h_vn_tr_overA->SetMarkerColor(44);
+  h_vn_tr_overA->SetLineColor(44);
+  h_vn_tr_overA->SetLineWidth(3);
+  h_vn_tr_overA->GetYaxis()->SetTitleOffset(1.7);
+  h_vn_tr_overA->GetYaxis()->SetTitle("v_{"+order_n_str+"}");
 
   h_vn_de_scaled->SetMarkerStyle(20);
   h_vn_de_scaled->SetMarkerSize(2.5);
@@ -372,6 +429,18 @@ void coefficients(TString jobID, TString order_n_str)
   h_vn_tr_ext->SetLineColor(44);
   h_vn_tr_ext->GetYaxis()->SetTitleOffset(1.7);
 
+  h_vn_de_ext_overA->SetMarkerStyle(20);
+  h_vn_de_ext_overA->SetMarkerSize(2.5);
+  h_vn_de_ext_overA->SetLineWidth(3);
+  h_vn_de_ext_overA->GetYaxis()->SetTitleOffset(1.7);
+
+  h_vn_tr_ext_overA->SetMarkerStyle(20);
+  h_vn_tr_ext_overA->SetMarkerSize(2.5);
+  h_vn_tr_ext_overA->SetLineWidth(3);
+  h_vn_tr_ext_overA->SetMarkerColor(44);
+  h_vn_tr_ext_overA->SetLineColor(44);
+  h_vn_tr_ext_overA->GetYaxis()->SetTitleOffset(1.7);
+
   h_vn_pr_for->SetMarkerStyle(20);
   h_vn_pr_for->SetMarkerSize(2.5);
   h_vn_pr_for->SetMarkerColor(4);
@@ -426,17 +495,13 @@ void coefficients(TString jobID, TString order_n_str)
   kmExtCentralityStack->Add(h_vn_km);
   kmExtCentralityStack->Add(h_vn_km_ext);
 
-  prExtCentralityStack->Add(h_vn_pr_for);
-  prExtCentralityStack->Add(h_vn_pr);
-  prExtCentralityStack->Add(h_vn_pr_ext);
-
   deExtCentralityStack->Add(h_vn_de);
   deExtCentralityStack->Add(h_vn_de_ext);
 
   trExtCentralityStack->Add(h_vn_tr);
   trExtCentralityStack->Add(h_vn_tr_ext);
 
-  pdtCentralityStack->Add(h_vn_pr);
+  pdtCentralityStack->Add(h_vn_pr_alt);
   pdtCentralityStack->Add(h_vn_de);
   pdtCentralityStack->Add(h_vn_tr);
 
@@ -444,7 +509,7 @@ void coefficients(TString jobID, TString order_n_str)
   pdtExtCentralityStack->Add(h_vn_de_ext);
   pdtExtCentralityStack->Add(h_vn_tr_ext);
 
-  pdtScaledCentralityStack->Add(h_vn_pr);
+  pdtScaledCentralityStack->Add(h_vn_pr_alt);
   pdtScaledCentralityStack->Add(h_vn_de_scaled);
   pdtScaledCentralityStack->Add(h_vn_tr_scaled);
 
@@ -452,6 +517,15 @@ void coefficients(TString jobID, TString order_n_str)
   pdtExtScaledCentralityStack->Add(h_vn_de_ext_scaled);
   pdtExtScaledCentralityStack->Add(h_vn_tr_ext_scaled);
 
+  /*
+  pdtScaledCentralityStack->Add(h_vn_pr);
+  pdtScaledCentralityStack->Add(h_vn_de_overA);
+  pdtScaledCentralityStack->Add(h_vn_tr_overA);
+
+  pdtExtScaledCentralityStack->Add(h_vn_pr_ext);
+  pdtExtScaledCentralityStack->Add(h_vn_de_ext_overA);
+  pdtExtScaledCentralityStack->Add(h_vn_tr_ext_overA);
+  */
   etaRegionStack->Add(h_vn_EpdA);
   etaRegionStack->Add(h_vn_EpdB);
   etaRegionStack->Add(h_vn_TpcB);
@@ -526,14 +600,14 @@ void coefficients(TString jobID, TString order_n_str)
       TPaveText *piText = new TPaveText(15, -0.004, 45, 0.008, "NB");
       piText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       piText->AddText("0 < y_{CM} < 0.5 GeV");
-      piText->AddText("0.18 < p_{T} < 1.6 GeV");
+      piText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       piText->SetFillColorAlpha(0,0);
       piText->SetLineColorAlpha(0,0);
 
       TPaveText *kaText = new TPaveText(20, -0.1, 50, -0.07, "NB");
       kaText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kaText->AddText("0 < y_{CM} < 0.5 GeV");
-      kaText->AddText("0.18 < p_{T} < 1.6 GeV");
+      kaText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       kaText->SetFillColorAlpha(0,0);
       kaText->SetLineColorAlpha(0,0);
 
@@ -541,7 +615,7 @@ void coefficients(TString jobID, TString order_n_str)
       prText->AddText("Proton");
       prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       prText->AddText("0 < y_{CM} < 0.5 GeV");
-      prText->AddText("0.4 < p_{T} < 2.0 GeV");
+      prText->AddText("0.4 #leq p_{T} #leq 2.0 GeV");
       prText->SetFillColorAlpha(0,0);
       prText->SetLineColorAlpha(0,0);
 
@@ -690,6 +764,14 @@ void coefficients(TString jobID, TString order_n_str)
       canvas->SaveAs(jobID + "_kmExtCentralityStack.png");
       canvas->Clear();
 
+
+      h_vn_pr->SetMarkerColor(1);
+      h_vn_pr->SetLineColor(1);
+
+      prExtCentralityStack->Add(h_vn_pr_for);
+      prExtCentralityStack->Add(h_vn_pr);
+      prExtCentralityStack->Add(h_vn_pr_ext);
+      
       prExtCentralityStack->Draw();
       prExtCentralityStack->GetXaxis()->SetNdivisions(210);
       prExtCentralityStack->SetMaximum(0.03);
@@ -700,6 +782,10 @@ void coefficients(TString jobID, TString order_n_str)
       //prExtText->Draw();
       canvas->SaveAs(jobID + "_prExtCentralityStack.png");
       canvas->Clear();
+
+      h_vn_pr->SetMarkerColor(2);
+      h_vn_pr->SetLineColor(2);
+
 
       deExtCentralityStack->Draw();
       deExtCentralityStack->GetXaxis()->SetNdivisions(210);
@@ -846,14 +932,14 @@ void coefficients(TString jobID, TString order_n_str)
       TPaveText *piText = new TPaveText(5, 0.055, 38, 0.1, "NB");
       piText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       piText->AddText("0 < y_{CM} < 0.5 GeV");
-      piText->AddText("0.18 < p_{T} < 1.6 GeV");
+      piText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       piText->SetFillColorAlpha(0,0);
       piText->SetLineColorAlpha(0,0);
 
       TPaveText *kaText = new TPaveText(5, 0.055, 38, 0.1, "NB");
       kaText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       kaText->AddText("0 < y_{CM} < 0.5 GeV");
-      kaText->AddText("0.18 < p_{T} < 1.6 GeV");
+      kaText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       kaText->SetFillColorAlpha(0,0);
       kaText->SetLineColorAlpha(0,0);
 
@@ -861,40 +947,53 @@ void coefficients(TString jobID, TString order_n_str)
       //prText->AddText("Proton");
       prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       prText->AddText("0 < y_{CM} < 0.5 GeV");
-      prText->AddText("0.4 < p_{T} < 2.0 GeV");
+      prText->AddText("0.4 #leq p_{T} #leq 2.0 GeV");
       prText->SetFillColorAlpha(0,0);
       prText->SetLineColorAlpha(0,0);
 
       TPaveText *deText = new TPaveText(5, 0.055, 38, 0.1, "NB");
       //deText->AddText("Deuteron");
       deText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      deText->AddText("0 < y_{CM} < 0.5 GeV");
-      deText->AddText("0.4 < p_{T} < 2.0 GeV");
+      deText->AddText("0.5 < y_{CM} < 1.0 GeV");
+      deText->AddText("0.3 #leq p_{T} #leq 1.0 GeV");
       deText->SetFillColorAlpha(0,0);
       deText->SetLineColorAlpha(0,0);
 
       TPaveText *trText = new TPaveText(5, 0.055, 38, 0.1, "NB");
       //trText->AddText("Triton");
       trText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      trText->AddText("0 < y_{CM} < 0.5 GeV");
-      trText->AddText("0.4 < p_{T} < 2.0 GeV");
+      trText->AddText("0.5 < y_{CM} < 1.0 GeV");
+      trText->AddText("0.3 #leq p_{T} #leq 1.0 GeV");
       trText->SetFillColorAlpha(0,0);
       trText->SetLineColorAlpha(0,0);
 
       TPaveText *pdtText = new TPaveText(5, -0.12, 38, -0.08, "NB");
       pdtText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      pdtText->AddText("0 < y_{CM} < 0.5 GeV");
-      pdtText->AddText("0.4 < p_{T} < 2.0 GeV");
+      pdtText->AddText("0.5 < y_{CM} < 1.0 GeV");
+      pdtText->AddText("0.3 #leq p_{T}/A #leq 1.0 GeV");
       pdtText->SetFillColorAlpha(0,0);
       pdtText->SetLineColorAlpha(0,0);
 
       TPaveText *pdtExtText = new TPaveText(5, -0.12, 38, -0.08, "NB");
       pdtExtText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
       pdtExtText->AddText("0.5 < y_{CM} < 1.0 GeV");
-      pdtExtText->AddText("0.4 < p_{T} < 2.0 GeV");
+      pdtExtText->AddText("0.4 #leq p_{T}/A #leq 2.0 GeV");
       pdtExtText->SetFillColorAlpha(0,0);
       pdtExtText->SetLineColorAlpha(0,0);
 
+      TPaveText *pdtScaledText = new TPaveText(5, -0.08, 38, -0.04, "NB");
+      pdtScaledText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      pdtScaledText->AddText("0.5 < y_{CM} < 1.0 GeV");
+      pdtScaledText->AddText("0.3 #leq p_{T}/A #leq 1.0 GeV");
+      pdtScaledText->SetFillColorAlpha(0,0);
+      pdtScaledText->SetLineColorAlpha(0,0);
+
+      TPaveText *pdtExtScaledText = new TPaveText(5, -0.12, 38, -0.08, "NB");
+      pdtExtScaledText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      pdtExtScaledText->AddText("0.5 < y_{CM} < 1.0 GeV");
+      pdtExtScaledText->AddText("0.4 #leq p_{T}/A #leq 2.0 GeV");
+      pdtExtScaledText->SetFillColorAlpha(0,0);
+      pdtExtScaledText->SetLineColorAlpha(0,0);
 
 
       canvas->SetLeftMargin(0.13);
@@ -951,7 +1050,7 @@ void coefficients(TString jobID, TString order_n_str)
       pdtCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       pdtCentralityStack->GetXaxis()->SetNdivisions(210);
       pdtCentralityStack->SetMaximum(0.07);
-      pdtCentralityStack->SetMinimum(-0.14);
+      pdtCentralityStack->SetMinimum(-0.15);
       pdtCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
       pdtCentralityStack->Draw("NOSTACK E1P SAME");
@@ -959,7 +1058,7 @@ void coefficients(TString jobID, TString order_n_str)
       pdtText->Draw();
       canvas->SaveAs(jobID + "_pdtCentralityStack.png");
       canvas->Clear();
-
+      /*
       pdtExtCentralityStack->Draw();
       pdtExtCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       pdtExtCentralityStack->GetXaxis()->SetNdivisions(210);
@@ -982,20 +1081,20 @@ void coefficients(TString jobID, TString order_n_str)
       zeroLine->Draw("SAME");
       pdtExtScaledCentralityStack->Draw("NOSTACK E1P SAME");
       pdtExtLegend->Draw();
-      pdtExtText->Draw();
+      pdtExtScaledText->Draw();
       canvas->SaveAs(jobID + "_pdtExtScaledCentralityStack.png");
       canvas->Clear();
-
+      */
       pdtScaledCentralityStack->Draw();
       pdtScaledCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       pdtScaledCentralityStack->GetXaxis()->SetNdivisions(210);
-      pdtScaledCentralityStack->SetMaximum(0.03);
-      pdtScaledCentralityStack->SetMinimum(-0.05);
+      pdtScaledCentralityStack->SetMaximum(0.07);
+      pdtScaledCentralityStack->SetMinimum(-0.1);
       pdtScaledCentralityStack->Draw("NOSTACK E1P");
       zeroLine->Draw("SAME");
       pdtScaledCentralityStack->Draw("NOSTACK E1P SAME");
       pdtLegend->Draw();
-      pdtText->Draw();
+      pdtScaledText->Draw();
       canvas->SaveAs(jobID + "_pdtScaledCentralityStack.png");
       canvas->Clear();
 
@@ -1166,6 +1265,13 @@ void coefficients(TString jobID, TString order_n_str)
       canvas->SaveAs(jobID + "_kmExtCentralityStack.png");
       canvas->Clear();
 
+      h_vn_pr->SetMarkerColor(1);
+      h_vn_pr->SetLineColor(1);
+
+      prExtCentralityStack->Add(h_vn_pr_for);
+      prExtCentralityStack->Add(h_vn_pr);
+      prExtCentralityStack->Add(h_vn_pr_ext);
+
       prExtCentralityStack->Draw();
       prExtCentralityStack->GetYaxis()->SetTitleOffset(1.7);
       prExtCentralityStack->GetXaxis()->SetNdivisions(210);
@@ -1178,6 +1284,10 @@ void coefficients(TString jobID, TString order_n_str)
       //prExtText->Draw();
       canvas->SaveAs(jobID + "_prExtCentralityStack.png");
       canvas->Clear();
+
+      h_vn_pr->SetMarkerColor(2);
+      h_vn_pr->SetLineColor(2);
+
 
       deExtCentralityStack->Draw();
       deExtCentralityStack->GetXaxis()->SetNdivisions(210);

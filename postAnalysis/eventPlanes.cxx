@@ -17,6 +17,9 @@ void eventPlanes(TString jobID)
   TH1D *h_psiEpdA_RAW = (TH1D*)file->Get("h_psiEpdA_RAW");
   TH1D *h_psiEpdB_RAW = (TH1D*)file->Get("h_psiEpdB_RAW");
   TH1D *h_psiTpcB_RAW = (TH1D*)file->Get("h_psiTpcB_RAW");
+  h_psiEpdA_RAW->SetLineColor(1);
+  h_psiEpdB_RAW->SetLineColor(1);
+  h_psiTpcB_RAW->SetLineColor(1);
   h_psiEpdA_RAW->SetLineWidth(3);
   h_psiEpdB_RAW->SetLineWidth(3);
   h_psiTpcB_RAW->SetLineWidth(3);
@@ -69,8 +72,8 @@ void eventPlanes(TString jobID)
   gPad->SetTicky();
   gPad->SetRightMargin(0);
   stackEpdA->Draw();
-  stackEpdA->SetMinimum(3e5);
-  stackEpdA->SetMaximum(1e6);
+  stackEpdA->SetMinimum(2e5);
+  stackEpdA->SetMaximum(7e5);
   stackEpdA->Draw("NOSTACK");
   legend->Draw();
   
@@ -79,16 +82,16 @@ void eventPlanes(TString jobID)
   gPad->SetLeftMargin(0);
   gPad->SetRightMargin(0);
   stackEpdB->Draw();
-  stackEpdB->SetMinimum(3e5);
-  stackEpdB->SetMaximum(1e6);
+  stackEpdB->SetMinimum(2e5);
+  stackEpdB->SetMaximum(7e5);
   stackEpdB->Draw("NOSTACK");
 
   canvas->cd(3);  
   gPad->SetTicky();
   gPad->SetLeftMargin(0);
   stackTpcB->Draw();
-  stackTpcB->SetMinimum(3e5);
-  stackTpcB->SetMaximum(1e6);
+  stackTpcB->SetMinimum(2e5);
+  stackTpcB->SetMaximum(7e5);
   stackTpcB->Draw("NOSTACK");
 
   canvas->SaveAs(jobID+"_psiCombined.png");

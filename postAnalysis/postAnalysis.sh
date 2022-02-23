@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-jobID="B7EC65D05759DB7657D48F006B43243B"
+jobID="26F"
 order_n="3"
 
 #root -l -b -q plotAll.cxx\(\"${jobID}\"\)
@@ -9,6 +9,7 @@ order_n="3"
 #root -l -b -q yVsEtaPlots.cxx\(\"${jobID}\"\)
 #root -l -b -q acceptanceCuts.cxx\(\"${jobID}\"\)
 #root -l -b -q eventPlanes.cxx\(\"${jobID}\"\)
+#root -l -b -q correlations.cxx\(\"${jobID}\",\"${order_n}\"\)
 
 # Integrated yields
 #root -l -b -q intYield.cxx\(\"${jobID}\",\"E\"\)
@@ -16,8 +17,10 @@ order_n="3"
 #root -l -b -q overlay.cxx\(\"${jobID}\",\"E\"\)
 
 # EP Resolution and Flow Calculations
-root -l -b -q resolutions.cxx\(\"${jobID}\",\"${order_n}\"\)
-#root -l -b -q coefficients.cxx\(\"${jobID}\",\"${order_n}\"\)
+#root -l -b -q resolutions.cxx\(\"${jobID}\",\"${order_n}\"\)
+root -l -b -q coefficients.cxx\(\"${jobID}\",\"${order_n}\"\)
 #root -l -b -q vnVsY.cxx\(\"${jobID}\",\"${order_n}\"\)
 #root -l -b -q vnVsPt.cxx\(\"${jobID}\",\"${order_n}\"\)
+#root -l -b -q vnVsKt.cxx\(\"${jobID}\",\"${order_n}\"\)
 #root -l -b -q finalWithSystematics.cxx\(\"${order_n}\"\)
+#root -l -b -q meanpT.cxx\(\"${jobID}\",\"${order_n}\"\)

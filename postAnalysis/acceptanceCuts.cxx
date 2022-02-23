@@ -16,6 +16,8 @@ void acceptanceCuts(TString jobID)
   TH2D *h2_pT_vs_yCM_pr = (TH2D*)file->Get("h2_pT_vs_yCM_pr");
   TH2D *h2_pT_vs_yCM_de = (TH2D*)file->Get("h2_pT_vs_yCM_de");
   TH2D *h2_pT_vs_yCM_tr = (TH2D*)file->Get("h2_pT_vs_yCM_tr");
+  TH2D *h2_pToverA_vs_yCM_de = (TH2D*)file->Get("h2_pToverA_vs_yCM_de");
+  TH2D *h2_pToverA_vs_yCM_tr = (TH2D*)file->Get("h2_pToverA_vs_yCM_tr");
   h2_pT_vs_yCM_pp->SetTitle("");
   h2_pT_vs_yCM_pm->SetTitle("");
   h2_pT_vs_yCM_kp->SetTitle("");
@@ -23,6 +25,8 @@ void acceptanceCuts(TString jobID)
   h2_pT_vs_yCM_pr->SetTitle("");
   h2_pT_vs_yCM_de->SetTitle("");
   h2_pT_vs_yCM_tr->SetTitle("");
+  h2_pToverA_vs_yCM_de->SetTitle("");
+  h2_pToverA_vs_yCM_tr->SetTitle("");
 
   Double_t maxScale = h2_pT_vs_yCM_pr->GetMaximum();
   h2_pT_vs_yCM_pp->SetMaximum(maxScale);
@@ -31,6 +35,8 @@ void acceptanceCuts(TString jobID)
   h2_pT_vs_yCM_km->SetMaximum(maxScale);
   h2_pT_vs_yCM_de->SetMaximum(maxScale);
   h2_pT_vs_yCM_tr->SetMaximum(maxScale);
+  h2_pToverA_vs_yCM_de->SetMaximum(maxScale);
+  h2_pToverA_vs_yCM_tr->SetMaximum(maxScale);
   
   Double_t yCM_low_pp  = 0.0;
   Double_t yCM_high_pp = 0.5;
@@ -57,21 +63,21 @@ void acceptanceCuts(TString jobID)
   Double_t pT_low_pr   = 0.4;
   Double_t pT_high_pr  = 2.0;
 
-  Double_t yCM_low_de  = 0.0;
-  Double_t yCM_high_de = 0.5;
-  Double_t pT_low_de   = 0.4;
-  Double_t pT_high_de  = 2.0;
+  Double_t yCM_low_de  = 0.5;
+  Double_t yCM_high_de = 1.0;
+  Double_t pT_low_de   = 0.3;
+  Double_t pT_high_de  = 1.0;
 
-  Double_t yCM_low_tr  = 0.0;
-  Double_t yCM_high_tr = 0.5;
-  Double_t pT_low_tr   = 0.4;
-  Double_t pT_high_tr  = 2.0;
+  Double_t yCM_low_tr  = 0.5;
+  Double_t yCM_high_tr = 1.0;
+  Double_t pT_low_tr   = 0.3;
+  Double_t pT_high_tr  = 1.0;
 
-  TLine *y_mid = new TLine(0, 0, 0, 3.0);
+  TLine *y_mid = new TLine(0, 0, 0, 2.5);
   y_mid->SetLineColor(kRed);
   y_mid->SetLineWidth(4);
 
-  TLine *y_target = new TLine(1.05, 0, 1.05, 3.0);
+  TLine *y_target = new TLine(1.05, 0, 1.05, 2.5);
   y_target->SetLineStyle(9);
   y_target->SetLineColor(kRed);
   y_target->SetLineWidth(4);
@@ -129,6 +135,10 @@ void acceptanceCuts(TString jobID)
   right_de->SetLineWidth(4);
   top_de->SetLineWidth(4);
   bottom_de->SetLineWidth(4);
+  left_de->SetLineColor(4);
+  right_de->SetLineColor(4);
+  top_de->SetLineColor(4);
+  bottom_de->SetLineColor(4);
 
   TLine *left_tr = new TLine(yCM_low_tr, pT_low_tr, yCM_low_tr, pT_high_tr);
   TLine *right_tr = new TLine(yCM_high_tr, pT_low_tr, yCM_high_tr, pT_high_tr);
@@ -138,6 +148,11 @@ void acceptanceCuts(TString jobID)
   right_tr->SetLineWidth(4);
   top_tr->SetLineWidth(4);
   bottom_tr->SetLineWidth(4);
+  left_tr->SetLineColor(4);
+  right_tr->SetLineColor(4);
+  top_tr->SetLineColor(4);
+  bottom_tr->SetLineColor(4);
+
 
 
   TPaveText *text_Target = new TPaveText(0.85, 2.5, 1.25, 2.65);
@@ -263,6 +278,19 @@ void acceptanceCuts(TString jobID)
   canvas->SaveAs("Acceptance_pr.png");
   canvas->Clear();
 
+  h2_pT_vs_yCM_pr->GetYaxis()->SetTitle("p_{T}/A (GeV/c)");
+  h2_pT_vs_yCM_pr->Draw("colz");
+  y_mid->Draw("SAME");
+  y_target->Draw("SAME");
+  left_de->Draw("SAME");
+  right_de->Draw("SAME");
+  top_de->Draw("SAME");
+  bottom_de->Draw("SAME");
+  text_pr->Draw("SAME");
+  //text_Target_pr->Draw("SAME");
+  canvas->SaveAs("Acceptance_pr_alt.png");
+  canvas->Clear();
+  /*
   h2_pT_vs_yCM_de->Draw("colz");
   y_mid->Draw("SAME");
   y_target->Draw("SAME");
@@ -285,6 +313,30 @@ void acceptanceCuts(TString jobID)
   text_tr->Draw("SAME");
   //text_Target_tr->Draw("SAME");
   canvas->SaveAs("Acceptance_tr.png");
+  canvas->Clear();
+  */
+  h2_pToverA_vs_yCM_de->Draw("colz");
+  y_mid->Draw("SAME");
+  y_target->Draw("SAME");
+  left_de->Draw("SAME");
+  right_de->Draw("SAME");
+  top_de->Draw("SAME");
+  bottom_de->Draw("SAME");
+  text_de->Draw("SAME");
+  //text_Target_de->Draw("SAME");
+  canvas->SaveAs("Acceptance_de_pToverA.png");
+  canvas->Clear();
+
+  h2_pToverA_vs_yCM_tr->Draw("colz");
+  y_mid->Draw("SAME");
+  y_target->Draw("SAME");
+  left_tr->Draw("SAME");
+  right_tr->Draw("SAME");
+  top_tr->Draw("SAME");
+  bottom_tr->Draw("SAME");
+  text_tr->Draw("SAME");
+  //text_Target_tr->Draw("SAME");
+  canvas->SaveAs("Acceptance_tr_pToverA.png");
   canvas->Clear();
 
 

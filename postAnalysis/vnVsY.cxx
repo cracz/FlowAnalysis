@@ -68,6 +68,7 @@ void vnVsY(TString jobID, TString order_n_str)
   TProfile2D *p2_vn_yCM_cent_kp = (TProfile2D*)file->Get("p2_vn_yCM_cent_kp");
   TProfile2D *p2_vn_yCM_cent_km = (TProfile2D*)file->Get("p2_vn_yCM_cent_km");
   TProfile2D *p2_vn_yCM_cent_pr = (TProfile2D*)file->Get("p2_vn_yCM_cent_pr");
+  TProfile2D *p2_vn_yCM_cent_pr_alt = (TProfile2D*)file->Get("p2_vn_yCM_cent_pr_alt");
   TProfile2D *p2_vn_yCM_cent_pr_symmetry = (TProfile2D*)file->Get("p2_vn_yCM_cent_pr_symmetry");
   TProfile2D *p2_vn_yCM_cent_de = (TProfile2D*)file->Get("p2_vn_yCM_cent_de");
   TProfile2D *p2_vn_yCM_cent_tr = (TProfile2D*)file->Get("p2_vn_yCM_cent_tr");
@@ -95,6 +96,10 @@ void vnVsY(TString jobID, TString order_n_str)
   TProfile *p_vn_yCM_00to10_pr = p2_vn_yCM_cent_pr->ProfileY("p_vn_yCM_00to10_pr", 15, 16);
   TProfile *p_vn_yCM_10to40_pr = p2_vn_yCM_cent_pr->ProfileY("p_vn_yCM_10to40_pr", 9, 14);
   TProfile *p_vn_yCM_40to60_pr = p2_vn_yCM_cent_pr->ProfileY("p_vn_yCM_40to60_pr", 5, 8);
+
+  TProfile *p_vn_yCM_00to10_pr_alt = p2_vn_yCM_cent_pr_alt->ProfileY("p_vn_yCM_00to10_pr_alt", 15, 16);
+  TProfile *p_vn_yCM_10to40_pr_alt = p2_vn_yCM_cent_pr_alt->ProfileY("p_vn_yCM_10to40_pr_alt", 9, 14);
+  TProfile *p_vn_yCM_40to60_pr_alt = p2_vn_yCM_cent_pr_alt->ProfileY("p_vn_yCM_40to60_pr_alt", 5, 8);
 
   TProfile *p_vn_yCM_00to10_pr_symm = p2_vn_yCM_cent_pr_symmetry->ProfileY("p_vn_yCM_00to10_pr_symm", 15, 16);
   TProfile *p_vn_yCM_10to40_pr_symm = p2_vn_yCM_cent_pr_symmetry->ProfileY("p_vn_yCM_10to40_pr_symm", 9, 14);
@@ -128,6 +133,10 @@ void vnVsY(TString jobID, TString order_n_str)
   TH1D *h_vn_yCM_00to10_pr = new TH1D("h_vn_yCM_00to10_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_10to40_pr = new TH1D("h_vn_yCM_10to40_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_40to60_pr = new TH1D("h_vn_yCM_40to60_pr", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+
+  TH1D *h_vn_yCM_00to10_pr_alt = new TH1D("h_vn_yCM_00to10_pr_alt", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_10to40_pr_alt = new TH1D("h_vn_yCM_10to40_pr_alt", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
+  TH1D *h_vn_yCM_40to60_pr_alt = new TH1D("h_vn_yCM_40to60_pr_alt", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
 
   TH1D *h_vn_yCM_00to10_pr_symm = new TH1D("h_vn_yCM_00to10_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
   TH1D *h_vn_yCM_10to40_pr_symm = new TH1D("h_vn_yCM_10to40_pr_symm", ";y-y_{mid};v_{"+order_n_str+"}", 20, -1, 1);
@@ -184,6 +193,10 @@ void vnVsY(TString jobID, TString order_n_str)
   h_vn_yCM_00to10_pr = p_vn_yCM_00to10_pr->ProjectionX();
   h_vn_yCM_10to40_pr = p_vn_yCM_10to40_pr->ProjectionX();
   h_vn_yCM_40to60_pr = p_vn_yCM_40to60_pr->ProjectionX();
+
+  h_vn_yCM_00to10_pr_alt = p_vn_yCM_00to10_pr_alt->ProjectionX();
+  h_vn_yCM_10to40_pr_alt = p_vn_yCM_10to40_pr_alt->ProjectionX();
+  h_vn_yCM_40to60_pr_alt = p_vn_yCM_40to60_pr_alt->ProjectionX();
 
   h_vn_yCM_00to10_pr_symm = p_vn_yCM_00to10_pr_symm->ProjectionX();
   h_vn_yCM_10to40_pr_symm = p_vn_yCM_10to40_pr_symm->ProjectionX();
@@ -279,6 +292,7 @@ void vnVsY(TString jobID, TString order_n_str)
   THStack *kpRapidityStack   = new THStack("kpRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *kmRapidityStack   = new THStack("kmRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *prRapidityStack   = new THStack("prRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
+  THStack *prRapidityStack_alt = new THStack("prRapidityStack_alt", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *prRapidityStack_symm = new THStack("prRapidityStack_symm", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *deRapidityStack   = new THStack("deRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
   THStack *trRapidityStack   = new THStack("trRapidityStack", ";y-y_{mid};v_{"+order_n_str+"}");
@@ -374,6 +388,19 @@ void vnVsY(TString jobID, TString order_n_str)
   h_vn_yCM_00to10_pr->SetLineColor(2);
   h_vn_yCM_10to40_pr->SetLineColor(4);
   h_vn_yCM_40to60_pr->SetLineColor(8);
+
+  h_vn_yCM_00to10_pr_alt->SetMarkerStyle(20);
+  h_vn_yCM_10to40_pr_alt->SetMarkerStyle(20);
+  h_vn_yCM_40to60_pr_alt->SetMarkerStyle(20);
+  h_vn_yCM_00to10_pr_alt->SetMarkerColor(2);
+  h_vn_yCM_10to40_pr_alt->SetMarkerColor(4);
+  h_vn_yCM_40to60_pr_alt->SetMarkerColor(8);
+  h_vn_yCM_00to10_pr_alt->SetMarkerSize(2);
+  h_vn_yCM_10to40_pr_alt->SetMarkerSize(2);
+  h_vn_yCM_40to60_pr_alt->SetMarkerSize(2);
+  h_vn_yCM_00to10_pr_alt->SetLineColor(2);
+  h_vn_yCM_10to40_pr_alt->SetLineColor(4);
+  h_vn_yCM_40to60_pr_alt->SetLineColor(8);
 
   h_vn_yCM_00to10_pr_symm->SetMarkerStyle(20);
   h_vn_yCM_10to40_pr_symm->SetMarkerStyle(20);
@@ -537,35 +564,35 @@ void vnVsY(TString jobID, TString order_n_str)
       TPaveText *ppText = new TPaveText(-0.77, 0.008, 0.2, 0.028, "NB");
       ppText->AddText("#pi^{+}");
       ppText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      ppText->AddText("0.18 < p_{T} < 1.6 GeV");
+      ppText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       ppText->SetFillColorAlpha(0,0);
       ppText->SetLineColorAlpha(0,0);
 
       TPaveText *pmText = new TPaveText(-0.77, 0.008, 0.2, 0.028, "NB");
       pmText->AddText("#pi^{-}");
       pmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      pmText->AddText("0.18 < p_{T} < 1.6 GeV");
+      pmText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       pmText->SetFillColorAlpha(0,0);
       pmText->SetLineColorAlpha(0,0);
 
       TPaveText *kpText = new TPaveText(-0.4, 0.03, 0.6, 0.075, "NB");
       kpText->AddText("K^{+}");
       kpText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      kpText->AddText("0.18 < p_{T} < 1.6 GeV");
+      kpText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       kpText->SetFillColorAlpha(0,0);
       kpText->SetLineColorAlpha(0,0);
 
       TPaveText *kmText = new TPaveText(-0.75, 0.0, 0.15, 0.018, "NB");
       kmText->AddText("K^{-}");
       kmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      kmText->AddText("0.18 < p_{T} < 1.6 GeV");
+      kmText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       kmText->SetFillColorAlpha(0,0);
       kmText->SetLineColorAlpha(0,0);
 
       TPaveText *prText_y = new TPaveText(-0.75, 0.038, 0.15, 0.083, "NB");
       prText_y->AddText("Proton");
       prText_y->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      prText_y->AddText("0.4 < p_{T} < 2.0 GeV");
+      prText_y->AddText("0.4 #leq p_{T} #leq 2.0 GeV");
       prText_y->SetFillColorAlpha(0,0);
       prText_y->SetLineColorAlpha(0,0);
 
@@ -662,6 +689,10 @@ void vnVsY(TString jobID, TString order_n_str)
       h_vn_yCM_10to40_pm = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_pm);
       h_vn_yCM_40to60_pm = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_pm);
 
+      h_vn_yCM_00to10_pr_alt = PlotUtils::trimRapidityPlot(h_vn_yCM_00to10_pr_alt);
+      h_vn_yCM_10to40_pr_alt = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_pr_alt);
+      h_vn_yCM_40to60_pr_alt = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_pr_alt);
+
       h_vn_yCM_00to10_de = PlotUtils::trimRapidityPlot(h_vn_yCM_00to10_de);
       h_vn_yCM_10to40_de = PlotUtils::trimRapidityPlot(h_vn_yCM_10to40_de);
       h_vn_yCM_40to60_de = PlotUtils::trimRapidityPlot(h_vn_yCM_40to60_de);
@@ -688,6 +719,10 @@ void vnVsY(TString jobID, TString order_n_str)
       prRapidityStack->Add(h_vn_yCM_00to10_pr);
       prRapidityStack->Add(h_vn_yCM_10to40_pr);
       prRapidityStack->Add(h_vn_yCM_40to60_pr);
+
+      prRapidityStack_alt->Add(h_vn_yCM_00to10_pr_alt);
+      prRapidityStack_alt->Add(h_vn_yCM_10to40_pr_alt);
+      prRapidityStack_alt->Add(h_vn_yCM_40to60_pr_alt);
 
       prRapidityStack_symm->Add(h_vn_yCM_00to10_pr_symm);
       prRapidityStack_symm->Add(h_vn_yCM_10to40_pr_symm);
@@ -776,7 +811,7 @@ void vnVsY(TString jobID, TString order_n_str)
       TPaveText *ppText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
       ppText->AddText("#pi^{+}");
       ppText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      ppText->AddText("0.18 < p_{T} < 1.6 GeV");
+      ppText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       ppText->SetFillColorAlpha(0,0);
       ppText->SetLineColorAlpha(0,0);
       ppText->SetTextSize(.04);
@@ -784,7 +819,7 @@ void vnVsY(TString jobID, TString order_n_str)
       TPaveText *pmText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
       pmText->AddText("#pi^{-}");
       pmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      pmText->AddText("0.18 < p_{T} < 1.6 GeV");
+      pmText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       pmText->SetFillColorAlpha(0,0);
       pmText->SetLineColorAlpha(0,0);
       pmText->SetTextSize(.04);
@@ -792,7 +827,7 @@ void vnVsY(TString jobID, TString order_n_str)
       TPaveText *kpText = new TPaveText(0.5, 0.1, 0.8, 0.17, "NB");
       kpText->AddText("K^{+}");
       kpText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      kpText->AddText("0.18 < p_{T} < 1.6 GeV");
+      kpText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       kpText->SetFillColorAlpha(0,0);
       kpText->SetLineColorAlpha(0,0);
       kpText->SetTextSize(.04);
@@ -800,7 +835,7 @@ void vnVsY(TString jobID, TString order_n_str)
       TPaveText *kmText = new TPaveText(0.3, 0.05, 0.7, 0.12, "NB");
       kmText->AddText("K^{-}");
       kmText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      kmText->AddText("0.18 < p_{T} < 1.6 GeV");
+      kmText->AddText("0.18 #leq p_{T} #leq 1.6 GeV");
       kmText->SetFillColorAlpha(0,0);
       kmText->SetLineColorAlpha(0,0);
       kmText->SetTextSize(.04);
@@ -808,7 +843,7 @@ void vnVsY(TString jobID, TString order_n_str)
       TPaveText *prText_y = new TPaveText(-0.2, 0.02, 0.9, 0.05, "NB");
       prText_y->AddText("Proton");
       prText_y->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      prText_y->AddText("0.4 < p_{T} < 2.0 GeV");
+      prText_y->AddText("0.4 #leq p_{T} #leq 2.0 GeV");
       prText_y->SetFillColorAlpha(0,0);
       prText_y->SetLineColorAlpha(0,0);
       prText_y->SetTextSize(.035);
@@ -816,26 +851,34 @@ void vnVsY(TString jobID, TString order_n_str)
       TPaveText *prText_y_symm = new TPaveText(-0.2, 0.02, 0.9, 0.05, "NB");
       prText_y_symm->AddText("Proton");
       prText_y_symm->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      prText_y_symm->AddText("1.0 < p_{T} < 2.5 GeV");
+      prText_y_symm->AddText("1.0 #leq p_{T} #leq 2.5 GeV");
       prText_y_symm->SetFillColorAlpha(0,0);
       prText_y_symm->SetLineColorAlpha(0,0);
       prText_y_symm->SetTextSize(.035);
 
-      TPaveText *deText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
+      TPaveText *prText_alt = new TPaveText(0.2, 0.02, 0.4, 0.1, "NB");
+      prText_alt->AddText("p");
+      prText_alt->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      prText_alt->AddText("1.0 #leq p_{T} #leq 2.5 GeV");
+      prText_alt->SetFillColorAlpha(0,0);
+      prText_alt->SetLineColorAlpha(0,0);
+      prText_alt->SetTextSize(.035);
+
+      TPaveText *deText = new TPaveText(0.2, -0.17, 0.4, -0.1, "NB");
       deText->AddText("d");
       deText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      deText->AddText("0.18 < p_{T} < 1.6 GeV");
+      deText->AddText("1.0 #leq p_{T} #leq 2.5 GeV");
       deText->SetFillColorAlpha(0,0);
       deText->SetLineColorAlpha(0,0);
-      deText->SetTextSize(.04);
+      deText->SetTextSize(.035);
 
-      TPaveText *trText = new TPaveText(0.5, 0.09, 0.8, 0.16, "NB");
+      TPaveText *trText = new TPaveText(0.2, -0.17, 0.4, -0.1, "NB");
       trText->AddText("t");
       trText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      trText->AddText("0.18 < p_{T} < 1.6 GeV");
+      trText->AddText("1.0 #leq p_{T} #leq 2.5 GeV");
       trText->SetFillColorAlpha(0,0);
       trText->SetLineColorAlpha(0,0);
-      trText->SetTextSize(.04);
+      trText->SetTextSize(.035);
 
       TLine *zeroLine_y = new TLine(0, 0, 1, 0);
       zeroLine_y->SetLineStyle(9);
@@ -847,6 +890,8 @@ void vnVsY(TString jobID, TString order_n_str)
       Double_t rapidityLowerBound = -0.15;
       Double_t rapidityUpperBound_pr = 0.06;
       Double_t rapidityLowerBound_pr = -0.1;
+      Double_t rapidityUpperBound_pdt = 0.15;
+      Double_t rapidityLowerBound_pdt = -0.2;
       
       ppRapidityStack->Draw();
       ppRapidityStack->GetYaxis()->SetTitleOffset(1.9);
@@ -919,6 +964,21 @@ void vnVsY(TString jobID, TString order_n_str)
       canvas->Clear();
 
 
+      prRapidityStack_alt->Draw();
+      prRapidityStack_alt->GetYaxis()->SetTitleOffset(1.7);
+      prRapidityStack_alt->GetXaxis()->SetNdivisions(210);
+      prRapidityStack_alt->Draw();
+      prRapidityStack_alt->SetMaximum(rapidityUpperBound_pdt);
+      prRapidityStack_alt->SetMinimum(rapidityLowerBound_pdt);
+      prRapidityStack_alt->Draw("NOSTACK E1P");
+      zeroLine_y->Draw("SAME");
+      prRapidityStack_alt->Draw("NOSTACK E1P SAME");
+      prLegend->Draw();
+      prText_alt->Draw();
+      canvas->SaveAs(jobID + "_prRapidityStack_alt.png");
+      canvas->Clear();
+
+
       prRapidityStack_symm->Draw();
       prRapidityStack_symm->GetYaxis()->SetTitleOffset(1.7);
       prRapidityStack_symm->GetXaxis()->SetNdivisions(210);
@@ -937,8 +997,8 @@ void vnVsY(TString jobID, TString order_n_str)
       deRapidityStack->GetYaxis()->SetTitleOffset(1.7);
       deRapidityStack->GetXaxis()->SetNdivisions(210);
       deRapidityStack->Draw();
-      deRapidityStack->SetMaximum(rapidityUpperBound);
-      deRapidityStack->SetMinimum(rapidityLowerBound);
+      deRapidityStack->SetMaximum(rapidityUpperBound_pdt);
+      deRapidityStack->SetMinimum(rapidityLowerBound_pdt);
       deRapidityStack->Draw("NOSTACK E1P");
       zeroLine_y->Draw("SAME");
       deRapidityStack->Draw("NOSTACK E1P SAME");
@@ -951,8 +1011,8 @@ void vnVsY(TString jobID, TString order_n_str)
       trRapidityStack->GetYaxis()->SetTitleOffset(1.7);
       trRapidityStack->GetXaxis()->SetNdivisions(210);
       trRapidityStack->Draw();
-      trRapidityStack->SetMaximum(rapidityUpperBound);
-      trRapidityStack->SetMinimum(rapidityLowerBound);
+      trRapidityStack->SetMaximum(rapidityUpperBound_pdt);
+      trRapidityStack->SetMinimum(rapidityLowerBound_pdt);
       trRapidityStack->Draw("NOSTACK E1P");
       zeroLine_y->Draw("SAME");
       trRapidityStack->Draw("NOSTACK E1P SAME");

@@ -23,6 +23,7 @@ void vnVsPt(TString jobID, TString order_n_str)
   TProfile2D *p2_vn_pT_cent_kp = (TProfile2D*)file->Get("p2_vn_pT_cent_kp");
   TProfile2D *p2_vn_pT_cent_km = (TProfile2D*)file->Get("p2_vn_pT_cent_km");
   TProfile2D *p2_vn_pT_cent_pr = (TProfile2D*)file->Get("p2_vn_pT_cent_pr");
+  TProfile2D *p2_vn_pT_cent_pr_alt = (TProfile2D*)file->Get("p2_vn_pT_cent_pr_alt");
   //TProfile2D *p2_vn_pT_cent_pr_symmetry = (TProfile2D*)file->Get("p2_vn_pT_cent_pr_symmetry");
   TProfile2D *p2_vn_pT_cent_de = (TProfile2D*)file->Get("p2_vn_pT_cent_de");
   TProfile2D *p2_vn_pT_cent_tr = (TProfile2D*)file->Get("p2_vn_pT_cent_tr");
@@ -51,6 +52,10 @@ void vnVsPt(TString jobID, TString order_n_str)
   TProfile *p_vn_pT_10to40_pr = p2_vn_pT_cent_pr->ProfileY("p_vn_pT_10to40_pr", 9, 14);
   TProfile *p_vn_pT_40to60_pr = p2_vn_pT_cent_pr->ProfileY("p_vn_pT_40to60_pr", 5, 8);
 
+  TProfile *p_vn_pT_00to10_pr_alt = p2_vn_pT_cent_pr_alt->ProfileY("p_vn_pT_00to10_pr_alt", 15, 16);
+  TProfile *p_vn_pT_10to40_pr_alt = p2_vn_pT_cent_pr_alt->ProfileY("p_vn_pT_10to40_pr_alt", 9, 14);
+  TProfile *p_vn_pT_40to60_pr_alt = p2_vn_pT_cent_pr_alt->ProfileY("p_vn_pT_40to60_pr_alt", 5, 8);
+
   TProfile *p_vn_pT_00to10_de = p2_vn_pT_cent_de->ProfileY("p_vn_pT_00to10_de", 15, 16);
   TProfile *p_vn_pT_10to40_de = p2_vn_pT_cent_de->ProfileY("p_vn_pT_10to40_de", 9, 14);
   TProfile *p_vn_pT_40to60_de = p2_vn_pT_cent_de->ProfileY("p_vn_pT_40to60_de", 5, 8);
@@ -76,17 +81,21 @@ void vnVsPt(TString jobID, TString order_n_str)
   TH1D *h_vn_pT_10to40_km = new TH1D("h_vn_pT_10to40_km", ";p_{T} (GeV);v_{"+order_n_str+"}", 5, 0, 2);
   TH1D *h_vn_pT_40to60_km = new TH1D("h_vn_pT_40to60_km", ";p_{T} (GeV);v_{"+order_n_str+"}", 5, 0, 2);
 
+  TH1D *h_vn_pT_00to10_pr_alt = new TH1D("h_vn_pT_00to10_pr_alt", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
+  TH1D *h_vn_pT_10to40_pr_alt = new TH1D("h_vn_pT_10to40_pr_alt", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
+  TH1D *h_vn_pT_40to60_pr_alt = new TH1D("h_vn_pT_40to60_pr_alt", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
+
   TH1D *h_vn_pT_00to10_pr = new TH1D("h_vn_pT_00to10_pr", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
   TH1D *h_vn_pT_10to40_pr = new TH1D("h_vn_pT_10to40_pr", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
   TH1D *h_vn_pT_40to60_pr = new TH1D("h_vn_pT_40to60_pr", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
 
-  TH1D *h_vn_pT_00to10_de = new TH1D("h_vn_pT_00to10_de", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
-  TH1D *h_vn_pT_10to40_de = new TH1D("h_vn_pT_10to40_de", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
-  TH1D *h_vn_pT_40to60_de = new TH1D("h_vn_pT_40to60_de", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
+  TH1D *h_vn_pT_00to10_de = new TH1D("h_vn_pT_00to10_de", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
+  TH1D *h_vn_pT_10to40_de = new TH1D("h_vn_pT_10to40_de", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
+  TH1D *h_vn_pT_40to60_de = new TH1D("h_vn_pT_40to60_de", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
 
-  TH1D *h_vn_pT_00to10_tr = new TH1D("h_vn_pT_00to10_tr", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
-  TH1D *h_vn_pT_10to40_tr = new TH1D("h_vn_pT_10to40_tr", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
-  TH1D *h_vn_pT_40to60_tr = new TH1D("h_vn_pT_40to60_tr", ";p_{T} (GeV);v_{"+order_n_str+"}", 10, 0, 2);
+  TH1D *h_vn_pT_00to10_tr = new TH1D("h_vn_pT_00to10_tr", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
+  TH1D *h_vn_pT_10to40_tr = new TH1D("h_vn_pT_10to40_tr", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
+  TH1D *h_vn_pT_40to60_tr = new TH1D("h_vn_pT_40to60_tr", ";p_{T} (GeV);v_{"+order_n_str+"}", 15, 0, 2.5);
 
 
   h_vn_pT_00to10_kp = p_vn_pT_00to10_kp->ProjectionX();
@@ -103,6 +112,10 @@ void vnVsPt(TString jobID, TString order_n_str)
   h_vn_pT_00to10_pm = p_vn_pT_00to10_pm->ProjectionX();
   h_vn_pT_10to40_pm = p_vn_pT_10to40_pm->ProjectionX();
   h_vn_pT_40to60_pm = p_vn_pT_40to60_pm->ProjectionX();
+
+  h_vn_pT_00to10_pr_alt = p_vn_pT_00to10_pr_alt->ProjectionX();
+  h_vn_pT_10to40_pr_alt = p_vn_pT_10to40_pr_alt->ProjectionX();
+  h_vn_pT_40to60_pr_alt = p_vn_pT_40to60_pr_alt->ProjectionX();
 
   h_vn_pT_00to10_pr = p_vn_pT_00to10_pr->ProjectionX();
   h_vn_pT_10to40_pr = p_vn_pT_10to40_pr->ProjectionX();
@@ -122,6 +135,7 @@ void vnVsPt(TString jobID, TString order_n_str)
   THStack *kpPtStack   = new THStack("kpPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
   THStack *kmPtStack   = new THStack("kmPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
   THStack *prPtStack   = new THStack("prPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
+  THStack *prPtStack_alt   = new THStack("prPtStack_alt", ";p_{T} GeV;v_{"+order_n_str+"}");
   THStack *dePtStack   = new THStack("dePtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
   THStack *trPtStack   = new THStack("trPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
 
@@ -190,6 +204,19 @@ void vnVsPt(TString jobID, TString order_n_str)
   h_vn_pT_00to10_pr->SetLineColor(2);
   h_vn_pT_10to40_pr->SetLineColor(4);
   h_vn_pT_40to60_pr->SetLineColor(8);
+
+  h_vn_pT_00to10_pr_alt->SetMarkerStyle(20);
+  h_vn_pT_10to40_pr_alt->SetMarkerStyle(20);
+  h_vn_pT_40to60_pr_alt->SetMarkerStyle(20);
+  h_vn_pT_00to10_pr_alt->SetMarkerColor(2);
+  h_vn_pT_10to40_pr_alt->SetMarkerColor(4);
+  h_vn_pT_40to60_pr_alt->SetMarkerColor(8);
+  h_vn_pT_00to10_pr_alt->SetMarkerSize(2);
+  h_vn_pT_10to40_pr_alt->SetMarkerSize(2);
+  h_vn_pT_40to60_pr_alt->SetMarkerSize(2);
+  h_vn_pT_00to10_pr_alt->SetLineColor(2);
+  h_vn_pT_10to40_pr_alt->SetLineColor(4);
+  h_vn_pT_40to60_pr_alt->SetLineColor(8);
   
   h_vn_pT_00to10_de->SetMarkerStyle(20);
   h_vn_pT_10to40_de->SetMarkerStyle(20);
@@ -309,6 +336,9 @@ void vnVsPt(TString jobID, TString order_n_str)
       TLine *zeroLine_pt = new TLine(0, 0, 2, 0);
       zeroLine_pt->SetLineStyle(9);
 
+      TLine *zeroLine_pdt = new TLine(0, 0, 2.5, 0);
+      zeroLine_pdt->SetLineStyle(9);
+
       
       ppPtStack->Add(h_vn_pT_00to10_pp);
       ppPtStack->Add(h_vn_pT_10to40_pp);
@@ -327,6 +357,10 @@ void vnVsPt(TString jobID, TString order_n_str)
       prPtStack->Add(h_vn_pT_00to10_pr);
       prPtStack->Add(h_vn_pT_10to40_pr);
       prPtStack->Add(h_vn_pT_40to60_pr);
+
+      prPtStack_alt->Add(h_vn_pT_00to10_pr_alt);
+      prPtStack_alt->Add(h_vn_pT_10to40_pr_alt);
+      prPtStack_alt->Add(h_vn_pT_40to60_pr_alt);
 
       dePtStack->Add(h_vn_pT_00to10_de);
       dePtStack->Add(h_vn_pT_10to40_de);
@@ -423,17 +457,24 @@ void vnVsPt(TString jobID, TString order_n_str)
       prText->SetFillColorAlpha(0,0);
       prText->SetLineColorAlpha(0,0);
 
+      TPaveText *prText_alt = new TPaveText(0.2, 0.07, 1.2, 0.18, "NB");
+      prText_alt->AddText("Proton");
+      prText_alt->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      prText_alt->AddText("0.5 < y_{CM} < 1.0 GeV");
+      prText_alt->SetFillColorAlpha(0,0);
+      prText_alt->SetLineColorAlpha(0,0);
+
       TPaveText *deText = new TPaveText(0.2, 0.07, 1.2, 0.18, "NB");
       deText->AddText("Deuteron");
       deText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      deText->AddText("0 < y_{CM} < 0.5 GeV");
+      deText->AddText("0.5 < y_{CM} < 1.0 GeV");
       deText->SetFillColorAlpha(0,0);
       deText->SetLineColorAlpha(0,0);
 
       TPaveText *trText = new TPaveText(0.2, 0.07, 1.2, 0.18, "NB");
       trText->AddText("Triton");
       trText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
-      trText->AddText("0 < y_{CM} < 0.5 GeV");
+      trText->AddText("0.5 < y_{CM} < 1.0 GeV");
       trText->SetFillColorAlpha(0,0);
       trText->SetLineColorAlpha(0,0);
 
@@ -513,6 +554,21 @@ void vnVsPt(TString jobID, TString order_n_str)
       canvas->SaveAs(jobID + "_prPtStack.png");
       canvas->Clear();
 
+
+      prPtStack_alt->Draw();
+      prPtStack_alt->GetYaxis()->SetTitleOffset(1.7);
+      prPtStack_alt->GetXaxis()->SetNdivisions(210);
+      prPtStack_alt->Draw();
+      prPtStack_alt->SetMaximum(ptUpperBound);
+      prPtStack_alt->SetMinimum(ptLowerBound);
+      prPtStack_alt->Draw("NOSTACK E1P");
+      zeroLine_pdt->Draw("SAME");
+      prPtStack_alt->Draw("NOSTACK E1P SAME");
+      prLegend->Draw();
+      prText_alt->Draw();
+      canvas->SaveAs(jobID + "_prPtStack_alt.png");
+      canvas->Clear();
+
       dePtStack->Draw();
       dePtStack->GetYaxis()->SetTitleOffset(1.7);
       dePtStack->GetXaxis()->SetNdivisions(210);
@@ -520,7 +576,7 @@ void vnVsPt(TString jobID, TString order_n_str)
       dePtStack->SetMaximum(ptUpperBound);
       dePtStack->SetMinimum(ptLowerBound);
       dePtStack->Draw("NOSTACK E1P");
-      zeroLine_pt->Draw("SAME");
+      zeroLine_pdt->Draw("SAME");
       dePtStack->Draw("NOSTACK E1P SAME");
       deLegend->Draw();
       deText->Draw();
@@ -534,7 +590,7 @@ void vnVsPt(TString jobID, TString order_n_str)
       trPtStack->SetMaximum(ptUpperBound);
       trPtStack->SetMinimum(ptLowerBound);
       trPtStack->Draw("NOSTACK E1P");
-      zeroLine_pt->Draw("SAME");
+      zeroLine_pdt->Draw("SAME");
       trPtStack->Draw("NOSTACK E1P SAME");
       trLegend->Draw();
       trText->Draw();
