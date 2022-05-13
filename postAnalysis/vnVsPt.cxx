@@ -8,14 +8,18 @@ void vnVsPt(TString jobID, TString order_n_str)
   TFile *file = TFile::Open(fileName);
   if(!file) {cout << "Wrong file!" << endl; return;}
 
-  TCanvas *canvas = new TCanvas("canvas", "Canvas", 800, 800);
+  TCanvas *canvas = new TCanvas("canvas", "Canvas", 1000, 1000);
   //canvas->SetGrid();
   canvas->SetTicks();
-  canvas->SetLeftMargin(0.14);
+  canvas->SetLeftMargin(0.15);
+  canvas->SetTopMargin(0.04);
+  canvas->SetRightMargin(0.04);
+  canvas->SetBottomMargin(0.1);
   canvas->cd();
   gStyle->SetErrorX(0);
   gStyle->SetOptStat(0);
   gStyle->SetEndErrorSize(6);
+  gStyle->SetLineWidth(3);
 
 
   TProfile2D *p2_vn_pT_cent_pp = (TProfile2D*)file->Get("p2_vn_pT_cent_pp");
@@ -130,119 +134,136 @@ void vnVsPt(TString jobID, TString order_n_str)
   h_vn_pT_40to60_tr = p_vn_pT_40to60_tr->ProjectionX();
 
 
-  THStack *ppPtStack   = new THStack("ppPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
-  THStack *pmPtStack   = new THStack("pmPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
-  THStack *kpPtStack   = new THStack("kpPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
-  THStack *kmPtStack   = new THStack("kmPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
-  THStack *prPtStack   = new THStack("prPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
-  THStack *prPtStack_alt   = new THStack("prPtStack_alt", ";p_{T} GeV;v_{"+order_n_str+"}");
-  THStack *dePtStack   = new THStack("dePtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
-  THStack *trPtStack   = new THStack("trPtStack", ";p_{T} GeV;v_{"+order_n_str+"}");
+  THStack *ppPtStack   = new THStack("ppPtStack", ";p_{T} (GeV/c);v_{"+order_n_str+"} {#psi_{1} EP}");
+  THStack *pmPtStack   = new THStack("pmPtStack", ";p_{T} (GeV/c);v_{"+order_n_str+"} {#psi_{1} EP}");
+  THStack *kpPtStack   = new THStack("kpPtStack", ";p_{T} (GeV/c);v_{"+order_n_str+"} {#psi_{1} EP}");
+  THStack *kmPtStack   = new THStack("kmPtStack", ";p_{T} (GeV/c);v_{"+order_n_str+"} {#psi_{1} EP}");
+  THStack *prPtStack   = new THStack("prPtStack", ";p_{T} (GeV/c);v_{"+order_n_str+"} {#psi_{1} EP}");
+  THStack *prPtStack_alt   = new THStack("prPtStack_alt", ";p_{T} (GeV/c);v_{"+order_n_str+"} {#psi_{1} EP}");
+  THStack *dePtStack   = new THStack("dePtStack", ";p_{T} (GeV/c);v_{"+order_n_str+"} {#psi_{1} EP}");
+  THStack *trPtStack   = new THStack("trPtStack", ";p_{T} (GeV/c);v_{"+order_n_str+"} {#psi_{1} EP}");
+
+  TFile* systematicFile = TFile::Open("systematicErrors.root", "READ");
+  TGraphErrors* sys_pT_00to10_pr = (TGraphErrors*)systematicFile->Get("Graph_from_p_vn_pT_00to10_pr_px");
+  TGraphErrors* sys_pT_10to40_pr = (TGraphErrors*)systematicFile->Get("Graph_from_p_vn_pT_10to40_pr_px");
+  TGraphErrors* sys_pT_40to60_pr = (TGraphErrors*)systematicFile->Get("Graph_from_p_vn_pT_40to60_pr_px");
 
 
+  
   h_vn_pT_00to10_pp->SetMarkerStyle(20);
   h_vn_pT_10to40_pp->SetMarkerStyle(20);
   h_vn_pT_40to60_pp->SetMarkerStyle(20);
-  h_vn_pT_00to10_pp->SetMarkerColor(2);
-  h_vn_pT_10to40_pp->SetMarkerColor(4);
-  h_vn_pT_40to60_pp->SetMarkerColor(8);
+  h_vn_pT_00to10_pp->SetMarkerColor(kRed-4);
+  h_vn_pT_10to40_pp->SetMarkerColor(kBlue-4);
+  h_vn_pT_40to60_pp->SetMarkerColor(kGreen+1);
   h_vn_pT_00to10_pp->SetMarkerSize(2);
   h_vn_pT_10to40_pp->SetMarkerSize(2);
   h_vn_pT_40to60_pp->SetMarkerSize(2);
-  h_vn_pT_00to10_pp->SetLineColor(2);
-  h_vn_pT_10to40_pp->SetLineColor(4);
-  h_vn_pT_40to60_pp->SetLineColor(8);
+  h_vn_pT_00to10_pp->SetLineColor(kRed-4);
+  h_vn_pT_10to40_pp->SetLineColor(kBlue-4);
+  h_vn_pT_40to60_pp->SetLineColor(kGreen+1);
   
   h_vn_pT_00to10_pm->SetMarkerStyle(20);
   h_vn_pT_10to40_pm->SetMarkerStyle(20);
   h_vn_pT_40to60_pm->SetMarkerStyle(20);
-  h_vn_pT_00to10_pm->SetMarkerColor(2);
-  h_vn_pT_10to40_pm->SetMarkerColor(4);
-  h_vn_pT_40to60_pm->SetMarkerColor(8);
+  h_vn_pT_00to10_pm->SetMarkerColor(kRed-4);
+  h_vn_pT_10to40_pm->SetMarkerColor(kBlue-4);
+  h_vn_pT_40to60_pm->SetMarkerColor(kGreen+1);
   h_vn_pT_00to10_pm->SetMarkerSize(2);
   h_vn_pT_10to40_pm->SetMarkerSize(2);
   h_vn_pT_40to60_pm->SetMarkerSize(2);
-  h_vn_pT_00to10_pm->SetLineColor(2);
-  h_vn_pT_10to40_pm->SetLineColor(4);
-  h_vn_pT_40to60_pm->SetLineColor(8);
+  h_vn_pT_00to10_pm->SetLineColor(kRed-4);
+  h_vn_pT_10to40_pm->SetLineColor(kBlue-4);
+  h_vn_pT_40to60_pm->SetLineColor(kGreen+1);
   
   h_vn_pT_00to10_kp->SetMarkerStyle(20);
   h_vn_pT_10to40_kp->SetMarkerStyle(20);
   h_vn_pT_40to60_kp->SetMarkerStyle(20);
-  h_vn_pT_00to10_kp->SetMarkerColor(2);
-  h_vn_pT_10to40_kp->SetMarkerColor(4);
-  h_vn_pT_40to60_kp->SetMarkerColor(8);
+  h_vn_pT_00to10_kp->SetMarkerColor(kRed-4);
+  h_vn_pT_10to40_kp->SetMarkerColor(kBlue-4);
+  h_vn_pT_40to60_kp->SetMarkerColor(kGreen+1);
   h_vn_pT_00to10_kp->SetMarkerSize(2);
   h_vn_pT_10to40_kp->SetMarkerSize(2);
   h_vn_pT_40to60_kp->SetMarkerSize(2);
-  h_vn_pT_00to10_kp->SetLineColor(2);
-  h_vn_pT_10to40_kp->SetLineColor(4);
-  h_vn_pT_40to60_kp->SetLineColor(8);
+  h_vn_pT_00to10_kp->SetLineColor(kRed-4);
+  h_vn_pT_10to40_kp->SetLineColor(kBlue-4);
+  h_vn_pT_40to60_kp->SetLineColor(kGreen+1);
   
   h_vn_pT_00to10_km->SetMarkerStyle(20);
   h_vn_pT_10to40_km->SetMarkerStyle(20);
   h_vn_pT_40to60_km->SetMarkerStyle(20);
-  h_vn_pT_00to10_km->SetMarkerColor(2);
-  h_vn_pT_10to40_km->SetMarkerColor(4);
-  h_vn_pT_40to60_km->SetMarkerColor(8);
+  h_vn_pT_00to10_km->SetMarkerColor(kRed-4);
+  h_vn_pT_10to40_km->SetMarkerColor(kBlue-4);
+  h_vn_pT_40to60_km->SetMarkerColor(kGreen+1);
   h_vn_pT_00to10_km->SetMarkerSize(2);
   h_vn_pT_10to40_km->SetMarkerSize(2);
   h_vn_pT_40to60_km->SetMarkerSize(2);
-  h_vn_pT_00to10_km->SetLineColor(2);
-  h_vn_pT_10to40_km->SetLineColor(4);
-  h_vn_pT_40to60_km->SetLineColor(8);
+  h_vn_pT_00to10_km->SetLineColor(kRed-4);
+  h_vn_pT_10to40_km->SetLineColor(kBlue-4);
+  h_vn_pT_40to60_km->SetLineColor(kGreen+1);
   
-  h_vn_pT_00to10_pr->SetMarkerStyle(20);
+  h_vn_pT_00to10_pr->SetMarkerStyle(21);
   h_vn_pT_10to40_pr->SetMarkerStyle(20);
-  h_vn_pT_40to60_pr->SetMarkerStyle(20);
-  h_vn_pT_00to10_pr->SetMarkerColor(2);
-  h_vn_pT_10to40_pr->SetMarkerColor(4);
-  h_vn_pT_40to60_pr->SetMarkerColor(8);
+  h_vn_pT_40to60_pr->SetMarkerStyle(22);
+  h_vn_pT_00to10_pr->SetMarkerColor(kRed-4);
+  h_vn_pT_10to40_pr->SetMarkerColor(kBlue-4);
+  h_vn_pT_40to60_pr->SetMarkerColor(kGreen+1);
   h_vn_pT_00to10_pr->SetMarkerSize(2);
   h_vn_pT_10to40_pr->SetMarkerSize(2);
   h_vn_pT_40to60_pr->SetMarkerSize(2);
-  h_vn_pT_00to10_pr->SetLineColor(2);
-  h_vn_pT_10to40_pr->SetLineColor(4);
-  h_vn_pT_40to60_pr->SetLineColor(8);
+  h_vn_pT_00to10_pr->SetLineColor(kRed-4);
+  h_vn_pT_10to40_pr->SetLineColor(kBlue-4);
+  h_vn_pT_40to60_pr->SetLineColor(kGreen+1);
+  h_vn_pT_00to10_pr->SetLineWidth(3);
+  h_vn_pT_10to40_pr->SetLineWidth(3);
+  h_vn_pT_40to60_pr->SetLineWidth(3);
 
+  sys_pT_00to10_pr->SetMarkerColor(kRed-4);
+  sys_pT_10to40_pr->SetMarkerColor(kBlue-4);
+  sys_pT_40to60_pr->SetMarkerColor(kGreen+1);
+  sys_pT_00to10_pr->SetLineColor(kRed-4);
+  sys_pT_10to40_pr->SetLineColor(kBlue-4);
+  sys_pT_40to60_pr->SetLineColor(kGreen+1);
+    
+    
   h_vn_pT_00to10_pr_alt->SetMarkerStyle(20);
   h_vn_pT_10to40_pr_alt->SetMarkerStyle(20);
   h_vn_pT_40to60_pr_alt->SetMarkerStyle(20);
-  h_vn_pT_00to10_pr_alt->SetMarkerColor(2);
-  h_vn_pT_10to40_pr_alt->SetMarkerColor(4);
-  h_vn_pT_40to60_pr_alt->SetMarkerColor(8);
+  h_vn_pT_00to10_pr_alt->SetMarkerColor(kRed-4);
+  h_vn_pT_10to40_pr_alt->SetMarkerColor(kBlue-4);
+  h_vn_pT_40to60_pr_alt->SetMarkerColor(kGreen+1);
   h_vn_pT_00to10_pr_alt->SetMarkerSize(2);
   h_vn_pT_10to40_pr_alt->SetMarkerSize(2);
   h_vn_pT_40to60_pr_alt->SetMarkerSize(2);
-  h_vn_pT_00to10_pr_alt->SetLineColor(2);
-  h_vn_pT_10to40_pr_alt->SetLineColor(4);
-  h_vn_pT_40to60_pr_alt->SetLineColor(8);
+  h_vn_pT_00to10_pr_alt->SetLineColor(kRed-4);
+  h_vn_pT_10to40_pr_alt->SetLineColor(kBlue-4);
+  h_vn_pT_40to60_pr_alt->SetLineColor(kGreen+1);
   
   h_vn_pT_00to10_de->SetMarkerStyle(20);
   h_vn_pT_10to40_de->SetMarkerStyle(20);
   h_vn_pT_40to60_de->SetMarkerStyle(20);
-  h_vn_pT_00to10_de->SetMarkerColor(2);
-  h_vn_pT_10to40_de->SetMarkerColor(4);
-  h_vn_pT_40to60_de->SetMarkerColor(8);
+  h_vn_pT_00to10_de->SetMarkerColor(kRed-4);
+  h_vn_pT_10to40_de->SetMarkerColor(kBlue-4);
+  h_vn_pT_40to60_de->SetMarkerColor(kGreen+1);
   h_vn_pT_00to10_de->SetMarkerSize(2);
   h_vn_pT_10to40_de->SetMarkerSize(2);
   h_vn_pT_40to60_de->SetMarkerSize(2);
-  h_vn_pT_00to10_de->SetLineColor(2);
-  h_vn_pT_10to40_de->SetLineColor(4);
-  h_vn_pT_40to60_de->SetLineColor(8);
+  h_vn_pT_00to10_de->SetLineColor(kRed-4);
+  h_vn_pT_10to40_de->SetLineColor(kBlue-4);
+  h_vn_pT_40to60_de->SetLineColor(kGreen+1);
 
   h_vn_pT_00to10_tr->SetMarkerStyle(20);
   h_vn_pT_10to40_tr->SetMarkerStyle(20);
   h_vn_pT_40to60_tr->SetMarkerStyle(20);
-  h_vn_pT_00to10_tr->SetMarkerColor(2);
-  h_vn_pT_10to40_tr->SetMarkerColor(4);
-  h_vn_pT_40to60_tr->SetMarkerColor(8);
+  h_vn_pT_00to10_tr->SetMarkerColor(kRed-4);
+  h_vn_pT_10to40_tr->SetMarkerColor(kBlue-4);
+  h_vn_pT_40to60_tr->SetMarkerColor(kGreen+1);
   h_vn_pT_00to10_tr->SetMarkerSize(2);
   h_vn_pT_10to40_tr->SetMarkerSize(2);
   h_vn_pT_40to60_tr->SetMarkerSize(2);
-  h_vn_pT_00to10_tr->SetLineColor(2);
-  h_vn_pT_10to40_tr->SetLineColor(4);
-  h_vn_pT_40to60_tr->SetLineColor(8);
+  h_vn_pT_00to10_tr->SetLineColor(kRed-4);
+  h_vn_pT_10to40_tr->SetLineColor(kBlue-4);
+  h_vn_pT_40to60_tr->SetLineColor(kGreen+1);
 
 
   if (order_n_str == "2")
@@ -405,6 +426,7 @@ void vnVsPt(TString jobID, TString order_n_str)
       prLegend->AddEntry(h_vn_pT_40to60_pr, "40 - 60%");
       prLegend->SetBorderSize(0);
       prLegend->SetFillColorAlpha(0,0);
+      prLegend->SetTextSize(0.04);
 
       TLegend *deLegend = new TLegend(0.19, 0.15, 0.39, 0.3);
       deLegend->AddEntry(h_vn_pT_00to10_de, "0 - 10%");
@@ -450,12 +472,14 @@ void vnVsPt(TString jobID, TString order_n_str)
       kmText->SetFillColorAlpha(0,0);
       kmText->SetLineColorAlpha(0,0);
 
-      TPaveText *prText = new TPaveText(0.2, 0.07, 1.2, 0.18, "NB");
+      //TPaveText *prText = new TPaveText(0.25, 0.12, 1.25, 0.23, "NB");
+      TPaveText *prText = new TPaveText(0.28, 0.03, 1.28, 0.055, "NB");
       prText->AddText("Proton");
-      prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT");
+      prText->AddText("Au+Au #sqrt{s_{NN}} = 3.0 GeV FXT (year 2018)");
       prText->AddText("0 < y_{CM} < 0.5 GeV");
       prText->SetFillColorAlpha(0,0);
       prText->SetLineColorAlpha(0,0);
+      prText->SetTextSize(0.035);
 
       TPaveText *prText_alt = new TPaveText(0.2, 0.07, 1.2, 0.18, "NB");
       prText_alt->AddText("Proton");
@@ -477,6 +501,12 @@ void vnVsPt(TString jobID, TString order_n_str)
       trText->AddText("0.5 < y_{CM} < 1.0 GeV");
       trText->SetFillColorAlpha(0,0);
       trText->SetLineColorAlpha(0,0);
+
+      TPaveText* prelimText = new TPaveText(0.3, 0.02, 1.28, 0.03, "NB");
+      prelimText->AddText("STAR Preliminary");
+      prelimText->SetTextColor(kRed);
+      prelimText->SetFillColorAlpha(0,0);
+      prelimText->SetTextSize(0.04);
 
 
       Double_t ptUpperBound = 0.25;
@@ -541,16 +571,25 @@ void vnVsPt(TString jobID, TString order_n_str)
       gStyle->SetErrorX(0);
       
       prPtStack->Draw();
-      prPtStack->GetYaxis()->SetTitleOffset(1.7);
+      prPtStack->GetYaxis()->SetLabelSize(0.043);
+      prPtStack->GetXaxis()->SetLabelSize(0.043);
+      prPtStack->GetYaxis()->SetTitleOffset(1.4);
+      prPtStack->GetXaxis()->SetTitleOffset(1.0);
       prPtStack->GetXaxis()->SetNdivisions(210);
+      prPtStack->GetXaxis()->SetTitleSize(0.045);
+      prPtStack->GetYaxis()->SetTitleSize(0.05);
       prPtStack->Draw();
-      prPtStack->SetMaximum(ptUpperBound);
-      prPtStack->SetMinimum(ptLowerBound);
+      prPtStack->SetMaximum(0.06);
+      prPtStack->SetMinimum(-0.09);
       prPtStack->Draw("NOSTACK E1P");
       zeroLine_pt->Draw("SAME");
       prPtStack->Draw("NOSTACK E1P SAME");
+      sys_pT_00to10_pr->Draw("[]");
+      sys_pT_10to40_pr->Draw("[]");
+      sys_pT_40to60_pr->Draw("[]");
       prLegend->Draw();
       prText->Draw();
+      prelimText->Draw();
       canvas->SaveAs(jobID + "_prPtStack.png");
       canvas->Clear();
 

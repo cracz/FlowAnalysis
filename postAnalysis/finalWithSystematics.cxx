@@ -183,7 +183,12 @@ void finalWithSystematics(TString order_n_str)
   bins = Normal->h_vn_pp->GetNbinsX();
   for (int i = 0; i < bins; i++)      // loop over bins of h_vn_pp, same as elements of v_vn_pp but Normal doesn't have v_vn_pp
     {
-      ithBinSysErr = TMath::Sqrt(tpcEff->v_vn_pp.at(i).variance + epdC->v_vn_pp.at(i).variance);
+      ithBinSysErr = TMath::Sqrt(epdC->v_vn_pp.at(i).variance +
+				 nHits_high->v_vn_pp.at(i).variance + nHitsdEdx_low->v_vn_pp.at(i).variance +
+				 nHitsdEdx_high->v_vn_pp.at(i).variance + tracking_low->v_vn_pp.at(i).variance +
+				 nSigPi_low->v_vn_pp.at(i).variance + nSigPi_high->v_vn_pp.at(i).variance +
+				 m2Pi_low->v_vn_pp.at(i).variance + m2Pi_high->v_vn_pp.at(i).variance +
+				 ptPidPr_low->v_vn_pp.at(i).variance + ptPidPr_high->v_vn_pp.at(i).variance);
 
       totalVariance  += TMath::Power(ithBinSysErr,2);
       totalTpcEff += tpcEff->v_vn_pp.at(i).variance;
@@ -798,8 +803,8 @@ void finalWithSystematics(TString order_n_str)
   //===
 
 
-  std::cout << "TPC Efficiency: " << (totalTpcEff/totalVariance) * 100 << "%" << std::endl;
-  std::cout << "EPD C: " << (totalEpdC/totalVariance) * 100 << "%" << std::endl;
+  //std::cout << "TPC Efficiency: " << (totalTpcEff/totalVariance) * 100 << "%" << std::endl;
+  //std::cout << "EPD C: " << (totalEpdC/totalVariance) * 100 << "%" << std::endl;
   
 
   // PLOTTING

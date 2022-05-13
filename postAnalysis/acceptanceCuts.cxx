@@ -14,19 +14,27 @@ void acceptanceCuts(TString jobID)
   TH2D *h2_pT_vs_yCM_kp = (TH2D*)file->Get("h2_pT_vs_yCM_kp");
   TH2D *h2_pT_vs_yCM_km = (TH2D*)file->Get("h2_pT_vs_yCM_km");
   TH2D *h2_pT_vs_yCM_pr = (TH2D*)file->Get("h2_pT_vs_yCM_pr");
+  TH2D *h2_pT_vs_yCM_pr_alt = (TH2D*)file->Get("h2_pT_vs_yCM_pr_alt");
   TH2D *h2_pT_vs_yCM_de = (TH2D*)file->Get("h2_pT_vs_yCM_de");
   TH2D *h2_pT_vs_yCM_tr = (TH2D*)file->Get("h2_pT_vs_yCM_tr");
-  TH2D *h2_pToverA_vs_yCM_de = (TH2D*)file->Get("h2_pToverA_vs_yCM_de");
-  TH2D *h2_pToverA_vs_yCM_tr = (TH2D*)file->Get("h2_pToverA_vs_yCM_tr");
+  //TH2D *h2_pToverA_vs_yCM_de = (TH2D*)file->Get("h2_pToverA_vs_yCM_de");
+  //TH2D *h2_pToverA_vs_yCM_tr = (TH2D*)file->Get("h2_pToverA_vs_yCM_tr");
+  TH2D *h2_KToverA_vs_yCM_pr = (TH2D*)file->Get("h2_KToverA_vs_yCM_pr");
+  TH2D *h2_KToverA_vs_yCM_de = (TH2D*)file->Get("h2_KToverA_vs_yCM_de");
+  TH2D *h2_KToverA_vs_yCM_tr = (TH2D*)file->Get("h2_KToverA_vs_yCM_tr");
   h2_pT_vs_yCM_pp->SetTitle("");
   h2_pT_vs_yCM_pm->SetTitle("");
   h2_pT_vs_yCM_kp->SetTitle("");
   h2_pT_vs_yCM_km->SetTitle("");
   h2_pT_vs_yCM_pr->SetTitle("");
+  h2_pT_vs_yCM_pr_alt->SetTitle("");
   h2_pT_vs_yCM_de->SetTitle("");
   h2_pT_vs_yCM_tr->SetTitle("");
-  h2_pToverA_vs_yCM_de->SetTitle("");
-  h2_pToverA_vs_yCM_tr->SetTitle("");
+  //h2_pToverA_vs_yCM_de->SetTitle("");
+  //h2_pToverA_vs_yCM_tr->SetTitle("");
+  h2_KToverA_vs_yCM_pr->SetTitle("");
+  h2_KToverA_vs_yCM_de->SetTitle("");
+  h2_KToverA_vs_yCM_tr->SetTitle("");
 
   Double_t maxScale = h2_pT_vs_yCM_pr->GetMaximum();
   h2_pT_vs_yCM_pp->SetMaximum(maxScale);
@@ -35,8 +43,13 @@ void acceptanceCuts(TString jobID)
   h2_pT_vs_yCM_km->SetMaximum(maxScale);
   h2_pT_vs_yCM_de->SetMaximum(maxScale);
   h2_pT_vs_yCM_tr->SetMaximum(maxScale);
-  h2_pToverA_vs_yCM_de->SetMaximum(maxScale);
-  h2_pToverA_vs_yCM_tr->SetMaximum(maxScale);
+  h2_pT_vs_yCM_pr_alt->SetMaximum(maxScale);
+  //h2_pToverA_vs_yCM_de->SetMaximum(maxScale);
+  //h2_pToverA_vs_yCM_tr->SetMaximum(maxScale);
+
+  Double_t maxScaleKT = h2_KToverA_vs_yCM_pr->GetMaximum();
+  h2_KToverA_vs_yCM_de->SetMaximum(maxScaleKT);
+  h2_KToverA_vs_yCM_tr->SetMaximum(maxScaleKT);
   
   Double_t yCM_low_pp  = 0.0;
   Double_t yCM_high_pp = 0.5;
@@ -63,15 +76,19 @@ void acceptanceCuts(TString jobID)
   Double_t pT_low_pr   = 0.4;
   Double_t pT_high_pr  = 2.0;
 
-  Double_t yCM_low_de  = 0.5;
+  Double_t yCM_low_de  = 0.0;
   Double_t yCM_high_de = 1.0;
-  Double_t pT_low_de   = 0.3;
+  Double_t pT_low_de   = 0.2;
   Double_t pT_high_de  = 1.0;
+  Double_t KT_low_de   = 0.04;
+  Double_t KT_high_de  = 0.4;
 
-  Double_t yCM_low_tr  = 0.5;
+  Double_t yCM_low_tr  = 0.0;
   Double_t yCM_high_tr = 1.0;
-  Double_t pT_low_tr   = 0.3;
+  Double_t pT_low_tr   = 0.2;
   Double_t pT_high_tr  = 1.0;
+  Double_t KT_low_tr   = 0.04;
+  Double_t KT_high_tr  = 0.4;
 
   TLine *y_mid = new TLine(0, 0, 0, 2.5);
   y_mid->SetLineColor(kRed);
@@ -315,6 +332,8 @@ void acceptanceCuts(TString jobID)
   canvas->SaveAs("Acceptance_tr.png");
   canvas->Clear();
   */
+
+  /*
   h2_pToverA_vs_yCM_de->Draw("colz");
   y_mid->Draw("SAME");
   y_target->Draw("SAME");
@@ -338,8 +357,91 @@ void acceptanceCuts(TString jobID)
   //text_Target_tr->Draw("SAME");
   canvas->SaveAs("Acceptance_tr_pToverA.png");
   canvas->Clear();
+  */
+
+  delete top_de;
+  delete bottom_de;
+  top_de = new TLine(yCM_low_de, KT_high_de, yCM_high_de, KT_high_de);
+  bottom_de = new TLine(yCM_low_de, KT_low_de, yCM_high_de, KT_low_de);
+  left_de = new TLine(yCM_low_de, KT_low_de, yCM_low_de, KT_high_de);
+  right_de = new TLine(yCM_high_de, KT_low_de, yCM_high_de, KT_high_de);
+  left_de->SetLineWidth(4);
+  right_de->SetLineWidth(4);
+  top_de->SetLineWidth(4);
+  bottom_de->SetLineWidth(4);
+  left_de->SetLineColor(4);
+  right_de->SetLineColor(4);
+  top_de->SetLineColor(4);
+  bottom_de->SetLineColor(4);
+  
+  h2_KToverA_vs_yCM_pr->Draw("colz");
+  y_mid->Draw("SAME");
+  y_target->Draw("SAME");
+  left_de->Draw("SAME");
+  right_de->Draw("SAME");
+  top_de->Draw("SAME");
+  bottom_de->Draw("SAME");
+  text_pr->Draw("SAME");
+  //text_Target_pr->Draw("SAME");
+  canvas->SaveAs("Acceptance_pr_KToverA.png");
+  canvas->Clear();
+
+  delete top_de;
+  delete bottom_de;
+  top_de = new TLine(yCM_low_de, KT_high_de, yCM_high_de, KT_high_de);
+  bottom_de = new TLine(yCM_low_de, KT_low_de, yCM_high_de, KT_low_de);
+  left_de = new TLine(yCM_low_de, KT_low_de, yCM_low_de, KT_high_de);
+  right_de = new TLine(yCM_high_de, KT_low_de, yCM_high_de, KT_high_de);
+  left_de->SetLineWidth(4);
+  right_de->SetLineWidth(4);
+  top_de->SetLineWidth(4);
+  bottom_de->SetLineWidth(4);
+  left_de->SetLineColor(4);
+  right_de->SetLineColor(4);
+  top_de->SetLineColor(4);
+  bottom_de->SetLineColor(4);
+  
+  h2_KToverA_vs_yCM_de->Draw("colz");
+  y_mid->Draw("SAME");
+  y_target->Draw("SAME");
+  left_de->Draw("SAME");
+  right_de->Draw("SAME");
+  top_de->Draw("SAME");
+  bottom_de->Draw("SAME");
+  text_de->Draw("SAME");
+  //text_Target_de->Draw("SAME");
+  canvas->SaveAs("Acceptance_de_KToverA.png");
+  canvas->Clear();
+
+  delete top_tr;
+  delete bottom_tr;
+  top_tr = new TLine(yCM_low_tr, KT_high_tr, yCM_high_tr, KT_high_tr);
+  bottom_tr = new TLine(yCM_low_tr, KT_low_tr, yCM_high_tr, KT_low_tr);
+  left_tr = new TLine(yCM_low_tr, KT_low_tr, yCM_low_tr, KT_high_tr);
+  right_tr = new TLine(yCM_high_tr, KT_low_tr, yCM_high_tr, KT_high_tr);
+  left_tr->SetLineWidth(4);
+  right_tr->SetLineWidth(4);
+  top_tr->SetLineWidth(4);
+  bottom_tr->SetLineWidth(4);
+  left_tr->SetLineColor(4);
+  right_tr->SetLineColor(4);
+  top_tr->SetLineColor(4);
+  bottom_tr->SetLineColor(4);
+  
+  h2_KToverA_vs_yCM_tr->Draw("colz");
+  y_mid->Draw("SAME");
+  y_target->Draw("SAME");
+  left_tr->Draw("SAME");
+  right_tr->Draw("SAME");
+  top_tr->Draw("SAME");
+  bottom_tr->Draw("SAME");
+  text_tr->Draw("SAME");
+  //text_Target_tr->Draw("SAME");
+  canvas->SaveAs("Acceptance_tr_KToverA.png");
+  canvas->Clear();
 
 
+  
   canvas->SetLogz(0);
   p2_pp_vs_eta->Draw("colz");
   //pp_vs_eta_cutoff->Draw("SAME");

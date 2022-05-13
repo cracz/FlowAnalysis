@@ -1,3 +1,5 @@
+#include "PlotUtils.h"
+
 void resolutions(TString jobID, TString order_n_str)
 {
   if (!jobID) { std::cout << "Supply a job ID!" << std::endl; return; }
@@ -239,16 +241,6 @@ void resolutions(TString jobID, TString order_n_str)
   canvas->SaveAs(jobID + "_resolutions.png");
   canvas->Clear();
 
-  TLegend *legend2 = new TLegend(0.6, 0.8, 0.9, 0.9);
-  legend2->AddEntry(h_resolAvsB,"EPD A vs EPD B, TPC B");
-
-  h_resolAvsB->SetMaximum(0.7);
-  h_resolAvsB->SetTitle("");
-  h_resolAvsB->Draw("E1P");
-  legend2->Draw();
-  canvas->SaveAs(jobID + "_resolutionAonly.png");
-  canvas->Clear();
-
   h_resolAvsB_2sub->SetMaximum(0.7);
   h_resolAvsB_2sub->SetTitle("");
   h_resolAvsB_2sub->Draw("E1P");
@@ -262,7 +254,33 @@ void resolutions(TString jobID, TString order_n_str)
   canvas->SaveAs(jobID + "_h_centralities_flip.png");
   canvas->Clear();
 
+
   
+  TLegend *legend2 = new TLegend(0.615, 0.8, 0.96, 0.96);
+  legend2->AddEntry(h_resolAvsB,"Inner EPD #psi_{1}");
+  legend2->SetTextSize(0.06);
+
+  canvas->SetTicks();
+  canvas->SetLogy(0);
+  canvas->SetTopMargin(0.04);
+  canvas->SetBottomMargin(0.12);
+  canvas->SetRightMargin(0.04);
+  canvas->SetLeftMargin(0.13);
+
+  h_resolAvsB = PlotUtils::trimCentralityPlot(h_resolAvsB);
+  h_resolAvsB->GetXaxis()->SetLabelSize(0.05);
+  h_resolAvsB->GetYaxis()->SetLabelSize(0.045);
+  h_resolAvsB->GetXaxis()->SetTitleOffset(1.1);
+  h_resolAvsB->GetYaxis()->SetTitleOffset(0.9);
+  h_resolAvsB->GetXaxis()->SetTitleSize(0.045);
+  h_resolAvsB->GetYaxis()->SetTitleSize(0.065);
+  h_resolAvsB->SetMaximum(0.3);
+  h_resolAvsB->SetTitle("");
+  h_resolAvsB->Draw("E1P");
+  legend2->Draw();
+  canvas->SaveAs(jobID + "_resolutionAonly.png");
+  canvas->Clear();
+
 
   
 /*  
