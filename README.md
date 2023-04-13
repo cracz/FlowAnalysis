@@ -1,4 +1,7 @@
 # FlowAnalysis
+
+# This program is deprecated and was replaced with TreeAnalsis
+
 ROOT macro for calculating coefficients of anisotropic flow (of order_n) using the Event Plane Method (of order_m).
 
 * This requires StRoot/StEpdUtil and StRoot/StPicoEvent libraries.
